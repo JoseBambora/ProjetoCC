@@ -19,11 +19,11 @@ public class Logs {
 
     Date date; /* Etiqueta temporal */
     EntryType type; /* Tipo de entrada */
-    InetAddress addr; /* Endereço IP */
+    Endereco addr; /* Endereço IP */
     int port; /* Porta */
     Byte[] data; /* Dados de entrada */
 
-    public Logs (Date date, EntryType type, InetAddress addr, int port, Byte[] data) {
+    public Logs (Date date, EntryType type, Endereco addr, int port, Byte[] data) {
         this.date = date;
         this.type = type;
         this.addr = addr;
