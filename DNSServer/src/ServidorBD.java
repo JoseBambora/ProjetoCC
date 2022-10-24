@@ -10,62 +10,60 @@ import java.util.Map;
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
+ * Data criação: 23/10/2022
+ * Data última atualização: 24/10/2022
  */
 public class ServidorBD
 {
     /**
-     * Deve ser 0 só se for indicado por parâmetro
-     */
-    private int TTL;
-    /**
      *  Indica o nome completo do SP do domínio indicado no parâmetro
      */
-    private Tuple<String,String> SOASP;
+    private Triple<String,String,Integer> SOASP;
     /**
      * Indica o endereço de e-mail completo do administrador do domínio
      */
-    private Tuple<String,String> SOAADMIN;
+    private Triple<String,String,Integer> SOAADMIN;
     /**
      * Indica o número de série da base de dados do SP
      */
-    private Tuple<String,String> SOASERIAL;
+    private Triple<String,String,Integer> SOASERIAL;
     /**
      * Indica o intervalo temporal em segundos para um SS perguntar ao SP
      * qual o número de série da base de dados dessa zona.
      */
-    private Tuple<String,Integer> SOAREFRESH;
+    private Triple<String,Integer,Integer> SOAREFRESH;
     /**
      * Indica o intervalo temporal em segundos para um SS perguntar ao SP
      * qual o número de série da base de dados dessa zona  após um timeout.
      */
-    private Tuple<String,Integer>  SOARETRY;
+    private Triple<String,Integer,Integer>  SOARETRY;
     /**
      * Indica o intervalo temporal para um SS deixar de considerar a sua réplica
      * da base de dados da zona indicada no parâmetro como válida
      */
-    private Tuple<String,Integer>  SOAEXPIRE;
+    private Triple<String,Integer,Integer>  SOAEXPIRE;
     /**
      * Indica o nome dum servidor que é autoritativo para o domínio indicado no parâmetro.
      */
-    private Map<String,List<Tuple<String,Integer>>> NS;
+    private Map<String,List<Triple<String,Integer,Integer>>> NS;
 
     /**
      * Indica o endereço IPv4 dum host/servidor indicado no parâmetro como nome
      */
-    private Map<String,List<Tuple<Endereco,Integer>>> A; // PRIORIDADE
+    private Map<String,List<Triple<Endereco,Integer,Integer>>> A; // PRIORIDADE
     /**
      * Indica um nome canónico (ou alias) associado ao nome indicado no
      * parâmetro
      */
-    private Map<String,String> CNAME;
+    private Map<String,Tuple<String,Integer>> CNAME;
     /**
      * Indica o nome dum servidor de e-mail para o domínio indicado no parâmetro
      */
-    private Map<String,List<Tuple<String,Integer>>> MX;
+    private Map<String,List<Triple<String,Integer,Integer>>> MX;
     /**
      * Indica o nome dum servidor/host que usa o endereço IPv4 indicado no parâmetro
      */
-    private Map<Endereco,String> PTR;
+    private Map<Endereco,Tuple<String,Integer>> PTR;
 
 
     /**
@@ -87,11 +85,11 @@ public class ServidorBD
      * @param server Endereço URL do servidor
      * @param prioridade Prioridade
      */
-    public void addNS(String dominio ,String server, Integer prioridade)
+    public void addNS(String dominio ,String server, Integer prioridade, Integer TTL)
     {
         if(!this.NS.containsKey(dominio))
             this.NS.put(dominio,new ArrayList<>());
-        this.NS.get(dominio).add(new Tuple<>(server,prioridade));
+        this.NS.get(dominio).add(new Triple<>(server,prioridade,TTL));
     }
 
     /**
@@ -101,12 +99,12 @@ public class ServidorBD
      * @param enderecos Endereço IPV4
      * @param prioridade Prioridade
      */
-    public void addA(String str, Endereco enderecos, Integer prioridade)
+    public void addA(String str, Endereco enderecos, Integer prioridade, Integer TTL)
     {
         if(!this.A.containsKey(str))
             this.A.put(str, new ArrayList<>());
-        this.A.get(str).add(new Tuple<>(enderecos,prioridade));
-        this.addPTR(enderecos,str);
+        this.A.get(str).add(new Triple<>(enderecos,prioridade,TTL));
+        this.addPTR(enderecos,str,TTL);
     }
 
     /**
@@ -114,9 +112,9 @@ public class ServidorBD
      * @param canonico Nome canónico
      * @param nome Nome
      */
-    public void addCNAME(String canonico, String nome)
+    public void addCNAME(String canonico, String nome, Integer TTL)
     {
-        this.CNAME.put(canonico,nome);
+        this.CNAME.put(canonico,new Tuple<>(nome, TTL));
     }
 
     /**
@@ -124,11 +122,11 @@ public class ServidorBD
      * @param email Email
      * @param prioridade Prioridade
      */
-    public void addMX(String dominio,String email, Integer prioridade)
+    public void addMX(String dominio,String email, Integer prioridade, Integer TTL)
     {
         if(!this.MX.containsKey(dominio))
             this.MX.put(dominio,new ArrayList<>());
-        this.MX.get(dominio).add(new Tuple<>(email,prioridade));;
+        this.MX.get(dominio).add(new Triple<>(email,prioridade, TTL));
     }
 
     /**
@@ -136,9 +134,9 @@ public class ServidorBD
      * @param endereco Endereço IP
      * @param str Endereço URL.
      */
-    public void addPTR(Endereco endereco, String str)
+    public void addPTR(Endereco endereco, String str, Integer TTL)
     {
-        this.PTR.put(endereco,str);
+        this.PTR.put(endereco,new Tuple<>(str,TTL));
     }
 
     /**
@@ -146,8 +144,8 @@ public class ServidorBD
      * @param dominio Domínio
      * @param SOASP URL do Servidor principal
      */
-    public void setSOASP(String dominio, String SOASP) {
-        this.SOASP = new Tuple<>(dominio,SOASP);
+    public void setSOASP(String dominio, String SOASP, Integer TTL) {
+        this.SOASP = new Triple<>(dominio,SOASP, TTL);
     }
 
     /**
@@ -155,8 +153,8 @@ public class ServidorBD
      * @param dominio  Domínio do SP
      * @param SOAADMIN Email do admin
      */
-    public void setSOAADMIN(String dominio, String SOAADMIN) {
-        this.SOAADMIN = new Tuple<>(dominio,SOAADMIN);
+    public void setSOAADMIN(String dominio, String SOAADMIN,Integer TTL) {
+        this.SOAADMIN = new Triple<>(dominio,SOAADMIN, TTL);
     }
 
     /**
@@ -164,8 +162,8 @@ public class ServidorBD
      * @param dominio  Domínio do SP
      * @param SOASERIAL Número de serie
      */
-    public void setSOASERIAL(String dominio, String SOASERIAL) {
-        this.SOASERIAL = new Tuple<>(dominio,SOASERIAL);
+    public void setSOASERIAL(String dominio, String SOASERIAL, Integer TTL) {
+        this.SOASERIAL = new Triple<>(dominio,SOASERIAL, TTL);
     }
 
     /**
@@ -173,8 +171,8 @@ public class ServidorBD
      * @param dominio  Domínio do SP
      * @param SOAREFRESH Intervalo temporal
      */
-    public void setSOAREFRESH(String dominio, Integer SOAREFRESH) {
-        this.SOAREFRESH = new Tuple<>(dominio,SOAREFRESH);
+    public void setSOAREFRESH(String dominio, Integer SOAREFRESH, Integer TTL) {
+        this.SOAREFRESH = new Triple<>(dominio,SOAREFRESH, TTL);
     }
 
     /**
@@ -182,8 +180,8 @@ public class ServidorBD
      * @param dominio  Domínio do SP
      * @param SOARETRY Intervalo temporal
      */
-    public void setSOARETRY(String dominio, Integer SOARETRY) {
-        this.SOARETRY = new Tuple<>(dominio,SOARETRY);
+    public void setSOARETRY(String dominio, Integer SOARETRY, Integer TTL) {
+        this.SOARETRY = new Triple<>(dominio,SOARETRY, TTL);
     }
 
     /**
@@ -191,8 +189,8 @@ public class ServidorBD
      * @param dominio Domínio do SP
      * @param SOAEXPIRE Intervalo temporal
      */
-    public void setSOAEXPIRE(String dominio, Integer SOAEXPIRE) {
-        this.SOAEXPIRE = new Tuple<>(dominio,SOAEXPIRE);
+    public void setSOAEXPIRE(String dominio, Integer SOAEXPIRE,Integer TTL) {
+        this.SOAEXPIRE = new Triple<>(dominio,SOAEXPIRE, TTL);
     }
 
     /**
@@ -236,17 +234,32 @@ public class ServidorBD
     }
 
     /**
-     * Método auxiliar ao parsing, de forma a ir buscar o valor das prioridades.
-     * Se a linha não conter o campo prioridade, o valor é definido como 0.
-     * @param words Lista de palavras de uma linha do parse
-     * @return Prioridade final.
+     * Método que converte uma string em inteiro tendo recurso à macro em caso
+     * de a string não ser um número
+     * @param words Palavras para converter
+     * @param macro Macro em caso de a palavra correspondente não ser um número
+     * @return Inteiro Convertido
      */
-    private static int convertePrioridade(String[] words)
+    private static int converteInt(String[] words, Map<String,String> macro, int index)
     {
-        int prioridade = 0;
-        if (words.length > 4)
-            prioridade = Integer.parseInt(words[4]);
-        return prioridade;
+        int ttl = 0;
+        if(index < words.length)
+        {
+            String word = words[index];
+            try
+            {
+                ttl = Integer.parseInt(word);
+            }
+            catch (NumberFormatException e)
+            {
+                String str = macro.get(word);
+                if(str != null)
+                {
+                    ttl = Integer.parseInt(str);
+                }
+            }
+        }
+        return ttl;
     }
 
     /**
@@ -264,19 +277,25 @@ public class ServidorBD
             if(str.length() > 0 && str.charAt(0) != '#')
             {
                 String[] words = str.split(" ");
-                switch (words[1]) {
-                    case "DEFAULT"    -> macro.put(words[0], words[2]);
-                    case "SOASP"      -> servidorBD.setSOASP(converteDom(words[0], macro), words[2]);
-                    case "SOAADMIN"   -> servidorBD.setSOAADMIN(converteDom(words[0], macro), words[2]);
-                    case "SOASERIAL"  -> servidorBD.setSOASERIAL(converteDom(words[0], macro), words[2]);
-                    case "SOAREFRESH" -> servidorBD.setSOAREFRESH(converteDom(words[0], macro), Integer.parseInt(words[2]));
-                    case "SOARETRY"   -> servidorBD.setSOARETRY(converteDom(words[0], macro), Integer.parseInt(words[2]));
-                    case "SOAEXPIRE"  -> servidorBD.setSOAEXPIRE(converteDom(words[0], macro), Integer.parseInt(words[2]));
-                    case "NS"         -> servidorBD.addNS(converteDom(words[0], macro), words[2], convertePrioridade(words));
-                    case "A"          -> servidorBD.addA(converteDom(words[0], macro), Endereco.stringToIP(words[2]), convertePrioridade(words));
-                    case "CNAME"      -> servidorBD.addCNAME(converteDom(words[0], macro), words[2]);
-                    case "MX"         -> servidorBD.addMX(converteDom(words[0], macro), words[2], Integer.parseInt(words[4]));
-                    case "PTR"        -> servidorBD.addPTR(Endereco.stringToIP(words[2]), words[2]);
+                if(words[1].equals("DEFAULT"))
+                    macro.put(words[0], words[2]);
+                else
+                {
+                    String dom = converteDom(words[0], macro);
+                    Integer TTL = converteInt(words, macro,3);
+                    switch (words[1]) {
+                        case "SOASP"      -> servidorBD.setSOASP(dom, words[2], TTL);
+                        case "SOAADMIN"   -> servidorBD.setSOAADMIN(dom, words[2], TTL);
+                        case "SOASERIAL"  -> servidorBD.setSOASERIAL(dom, words[2], TTL);
+                        case "SOAREFRESH" -> servidorBD.setSOAREFRESH(dom, converteInt(words,macro,2), TTL);
+                        case "SOARETRY"   -> servidorBD.setSOARETRY(dom, converteInt(words,macro,2), TTL);
+                        case "SOAEXPIRE"  -> servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2), TTL);
+                        case "NS"         -> servidorBD.addNS(dom, words[2], converteInt(words,macro,4), TTL);
+                        case "A"          -> servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4), TTL);
+                        case "CNAME"      -> servidorBD.addCNAME(dom, words[2], TTL);
+                        case "MX"         -> servidorBD.addMX(dom, words[2], converteInt(words,macro,4), TTL);
+                        case "PTR"        -> servidorBD.addPTR(Endereco.stringToIP(words[2]), words[2], TTL);
+                    }
                 }
             }
         }
