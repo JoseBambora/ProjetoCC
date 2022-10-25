@@ -9,15 +9,15 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 23/10 2022
+ * Data de edição 25/10 2022
  */
 
 public class ServidorConfiguracao {
 
     private ServidorBD DB;
-    private ArrayList<Endereco> DD;
-    private ArrayList<Endereco> ST;
-    private ArrayList<String> LG;
+    private List<Endereco> DD;
+    private List<Endereco> ST;
+    private List<String> LG;
 
 
     public ServidorConfiguracao() {
@@ -45,27 +45,48 @@ public class ServidorConfiguracao {
 
     public ServidorConfiguracao parseServer(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        int i = 0;
-        while(i < lines.size()){
-            String str = lines.get(i);
-            if (str.length() > 0 && str.charAt(0) != '#') {
-                String[] words = str.split(" ");
-                for(String word : words){
-                    if(word.equals("SS")) {
-                        ServidorSP sp= new ServidorSP();
-                        return sp.parseServerSP(filename);
-                    }
-                    if(word.equals("SP")) {
-                        ServidorSS ss = new ServidorSS();
-                        return ss.parseServerSS(filename);
-                    }
+        ServidorConfiguracao server = null;
+        ServidorSP sp = null; // Para não estares sempre (ServidorSP) server
+        ServidorSS ss = null;  // Para não estares sempre (ServidorSS) server
+        int logcounter = 0;
+        for(String line : lines){
+            if (line.length() > 0 && line.charAt(0) != '#') {
+                String[] words = line.split(" ");
+                switch(words[1]){
+                        case "SS"->{
+                        if (sp == null){
+                            sp = new ServidorSP();
+                            server = sp;
+                            }
+                            sp.addSS(Endereco.stringToIP(words[2]));
+                        }
+                        case "DB" -> {
+                            if (sp == null) {
+                                sp = new ServidorSP();
+                                server = sp;
+                            }
+                            sp.setBD(words[2]);
+                        }
+                        case "SP" -> {
+                            if (ss == null){
+                                ss = new ServidorSS();
+                                server = ss;
+                            }
+                            ss.addSP(Endereco.stringToIP(words[2]));
+                        }
+                        case "DD" -> addEnderecoDD(Endereco.stringToIP(words[2]));
+                        case "ST" -> {
+                            if (words[0].equals("root")) FicheiroST(words[2]);
+                        }
+                        case "LG" -> {
+                            logcounter++;
+                            if (words[0].equals("all")) addLog(words[2]);
+                        }
                 }
             }
-            i++;
         }
-        return null;
+        if (logcounter == 0) return null;
+        return server;
     }
-
-
-
 }
+
