@@ -11,7 +11,7 @@ import java.util.Map;
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
  * Data criação: 23/10/2022
- * Data última atualização: 24/10/2022
+ * Data última atualização: 29/10/2022
  */
 public class ServidorBD
 {
@@ -71,6 +71,12 @@ public class ServidorBD
      */
     public ServidorBD()
     {
+        this.SOASP = null;
+        this.SOAADMIN = null;
+        this.SOASERIAL = null;
+        this.SOARETRY = null;
+        this.SOAREFRESH = null;
+        this.SOAEXPIRE = null;
         this.NS = new HashMap<>();
         this.CNAME = new HashMap<>();
         this.MX = new HashMap<>();
@@ -145,7 +151,8 @@ public class ServidorBD
      * @param SOASP URL do Servidor principal
      */
     public void setSOASP(String dominio, String SOASP, Integer TTL) {
-        this.SOASP = new Triple<>(dominio,SOASP, TTL);
+        if(this.SOASP == null)
+            this.SOASP = new Triple<>(dominio,SOASP, TTL);
     }
 
     /**
@@ -154,7 +161,8 @@ public class ServidorBD
      * @param SOAADMIN Email do admin
      */
     public void setSOAADMIN(String dominio, String SOAADMIN,Integer TTL) {
-        this.SOAADMIN = new Triple<>(dominio,SOAADMIN, TTL);
+        if(this.SOAADMIN == null)
+            this.SOAADMIN = new Triple<>(dominio,SOAADMIN, TTL);
     }
 
     /**
@@ -163,7 +171,8 @@ public class ServidorBD
      * @param SOASERIAL Número de serie
      */
     public void setSOASERIAL(String dominio, String SOASERIAL, Integer TTL) {
-        this.SOASERIAL = new Triple<>(dominio,SOASERIAL, TTL);
+        if(this.SOASERIAL == null)
+            this.SOASERIAL = new Triple<>(dominio,SOASERIAL, TTL);
     }
 
     /**
@@ -172,7 +181,8 @@ public class ServidorBD
      * @param SOAREFRESH Intervalo temporal
      */
     public void setSOAREFRESH(String dominio, Integer SOAREFRESH, Integer TTL) {
-        this.SOAREFRESH = new Triple<>(dominio,SOAREFRESH, TTL);
+        if(this.SOAREFRESH == null)
+            this.SOAREFRESH = new Triple<>(dominio,SOAREFRESH, TTL);
     }
 
     /**
@@ -181,7 +191,8 @@ public class ServidorBD
      * @param SOARETRY Intervalo temporal
      */
     public void setSOARETRY(String dominio, Integer SOARETRY, Integer TTL) {
-        this.SOARETRY = new Triple<>(dominio,SOARETRY, TTL);
+        if(this.SOARETRY == null)
+            this.SOARETRY = new Triple<>(dominio,SOARETRY, TTL);
     }
 
     /**
@@ -190,7 +201,8 @@ public class ServidorBD
      * @param SOAEXPIRE Intervalo temporal
      */
     public void setSOAEXPIRE(String dominio, Integer SOAEXPIRE,Integer TTL) {
-        this.SOAEXPIRE = new Triple<>(dominio,SOAEXPIRE, TTL);
+        if(this.SOAEXPIRE == null)
+            this.SOAEXPIRE = new Triple<>(dominio,SOAEXPIRE, TTL);
     }
 
     /**
@@ -263,6 +275,21 @@ public class ServidorBD
     }
 
     /**
+     * Método que verifica se a base de dados contém todos os campos e naqueles que
+     * podemos ter vários elementos, verifica se tem pelo menos 1 elemento.
+     * @return Verdadeiro se a BD estiver correta, false caso contrário
+     */
+    private boolean verificaBD()
+    {
+        return  this.SOAADMIN != null && this.SOAEXPIRE != null &&
+                this.SOAREFRESH != null && this.SOASERIAL != null &&
+                this.SOASP != null && this.SOARETRY != null &&
+                this.NS.size() > 0 && this.A.size() > 0 &&
+                this.MX.size() > 0 && this.PTR.size() > 0 &&
+                this.CNAME.size() > 0;
+    }
+
+    /**
      * Método que faz o parsing de um ficheiro para um BD
      * @param filename Nome do ficheiro.
      * @return Base de Dados.
@@ -299,6 +326,9 @@ public class ServidorBD
                 }
             }
         }
-        return servidorBD;
+        if(servidorBD.verificaBD())
+            return servidorBD;
+        else
+            return null;
     }
 }
