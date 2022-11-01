@@ -1,7 +1,6 @@
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-
+import java.util.List;
+import java.util.ArrayList;
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
@@ -12,8 +11,8 @@ import java.util.*;
 public class Cache
 {
     // Pergunta, Resposta, Tempo
-    private List<Triple<Logs,Logs, LocalDateTime>> cache;
-    private int espaco;
+    private final List<Triple<Logs,Logs, LocalDateTime>> cache;
+    private final int espaco;
     public Cache(int espaco)
     {
         this.cache = new ArrayList<>();

@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 /**
  * Classe auxiliar para criação de tuplos com 3 elementos
  * @author José Carvalho
@@ -49,5 +51,13 @@ public class Triple <V1,V2,V3>
     @Override
     public String toString() {
         return "(" + value1 + "," +  value2 + "," + value3 + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;
+        return value1.equals(triple.value1);
     }
 }
