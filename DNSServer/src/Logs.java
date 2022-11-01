@@ -48,4 +48,13 @@ public class Logs {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Logs l = (Logs) obj;
+        return this.date.equals(l.date) &&
+               this.type == l.type &&
+               this.port == l.port &&
+               this.addr.equals(l.addr) &&
+               Arrays.equals(this.data, l.data);
+    }
 }
