@@ -50,6 +50,8 @@ public class Logs {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         Logs l = (Logs) obj;
         return this.date.equals(l.date) &&
                this.type == l.type &&
