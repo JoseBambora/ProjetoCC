@@ -395,10 +395,11 @@ public class ServidorBD
         return servidorBD;
     }
 
-    private boolean compativel(String dom1, String dom2)
-    {
-        return dom1.equals(dom2) || dom1.contains(dom2);
-    }
+    /**
+     * Método para responder à query que quer obter o campo SOASP
+     * @param dominio Domínio que queremos considerar.
+     * @return O campo SOASP
+     */
     private String getSOASP(String dominio)
     {
         if(dominio.contains(this.SOASP.getValue1()))
@@ -407,6 +408,11 @@ public class ServidorBD
             return "";
     }
 
+    /**
+     * Método para responder à query que quer ir buscar o SOAADMIN
+     * @param dominio Domínio que queremos considerar
+     * @return O campo SOADMIN
+     */
     private String getSOAADMIN(String dominio)
     {
         if(dominio.contains(this.SOAADMIN.getValue1()))
@@ -415,6 +421,11 @@ public class ServidorBD
             return "";
     }
 
+    /**
+     * Método que devolve a resposta para a query que quer saber o valor de SOASERIAL
+     * @param dominio Domínio que queremos considerar
+     * @return Valor do SOASERIAL
+     */
     private String getSOASERIAL(String dominio)
     {
         if(dominio.contains(this.SOASERIAL.getValue1()))
@@ -423,6 +434,11 @@ public class ServidorBD
             return "";
     }
 
+    /**
+     * Método que responde à query que quer obter o campo SOAREFRESH
+     * @param dominio Domínio que queremos considerar
+     * @return Valor do SOAREFRESH
+     */
     private Integer getSOAREFRESH(String dominio)
     {
         if(dominio.contains(this.SOAREFRESH.getValue1()))
@@ -431,6 +447,11 @@ public class ServidorBD
             return -1;
     }
 
+    /**
+     * Método que responde à query que quer obter o campo SOARETRY
+     * @param dominio Domínio que queremos considerar
+     * @return Valor do SOARETRY
+     */
     private Integer getSOARETRY(String dominio)
     {
         if(dominio.contains(this.SOARETRY.getValue1()))
@@ -439,6 +460,11 @@ public class ServidorBD
             return -1;
     }
 
+    /**
+     * Método que responde à query que quer obter o campo SOAEXPIRE
+     * @param dominio Domínio que queremos considerar
+     * @return Valor do SOAEXPIRE
+     */
     private Integer getSOAEXPIRE(String dominio)
     {
         if(dominio.contains(this.SOAEXPIRE.getValue1()))
@@ -447,6 +473,11 @@ public class ServidorBD
             return -1;
     }
 
+    /**
+     * Query que devolve todos os endereços URL do server
+     * @param dominio Domínio que queremos considerar
+     * @return Lista com todos os endereços URL
+     */
     private List<String> getNS(String dominio)
     {
         List<String> list = new ArrayList<>();
@@ -462,6 +493,11 @@ public class ServidorBD
         return list;
     }
 
+    /**
+     * Query para buscar os endereços IPV4 do servidor.
+     * @param dominio Domínio para ir buscar os endereços.
+     * @return Set com todos os endereços.
+     */
     private Set<Endereco> getA(String dominio)
     {
         Set<Endereco> set = new HashSet<>();
@@ -478,6 +514,11 @@ public class ServidorBD
         return set;
     }
 
+    /**
+     * Query para obter um nome dando o canónico
+     * @param canonico canonico
+     * @return O real valor do nome
+     */
     private String getCNAME(String canonico)
     {
         if(this.CNAME.containsKey(canonico))
@@ -486,6 +527,11 @@ public class ServidorBD
             return "";
     }
 
+    /**
+     * Responde à query MX
+     * @param dominio domínio em questão
+     * @return Lista com os emails
+     */
     private List<String> getMX(String dominio)
     {
         List<String> list = new ArrayList<>();
@@ -501,6 +547,13 @@ public class ServidorBD
         return list;
     }
 
+    /**
+     * Método para a base de dados responder a queries
+     * @param param dominio da querie
+     * @param type campo da resposta
+     * @return Par entre booleano e um objeto. O Booleano serve para avaliar se a base de dados
+     * soube responder ou não, e o objeto é a resposta.
+     */
     public Tuple<Boolean,Object> getInfo(String param, byte type) {
         String resSTR = null;
         Integer resINT = null;
