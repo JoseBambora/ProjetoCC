@@ -17,13 +17,14 @@ public class Endereco {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this.enderecoIP.equals(o);
+    public boolean equals(Object o)
+    {
+        return this.enderecoIP.toString().equals(o.toString());
     }
 
     @Override
     public int hashCode() {
-        return this.enderecoIP.hashCode();
+        return this.enderecoIP.toString().hashCode();
     }
 
     /**

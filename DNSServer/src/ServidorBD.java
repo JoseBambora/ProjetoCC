@@ -1,17 +1,15 @@
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
  * Data criação: 23/10/2022
- * Data última atualização: 1/11/2022
+ * Data última atualização: 2/11/2022
  */
 public class ServidorBD
 {
@@ -60,11 +58,6 @@ public class ServidorBD
      * Indica o nome dum servidor de e-mail para o domínio indicado no parâmetro
      */
     private final Map<String,List<Triple<String,Integer,Integer>>> MX;
-    /**
-     * Indica o nome dum servidor/host que usa o endereço IPv4 indicado no parâmetro
-     */
-    private final Map<Endereco,Tuple<String,Integer>> PTR;
-
 
     /**
      * Construtor da base de dados de um servidor
@@ -81,7 +74,6 @@ public class ServidorBD
         this.CNAME = new HashMap<>();
         this.MX = new HashMap<>();
         this.A = new HashMap<>();
-        this.PTR = new HashMap<>();
     }
 
     /**
@@ -122,7 +114,6 @@ public class ServidorBD
 
     /**
      * Adiciona no campo A um elemento inserindo o nome do servidor, o endereço IPV4 do mesmo e a prioridade.
-     * Também adiciona um PTR.
      * @param str Nome do servidor
      * @param enderecos Endereço IPV4
      * @param prioridade Prioridade
@@ -132,7 +123,6 @@ public class ServidorBD
         if(!this.A.containsKey(str))
             this.A.put(str, new ArrayList<>());
         this.A.get(str).add(new Triple<>(enderecos,prioridade,TTL));
-        this.addPTR(enderecos,str,TTL);
     }
 
     /**
@@ -166,17 +156,6 @@ public class ServidorBD
             list.add(new Triple<>(email,prioridade, TTL));
         return res;
     }
-
-    /**
-     * Adiciona uma associação entre endereço IP e endereço URL.
-     * @param endereco Endereço IP
-     * @param str Endereço URL.
-     */
-    public void addPTR(Endereco endereco, String str, Integer TTL)
-    {
-        this.PTR.put(endereco,new Tuple<>(str,TTL));
-    }
-
     /**
      * Adiciona o par dominio e o respetivo endereço URL do servidor principal na BD.
      * @param dominio Domínio
@@ -288,8 +267,7 @@ public class ServidorBD
                 "   NS=" + NS +"\n" +
                 "   A=" + A +"\n" +
                 "   CNAME=" + CNAME +"\n" +
-                "   MX=" + MX +"\n" +
-                "   PTR=" + PTR;
+                "   MX=" + MX;
     }
 
     /**
@@ -352,7 +330,7 @@ public class ServidorBD
                 this.SOAREFRESH != null && this.SOASERIAL != null &&
                 this.SOASP != null && this.SOARETRY != null &&
                 this.NS.size() > 0 && this.A.size() > 0 &&
-                this.MX.size() > 0 && this.PTR.size() > 0 &&
+                this.MX.size() > 0 &&
                 this.CNAME.size() > 0;
     }
 
@@ -393,10 +371,9 @@ public class ServidorBD
                             case "SOARETRY"   -> res = servidorBD.setSOARETRY(dom, converteInt(words,macro,2), TTL);
                             case "SOAEXPIRE"  -> res = servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2), TTL);
                             case "NS"         -> res = servidorBD.addNS(dom, words[2], converteInt(words,macro,4), TTL);
-                            case "CNAME"      -> res = servidorBD.addCNAME(dom, words[2], TTL);
+                            case "CNAME"      -> res = servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL);
                             case "MX"         -> res = servidorBD.addMX(dom, words[2], converteInt(words,macro,4), TTL);
                             case "A"          -> servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4), TTL);
-                            case "PTR"        -> servidorBD.addPTR(Endereco.stringToIP(words[2]), words[2], TTL);
                         }
                         if(!res)
                             warnings.add("Linha " + l + " com informação repetida para o campo " + words[1]);
@@ -416,5 +393,162 @@ public class ServidorBD
             System.out.println("- " + warning);
         }
         return servidorBD;
+    }
+
+    private boolean compativel(String dom1, String dom2)
+    {
+        return dom1.equals(dom2) || dom1.contains(dom2);
+    }
+    private String getSOASP(String dominio)
+    {
+        if(dominio.contains(this.SOASP.getValue1()))
+            return SOASP.getValue2();
+        else
+            return "";
+    }
+
+    private String getSOAADMIN(String dominio)
+    {
+        if(dominio.contains(this.SOAADMIN.getValue1()))
+            return SOAADMIN.getValue2();
+        else
+            return "";
+    }
+
+    private String getSOASERIAL(String dominio)
+    {
+        if(dominio.contains(this.SOASERIAL.getValue1()))
+            return SOASERIAL.getValue2();
+        else
+            return "";
+    }
+
+    private Integer getSOAREFRESH(String dominio)
+    {
+        if(dominio.contains(this.SOAREFRESH.getValue1()))
+            return SOAREFRESH.getValue2();
+        else
+            return -1;
+    }
+
+    private Integer getSOARETRY(String dominio)
+    {
+        if(dominio.contains(this.SOARETRY.getValue1()))
+            return SOARETRY.getValue2();
+        else
+            return -1;
+    }
+
+    private Integer getSOAEXPIRE(String dominio)
+    {
+        if(dominio.contains(this.SOAEXPIRE.getValue1()))
+            return SOAEXPIRE.getValue2();
+        else
+            return -1;
+    }
+
+    private List<String> getNS(String dominio)
+    {
+        List<String> list = new ArrayList<>();
+        for(String key : this.NS.keySet())
+        {
+            if(key.contains(dominio))
+            {
+                for (Triple<String, Integer, Integer> triple : this.NS.get(key)) {
+                    list.add(triple.getValue1());
+                }
+            }
+        }
+        return list;
+    }
+
+    private Set<Endereco> getA(String dominio)
+    {
+        Set<Endereco> set = new HashSet<>();
+        for(String key : this.A.keySet())
+        {
+            if(key.contains(dominio))
+            {
+                for(Triple<Endereco,Integer,Integer> triple : this.A.get(key))
+                {
+                    set.add(triple.getValue1());
+                }
+            }
+        }
+        return set;
+    }
+
+    private String getCNAME(String canonico)
+    {
+        if(this.CNAME.containsKey(canonico))
+            return CNAME.get(canonico).getValue1();
+        else
+            return "";
+    }
+
+    private List<String> getMX(String dominio)
+    {
+        List<String> list = new ArrayList<>();
+        for(String key : this.MX.keySet())
+        {
+            if(key.contains(dominio))
+            {
+                for (Triple<String, Integer, Integer> triple : this.MX.get(key)) {
+                    list.add(triple.getValue1());
+                }
+            }
+        }
+        return list;
+    }
+
+    public Tuple<Boolean,Object> getInfo(String param, byte type) {
+        String resSTR = null;
+        Integer resINT = null;
+        Collection<String> resLSTR = null;
+        Collection<Endereco> resLEND = null;
+        switch (type)
+        {
+            case 0 -> resSTR  = this.getSOASP(param); // SOASP
+            case 1 -> resSTR  = this.getSOAADMIN(param); // SOADMIN
+            case 2 -> resSTR  = this.getSOASERIAL(param); // SOASERIAL
+            case 3 -> resINT  = this.getSOAREFRESH(param); // SOAREFRESH
+            case 4 -> resINT  = this.getSOARETRY(param); // SOARETRY
+            case 5 -> resINT  = this.getSOAEXPIRE(param); // SOAEXPIRE
+            case 6 -> resLSTR = this.getNS(param); // NS
+            case 7 -> resLEND = this.getA(param); // A
+            case 8 -> resSTR  = this.getCNAME(param); // CNAME
+            case 9 -> resLSTR = this.getMX(param); // MX
+        }
+        boolean resSuc = true;
+        Object resObj = null;
+        if(resSTR != null)
+        {
+            if(resSTR.equals(""))
+                resSuc = false;
+            else
+                resObj = resSTR;
+        }
+        else if (resINT != null)
+        {
+            if(resINT == -1)
+                resSuc = false;
+            else
+                resObj = resINT;
+        }
+        else if (resLSTR != null)
+        {
+            if(resLSTR.size() == 0)
+                resSuc = false;
+            else
+                resObj = resLSTR;
+        }
+        else if(resLEND != null)
+        {
+            if(resLEND.size() == 0)
+                resSuc = false;
+            else
+                resObj = resLEND;
+        }
+        return new Tuple<>(resSuc,resObj);
     }
 }
