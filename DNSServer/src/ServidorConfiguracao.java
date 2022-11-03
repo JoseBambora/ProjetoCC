@@ -14,10 +14,11 @@ import java.util.List;
 
 public class ServidorConfiguracao {
 
-    private List<Endereco> DD;
-    private List<Endereco> ST;
-    private List<String> LG;
+    private final List<Endereco> DD;
+    private final List<Endereco> ST;
+    private final List<String> LG;
 
+    private final List <String> allLG;
 
     /**
      * Construtor de objetos da classe ServidorConfiguracao
@@ -26,6 +27,7 @@ public class ServidorConfiguracao {
         this.DD = new ArrayList<>();
         this.ST = new ArrayList<>();
         this.LG = new ArrayList<>();
+        this.allLG = new ArrayList<>();
     }
 
     /**
@@ -45,6 +47,14 @@ public class ServidorConfiguracao {
     }
 
     /**
+     * Método que adiciona elementos ao campo allLG de um servidor, ou seja, acrescenta logs para toda a atividade
+     * @param path localização do ficheiro de log
+     */
+    public void addAllLog(String path){
+        allLG.add(path);
+    }
+
+    /**
      * Método que faz parsing dos ficheiros ST
      * @param filename localização do ficheiro ST
      * @throws IOException exceção lançada devido a erros de input/output
@@ -54,7 +64,7 @@ public class ServidorConfiguracao {
         for (String str : lines) {
             if (str.length() > 0 && str.charAt(0) != '#') {
                 ST.add(Endereco.stringToIP(str));
-                }
+            }
         }
     }
 
@@ -83,13 +93,22 @@ public class ServidorConfiguracao {
     }
 
     /**
+     * Getter do campo allLG de um objeto da classe ServidorConfiguracao
+     * @return O campo allLG do ServidorConfiguracao
+     */
+    public List<String> getAllLG() {
+        return allLG;
+    }
+
+    /**
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
      * @return true se o processo ocorre como esperado, false caso não ocorra como esperado
      */
     private boolean verificaConfig() {
         boolean aux = !this.DD.isEmpty() &&
-                      !this.ST.isEmpty() &&
-                      !this.LG.isEmpty();
+                !this.ST.isEmpty() &&
+                !this.LG.isEmpty() &&
+                !this.allLG.isEmpty();
         boolean aux2 = false;
         if(this instanceof ServidorSP){
             aux2 = ((ServidorSP) this).verificaSP();
@@ -106,7 +125,7 @@ public class ServidorConfiguracao {
      * @return O servidor configurado
      * @throws IOException exceção lançada caso haja erros de input/output
      */
-    public ServidorConfiguracao parseServer(String filename) throws IOException {
+    public static ServidorConfiguracao parseServer(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         ServidorConfiguracao server = null;
         ServidorSP sp = null;
@@ -117,53 +136,58 @@ public class ServidorConfiguracao {
             if (line.length() > 0 && line.charAt(0) != '#') {
                 String[] words = line.split(" ");
                 switch(words[1]){
-                        case "SS"->{
-                            if (words.length>2) {
-                                if (sp == null) {
-                                    sp = new ServidorSP();
-                                    server = sp;
-                                }
-                                sp.addSS(Endereco.stringToIP(words[2]));
+                    case "SS"->{
+                        if (words.length>2) {
+                            if (sp == null) {
+                                sp = new ServidorSP();
+                                server = sp;
                             }
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                            sp.addSS(Endereco.stringToIP(words[2]));
                         }
-                        case "DB" -> {
-                            if (words.length>2) {
-                                if (sp == null) {
-                                    sp = new ServidorSP();
-                                    server = sp;
-                                }
-                                sp.setBD(words[2]);
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
+                    case "DB" -> {
+                        if (words.length>2) {
+                            if (sp == null) {
+                                sp = new ServidorSP();
+                                server = sp;
                             }
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                            sp.setBD(words[2]);
                         }
-                        case "SP" -> {
-                            if (words.length>2) {
-                                if (ss == null){
-                                    ss = new ServidorSS();
-                                    server = ss;
-                                }
-                                ss.addSP(Endereco.stringToIP(words[2]));
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
+                    case "SP" -> {
+                        if (words.length>2) {
+                            if (ss == null){
+                                ss = new ServidorSS();
+                                server = ss;
                             }
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                            ss.addSP(Endereco.stringToIP(words[2]));
                         }
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
+                    case "DD" -> {
+                        if (words.length>2) {
+                            if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
+                        }
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
+                    case "ST" -> {
+                        if (words.length>2 && words[0].equals("root") && server!=null) server.FicheiroST(words[2]);
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
 
-                        case "DD" -> {
-                            if (words.length>2) {
-                                addEnderecoDD(Endereco.stringToIP(words[2]));
-                            }
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-                        }
-                        case "ST" -> {
-                            if (words.length>2 && words[0].equals("root")) FicheiroST(words[2]);
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
+                    case "LG" -> {
 
-                        }
-                        case "LG" -> {
+                        if (words.length>2 && words[0].equals("all") && server!=null) {
+                            server.addAllLog(words[2]);
                             logcounter++;
-                            if (words.length>2 && words[0].equals("all")) addLog(words[2]);
-                            else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
                         }
+                        if (words.length>2 && server!=null) {
+                            server.addLog(words[2]);
+                        }
+                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                    }
                 }
             }
         }
@@ -190,7 +214,8 @@ public class ServidorConfiguracao {
         return "ServidorConfiguracao:" + "\n" +
                 "   DD=" + DD + "\n" +
                 "   ST=" + ST + "\n" +
-                "   LG=" + LG + "\n";
+                "   LG=" + LG + "\n"+
+                "   all LG=" + LG + "\n";
     }
 }
 

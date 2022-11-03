@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ServidorSS extends ServidorConfiguracao{
 
-    private List<Endereco> SP;
+    private final List<Endereco> SP;
     private ServidorBD BD;
 
     /**
@@ -44,11 +44,12 @@ public class ServidorSS extends ServidorConfiguracao{
      */
     @Override
     public String toString() {
-        return "ServidorSS{" +
+        return "ServidorSS{" + "\n" +
                 "   DB=" + this.getDB() + "\n" +
                 "   DD=" + this.getDD() + "\n" +
                 "   ST=" + this.getST() + "\n" +
                 "   LG=" + this.getLG() + "\n" +
+                "   allLG=" + this.getAllLG() + "\n"+
                 "   SP=" + SP + "\n";
     }
 

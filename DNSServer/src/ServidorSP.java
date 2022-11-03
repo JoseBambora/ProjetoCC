@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ServidorSP extends ServidorConfiguracao {
 
-    private List<Endereco> SS;
+    private final List<Endereco> SS;
     private ServidorBD BD;
 
     /**
@@ -60,8 +60,8 @@ public class ServidorSP extends ServidorConfiguracao {
                 "   DD=" + this.getDD() + "\n" +
                 "   ST=" + this.getST() + "\n" +
                 "   LG=" + this.getLG() + "\n" +
-                "   SS=" + SS + "\n" +
-                "   BD=" + BD;
+                "   allLG=" + this.getAllLG() + "\n"+
+                "   SS=" + SS + "\n";
     }
 
     /**
