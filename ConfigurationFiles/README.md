@@ -1,1 +1,1 @@
-Ficheiros de configuração
+Ficheiros de Configuração
