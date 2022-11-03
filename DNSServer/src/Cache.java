@@ -11,14 +11,14 @@ import java.util.ArrayList;
 public class Cache
 {
     // Pergunta, Resposta, Tempo
-    private final List<Triple<Logs,Logs, LocalDateTime>> cache;
+    private final List<Triple<DNSPacket,DNSPacket, LocalDateTime>> cache;
     private final int espaco;
     public Cache(int espaco)
     {
         this.cache = new ArrayList<>();
         this.espaco = espaco;
     }
-    public void addLog(Logs pergunta, Logs resposta)
+    public void addLog(DNSPacket pergunta, DNSPacket resposta)
     {
         if(this.cache.size() == this.espaco)
             this.removeLog();
@@ -28,7 +28,7 @@ public class Cache
     {
         Tuple<Integer,LocalDateTime> indexLRU = new Tuple<>(0,this.cache.get(0).getValue3());
         int i = 0;
-        for(Triple<Logs,Logs,LocalDateTime> triple : this.cache)
+        for(Triple<DNSPacket,DNSPacket,LocalDateTime> triple : this.cache)
         {
             if(triple.getValue3().isBefore(indexLRU.getValue2()))
             {
@@ -39,11 +39,11 @@ public class Cache
         }
         this.cache.remove((int) indexLRU.getValue1());
     }
-    public Logs findAnswer(Logs mensagem)
+    public DNSPacket findAnswer(DNSPacket mensagem)
     {
-        Logs res = null;
+        DNSPacket res = null;
         int i = 0;
-        for(Triple<Logs,Logs,LocalDateTime> triple : this.cache)
+        for(Triple<DNSPacket,DNSPacket,LocalDateTime> triple : this.cache)
         {
             if(mensagem.equals(triple.getValue1()))
             {
