@@ -3,14 +3,13 @@
  * Created date: 22/10/2022                             *
  * Last Update: 22/10/2022                              *
  ********************************************************/
-import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
 
-public class Logs {
+public class Log {
     public enum EntryType {
         QR, QE, RP, RR, ZT, EV, ER, EZ, FL, TO, SP, ST
     }
@@ -23,7 +22,7 @@ public class Logs {
     int port; /* Porta */
     Byte[] data; /* Dados de entrada */
 
-    public Logs (Date date, EntryType type, Endereco addr, int port, Byte[] data) {
+    public Log(Date date, EntryType type, Endereco addr, int port, Byte[] data) {
         this.date = date;
         this.type = type;
         this.addr = addr;
@@ -52,7 +51,7 @@ public class Logs {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        Logs l = (Logs) obj;
+        Log l = (Log) obj;
         return this.date.equals(l.date) &&
                this.type == l.type &&
                this.port == l.port &&

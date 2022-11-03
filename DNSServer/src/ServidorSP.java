@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +12,14 @@ import java.util.List;
 public class ServidorSP extends ServidorConfiguracao {
 
     private final List<Endereco> SS;
-    private ServidorBD BD;
+    private Database BD;
 
     /**
      * Construtor de objetos da classe ServidorSP
      */
     public ServidorSP() {
         super();
-        this.BD = new ServidorBD();
+        this.BD = new Database();
         this.SS = new ArrayList<>();
     }
 
@@ -30,14 +29,14 @@ public class ServidorSP extends ServidorConfiguracao {
      * @throws IOException exceção lançada caso haja erros de input/output
      */
     public void setBD(String path) throws IOException {
-        this.BD = ServidorBD.createBD(path);
+        this.BD = Database.createBD(path);
     }
 
     /**
      * Getter do valor do campo DB de um objeto do tipo Servidor SP
      * @return o valor do campo DB
      */
-    public ServidorBD getDB() {
+    public Database getDB() {
         return BD;
     }
 

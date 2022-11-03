@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,7 +10,7 @@ import java.util.*;
  * Data criação: 23/10/2022
  * Data última atualização: 2/11/2022
  */
-public class ServidorBD
+public class Database
 {
     /**
      *  Indica o nome completo do SP do domínio indicado no parâmetro
@@ -62,7 +61,7 @@ public class ServidorBD
     /**
      * Construtor da base de dados de um servidor
      */
-    public ServidorBD()
+    public Database()
     {
         this.SOASP = null;
         this.SOAADMIN = null;
@@ -339,10 +338,10 @@ public class ServidorBD
      * @param filename Nome do ficheiro.
      * @return Base de Dados.
      */
-    public static ServidorBD createBD(String filename) throws IOException {
+    public static Database createBD(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         Map<String,String> macro = new HashMap<>();
-        ServidorBD servidorBD = new ServidorBD();
+        Database servidorBD = new Database();
         List<String> warnings = new ArrayList<>();
         int l = 1;
         for(String str : lines)

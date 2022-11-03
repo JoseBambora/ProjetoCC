@@ -1,4 +1,3 @@
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +11,14 @@ import java.util.List;
 public class ServidorSS extends ServidorConfiguracao{
 
     private final List<Endereco> SP;
-    private ServidorBD BD;
+    private Database BD;
 
     /**
      * Construtor de objetos da classe ServidorSP
      */
     public ServidorSS () {
         super();
-        this.BD = new ServidorBD();
+        this.BD = new Database();
         this.SP = new ArrayList<>();
     }
     /**
@@ -34,7 +33,7 @@ public class ServidorSS extends ServidorConfiguracao{
      * Getter do valor do campo DB de um objeto do tipo Servidor SP
      * @return o valor do campo DB
      */
-    public ServidorBD getDB() {
+    public Database getDB() {
         return BD;
     }
 
