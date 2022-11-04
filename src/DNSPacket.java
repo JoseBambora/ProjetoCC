@@ -17,7 +17,6 @@ public class DNSPacket implements Serializable {
     private String[] authoriteValues;
     private String[] extraValues;
 
-
     public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, String name, byte typeOfValue) {
         this.messageID = messageID;
         this.flagQ = flagQ;
@@ -231,6 +230,24 @@ public class DNSPacket implements Serializable {
                Arrays.equals(authoriteValues, dnsPacket.authoriteValues) &&
                Arrays.equals(extraValues, dnsPacket.extraValues);
     }
+
+    public static byte typeOfValueConvert (String type) throws Exception {
+        return switch (type) {
+            case "SOASP" -> (byte) 0;
+            case "SOAADMIN" -> (byte) 1;
+            case "SOASERIAL" -> (byte) 2;
+            case "SOAREFRESH" -> (byte) 3;
+            case "SOARETRY" -> (byte) 4;
+            case "SOAEXPIRE" -> (byte) 5;
+            case "NS" -> (byte) 6;
+            case "A" -> (byte) 7;
+            case "CNAME" -> (byte) 8;
+            case "MX" -> (byte) 9;
+            case "PTR" -> (byte) 10;
+            default -> throw new Exception();
+        };
+    }
+
 
     public byte[] dnsPacketToBytes() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
