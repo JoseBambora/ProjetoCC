@@ -58,6 +58,9 @@ public class Database
      */
     private final Map<String,List<Triple<String,Integer,Integer>>> MX;
 
+    private static final Tuple<Integer,Integer> pri = new Tuple<>(0,255);
+    private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
+
     /**
      * Construtor da base de dados de um servidor
      */
@@ -76,52 +79,38 @@ public class Database
     }
 
     /**
-     * Método auxliar ao NS e ao MX para ver se não há endereços URL e emails repetidos,
-     * respetivamente, para o mesmo domínio
-     * @param list Lista com a informação de um domínio
-     * @param info Informação a comparar
-     * @return Falso se não existir informação repetida, verdadeiro caso contrário.
-     */
-    private static boolean repeatedInfo(List<Triple<String,Integer,Integer>> list, String info)
-    {
-        boolean found = false;
-        for(Triple<String,Integer,Integer> elem : list)
-            if (elem.getValue1().equals(info))
-            {
-                found = true;
-                break;
-            }
-        return !found;
-    }
-    /**
      * Adiciona no campo NS um elemento inserindo o domínio, o servidor para o qual o servidor principal dono desta BD é
      * autoritativo e a prioridade correspondente
      * @param dominio Endereço URL do domínio
      * @param server Endereço URL do servidor
      * @param prioridade Prioridade
      */
-    public boolean addNS(String dominio ,String server, Integer prioridade, Integer TTL)
-    {
+    public void addNS(String dominio ,String server, Integer prioridade, Integer TTL) throws Exception {
         if(!this.NS.containsKey(dominio))
             this.NS.put(dominio,new ArrayList<>());
         List<Triple<String,Integer,Integer>> list = this.NS.get(dominio);
-        boolean res = repeatedInfo(list, server);
+        boolean res = list.stream().noneMatch(t -> t.getValue1().equals(server));
         if(res)
             list.add(new Triple<>(server,prioridade,TTL));
-        return res;
+        else
+            throw new Exception("Campo NS - Endereço URL repetido para o mesmo domínio");
     }
 
     /**
      * Adiciona no campo A um elemento inserindo o nome do servidor, o endereço IPV4 do mesmo e a prioridade.
      * @param str Nome do servidor
-     * @param enderecos Endereço IPV4
+     * @param endereco Endereço IPV4
      * @param prioridade Prioridade
      */
-    public void addA(String str, Endereco enderecos, Integer prioridade, Integer TTL)
-    {
+    public void addA(String str, Endereco endereco, Integer prioridade, Integer TTL) throws Exception {
         if(!this.A.containsKey(str))
             this.A.put(str, new ArrayList<>());
-        this.A.get(str).add(new Triple<>(enderecos,prioridade,TTL));
+        List<Triple<Endereco,Integer,Integer>> l = this.A.get(str);
+        boolean res = l.stream().noneMatch(t -> t.getValue1().equals(endereco));
+        if(res)
+            this.A.get(str).add(new Triple<>(endereco,TTL,prioridade));
+        else
+            throw new Exception("Campo A - Endereco IP repetido para o mesmo endereço URL");
     }
 
     /**
@@ -129,15 +118,13 @@ public class Database
      * @param canonico Nome canónico
      * @param nome Nome
      */
-    public boolean addCNAME(String canonico, String nome, Integer TTL)
+    public void addCNAME(String canonico, String nome, Integer TTL) throws Exception
     {
-        boolean res = false;
-        if(!this.CNAME.containsKey(canonico))
-        {
-            this.CNAME.put(canonico,new Tuple<>(nome, TTL));
-            res = true;
-        }
-        return res;
+        if(this.CNAME.containsKey(nome))
+            throw new Exception("Campo CNAME - Um canónio não pode ser um canónico de um canónico");
+        if(!this.A.containsKey(nome))
+            throw new Exception("Campo CNAME - Não há endereço IP definido para o endereço " + nome);
+        this.CNAME.put(canonico,new Tuple<>(nome, TTL));
     }
 
     /**
@@ -145,109 +132,86 @@ public class Database
      * @param email Email
      * @param prioridade Prioridade
      */
-    public boolean addMX(String dominio,String email, Integer prioridade, Integer TTL)
-    {
+    public void addMX(String dominio,String email, Integer prioridade, Integer TTL) throws Exception {
         if(!this.MX.containsKey(dominio))
             this.MX.put(dominio,new ArrayList<>());
         List<Triple<String,Integer,Integer>> list = this.MX.get(dominio);
-        boolean res = repeatedInfo(list, email);
+        boolean res = list.stream().noneMatch(t -> t.getValue1().equals(email));
         if(res)
             list.add(new Triple<>(email,prioridade, TTL));
-        return res;
+        else
+            throw new Exception("Campo MX - Endereço de email repetido para o mesmo domínio");
     }
     /**
      * Adiciona o par dominio e o respetivo endereço URL do servidor principal na BD.
      * @param dominio Domínio
      * @param SOASP URL do Servidor principal
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOASP(String dominio, String SOASP, Integer TTL) {
-        boolean res = false;
+    public void setSOASP(String dominio, String SOASP, Integer TTL) throws Exception {
         if(this.SOASP == null)
-        {
-            res = true;
             this.SOASP = new Triple<>(dominio,SOASP, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOASP já definido");
     }
 
     /**
      * Adiciona o par dominio e o respetivo email do admin do servidor principal na BD.
      * @param dominio  Domínio do SP
      * @param SOAADMIN Email do admin
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOAADMIN(String dominio, String SOAADMIN,Integer TTL) {
-        boolean res = false;
+    public void setSOAADMIN(String dominio, String SOAADMIN,Integer TTL) throws Exception {
         if(this.SOAADMIN == null)
-        {
-            res = true;
             this.SOAADMIN = new Triple<>(dominio,SOAADMIN, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOAADMIN já definido");
     }
 
     /**
      * Estabele a ligação entre domínio e o número de serie da BD
      * @param dominio  Domínio do SP
      * @param SOASERIAL Número de serie
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOASERIAL(String dominio, String SOASERIAL, Integer TTL) {
-        boolean res = false;
+    public void setSOASERIAL(String dominio, String SOASERIAL, Integer TTL) throws Exception {
         if(this.SOASERIAL == null)
-        {
-            res = true;
             this.SOASERIAL = new Triple<>(dominio,SOASERIAL, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOASERIAL já definido");
     }
 
     /**
      * Faz a ligação entre o domínio e a intervalo temporal até o SS pedir ao SP o número de serie
      * @param dominio  Domínio do SP
      * @param SOAREFRESH Intervalo temporal
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOAREFRESH(String dominio, Integer SOAREFRESH, Integer TTL) {
-        boolean res = false;
-        if(this.SOAREFRESH == null) {
-            res = true;
+    public void setSOAREFRESH(String dominio, Integer SOAREFRESH, Integer TTL) throws Exception {
+        if(this.SOAREFRESH == null)
             this.SOAREFRESH = new Triple<>(dominio, SOAREFRESH, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOAREFRESH já definido");
     }
 
     /**
      * Faz a ligação entre o domínio e a intervalo temporal até o SS pedir ao SP o número de serie em caso de timeout
      * @param dominio  Domínio do SP
      * @param SOARETRY Intervalo temporal
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOARETRY(String dominio, Integer SOARETRY, Integer TTL) {
-        boolean res = false;
+    public void setSOARETRY(String dominio, Integer SOARETRY, Integer TTL) throws Exception {
         if(this.SOARETRY == null)
-        {
-            res = true;
             this.SOARETRY = new Triple<>(dominio,SOARETRY, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOARETRY já definido");
     }
 
     /**
      * Faz a ligação entre o domínio e a intervalo temporal até o SS pedir ao SP o número de serie por desconfiar da sua réplica
      * @param dominio Domínio do SP
      * @param SOAEXPIRE Intervalo temporal
-     * @return True se adicionar com sucesso. False caso contrário.
      */
-    public boolean setSOAEXPIRE(String dominio, Integer SOAEXPIRE,Integer TTL) {
-        boolean res = false;
+    public void setSOAEXPIRE(String dominio, Integer SOAEXPIRE,Integer TTL) throws Exception {
         if(this.SOAEXPIRE == null)
-        {
-            res = true;
             this.SOAEXPIRE = new Triple<>(dominio,SOAEXPIRE, TTL);
-        }
-        return res;
+        else
+            throw new Exception("Campo SOAEXPIRE já definido");
     }
 
     /**
@@ -294,28 +258,51 @@ public class Database
      * de a string não ser um número
      * @param words Palavras para converter
      * @param macro Macro em caso de a palavra correspondente não ser um número
+     * @param index Indice da string no array words que pretendemos converter para inteiro.
+     * @param campo Campo que queremos ir buscar o inteiro. Esta string serve para saber quais os limites.
      * @return Inteiro Convertido
      */
-    private static int converteInt(String[] words, Map<String,String> macro, int index)
-    {
-        int ttl = 0;
+    private static int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
+        Tuple<Integer,Integer> tuple;
+        if(campo.equals("'Prioridade'"))
+            tuple = pri;
+        else
+            tuple = tem;
+        int min = tuple.getValue1();
+        int max = tuple.getValue2();
+        int num;
         if(index < words.length)
         {
             String word = words[index];
             try
             {
-                ttl = Integer.parseInt(word);
+                num = Integer.parseInt(word);
             }
             catch (NumberFormatException e)
             {
                 String str = macro.get(word);
                 if(str != null)
                 {
-                    ttl = Integer.parseInt(str);
+                    try {
+                        num = Integer.parseInt(str);
+                    }
+                    catch (NumberFormatException exp)
+                    {
+                        throw new Exception("Valor não inteiro para a macro " + word);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Valor não é inteiro e não está definido nas macros");
                 }
             }
+            if(num < min || num > max)
+                throw new Exception("Número que excede o intervalo estabelecidos para o campo " + campo + ". O intervalo é [" + min + "," + max + "]");
+
         }
-        return ttl;
+        else
+            throw new Exception("Não respeita a sintaxe.");
+       return num;
     }
 
     /**
@@ -347,37 +334,38 @@ public class Database
         for(String str : lines)
         {
             String[] words = str.split(" ");
-            if(str.length() > 0 && str.charAt(0) != '#' && words.length > 2)
+            if(str.length() > 0 && str.charAt(0) != '#'&& words.length > 2)
             {
                 if(words[1].equals("DEFAULT"))
                     macro.put(words[0], words[2]);
-                else
+                else if(words.length > 3)
                 {
-                    String dom = converteDom(words[0], macro);
-                    Integer TTL = converteInt(words, macro,3);
-                    if(TTL == 0)
+                    try
                     {
-                        warnings.add("TTL inválido na linha " + l + ". Campo " + words[1] + " não adicionado.");
-                    }
-                    else
-                    {
-                        boolean res = true;
-                        switch (words[1]) {
-                            case "SOASP"      -> res = servidorBD.setSOASP(dom, words[2], TTL);
-                            case "SOAADMIN"   -> res = servidorBD.setSOAADMIN(dom, words[2], TTL);
-                            case "SOASERIAL"  -> res = servidorBD.setSOASERIAL(dom, words[2], TTL);
-                            case "SOAREFRESH" -> res = servidorBD.setSOAREFRESH(dom, converteInt(words,macro,2), TTL);
-                            case "SOARETRY"   -> res = servidorBD.setSOARETRY(dom, converteInt(words,macro,2), TTL);
-                            case "SOAEXPIRE"  -> res = servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2), TTL);
-                            case "NS"         -> res = servidorBD.addNS(dom, words[2], converteInt(words,macro,4), TTL);
-                            case "CNAME"      -> res = servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL);
-                            case "MX"         -> res = servidorBD.addMX(dom, words[2], converteInt(words,macro,4), TTL);
-                            case "A"          -> servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4), TTL);
+                        String dom = converteDom(words[0], macro);
+                        Integer TTL = converteInt(words, macro,3, "'TTL'");
+                        switch (words[1])
+                        {
+                            case "SOASP"      -> servidorBD.setSOASP(dom, words[2], TTL);
+                            case "SOAADMIN"   -> servidorBD.setSOAADMIN(dom, words[2], TTL);
+                            case "SOASERIAL"  -> servidorBD.setSOASERIAL(dom, words[2], TTL);
+                            case "SOAREFRESH" -> servidorBD.setSOAREFRESH(dom, converteInt(words,macro,2, "'Tempo'"), TTL);
+                            case "SOARETRY"   -> servidorBD.setSOARETRY(dom, converteInt(words,macro,2, "'Tempo'"), TTL);
+                            case "SOAEXPIRE"  -> servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2 ,"'Tempo'"), TTL);
+                            case "NS"         -> servidorBD.addNS(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL);
+                            case "CNAME"      -> servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL);
+                            case "MX"         -> servidorBD.addMX(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL);
+                            case "A"          -> servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4,"'Prioridade'"), TTL);
+                            default           -> warnings.add("Erro linha " + l + ": Tipo de valor não identificado na linha " + l);
                         }
-                        if(!res)
-                            warnings.add("Linha " + l + " com informação repetida para o campo " + words[1]);
+                    }
+                    catch (Exception e)
+                    {
+                        warnings.add("Erro linha " + l + ": " + e.getMessage());
                     }
                 }
+                else
+                    warnings.add("Erro linha " + l + ": Não respeita a sintaxe.");
             }
             l++;
         }

@@ -2,8 +2,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Database bd = Database.createBD("Example.db");
-        //System.out.println(bd);
+        Database bd = Database.createBD("DatabasesFiles/Example.db");
+        System.out.println(bd);
         System.out.println(bd.getInfo("example.com.",(byte) 0));
         System.out.println(bd.getInfo("example.com.",(byte) 1));
         System.out.println(bd.getInfo("example.com.",(byte) 2));
