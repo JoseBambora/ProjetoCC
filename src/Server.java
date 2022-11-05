@@ -67,6 +67,7 @@ public class Server {
                 InetAddress clientAddress = request.getAddress();
                 int clientPort = request.getPort();
                 Log qr = new Log(new Date(), Log.EntryType.QR,Endereco.stringToIP(clientAddress.toString()),clientPort,receiveBytes);
+                if (debug) System.out.println(qr);
 
                 DNSPacket sendPacket = null;
                 Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
@@ -105,6 +106,8 @@ public class Server {
                     // enviar resposta
                     DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
                     socket.send(response);
+                    Log qe = new Log(new Date(), Log.EntryType.QE,Endereco.stringToIP(clientAddress.toString()),clientPort,sendBytes);
+                    if (debug) System.out.println(qe);
                 }
             }
 
