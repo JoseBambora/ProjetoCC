@@ -53,24 +53,30 @@ public class Cache
         }
         this.cache.remove(tuple);
     }
-    public Data findAnswer(DNSPacket mensagem)
+    public Tuple<Boolean,Data> findAnswer(DNSPacket mensagem)
     {
         Data data = mensagem.getData();
         String name = data.getName();
         Byte type = data.getTypeOfValue();
-        Data res = new Data(name,type);
+        Data resData = new Data(name,type);
         for(Tuple<String,Byte> elem : this.cache.keySet())
         {
             if(elem.getValue1().equals(name) && elem.getValue2().equals(type))
             {
                 // Set -> addicionar resposta
-                res.setResponseValues(this.cache.get(elem).getResponseValues());
-                res.setAuthoriteValues(this.cache.get(elem).getAuthoriteValues());
-                res.setExtraValues(this.cache.get(elem).getResponseValues());
+                resData.setResponseValues(this.cache.get(elem).getResponseValues());
+                resData.setAuthoriteValues(this.cache.get(elem).getAuthoriteValues());
+                resData.setExtraValues(this.cache.get(elem).getResponseValues());
                 this.time.put(elem,LocalDateTime.now());
             }
         }
-        return res;
+        boolean resBool = true;
+        if (resData.getResponseValues() == null)
+        {
+            resBool = false;
+            resData = null;
+        }
+        return new Tuple<>(resBool,resData);
     }
     @Override
     public String toString()

@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 /**
  * Classe auxiliar para criação de tuplos com 2 elementos
  * @author José Carvalho
@@ -42,5 +44,13 @@ public class Tuple<V1,V2>
     @Override
     public int hashCode() {
         return this.toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tuple<?, ?> tuple = (Tuple<?, ?>) o;
+        return value1.equals(tuple.value1) && value2.equals(tuple.value2);
     }
 }
