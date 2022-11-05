@@ -465,7 +465,7 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Lista com todos os endereços URL
      */
-    private String getNS(String dominio)
+    private String[] getNS(String dominio)
     {
         List<String> list = new ArrayList<>();
         for(String key : this.NS.keySet())
@@ -477,14 +477,7 @@ public class Database
                 }
             }
         }
-        StringBuilder str = new StringBuilder("");
-        for(String string : list)
-        {
-            str.append(string);
-            str.append('\n');
-        }
-        str.deleteCharAt(str.length()-1);
-        return str.toString();
+        return list.toArray(new String[0]);
     }
 
     /**
@@ -492,7 +485,7 @@ public class Database
      * @param dominio Domínio para ir buscar os endereços.
      * @return Set com todos os endereços.
      */
-    private String getA(String dominio)
+    private String[] getA(String dominio)
     {
         List<String> list = new ArrayList<>();
         for(String key : this.A.keySet())
@@ -505,15 +498,7 @@ public class Database
                 }
             }
         }
-
-        StringBuilder str = new StringBuilder("");
-        for(String string : list)
-        {
-            str.append(string);
-            str.append('\n');
-        }
-        str.deleteCharAt(str.length()-1);
-        return str.toString();
+        return list.toArray(new String[0]);
     }
 
     /**
@@ -534,7 +519,7 @@ public class Database
      * @param dominio domínio em questão
      * @return Lista com os emails
      */
-    private String getMX(String dominio)
+    private String[] getMX(String dominio)
     {
         List<String> list = new ArrayList<>();
         for(String key : this.MX.keySet())
@@ -546,14 +531,7 @@ public class Database
                 }
             }
         }
-        StringBuilder str = new StringBuilder("");
-        for(String string : list)
-        {
-            str.append(string);
-            str.append('\n');
-        }
-        str.deleteCharAt(str.length()-1);
-        return str.toString();
+        return list.toArray(new String[0]);
     }
 
     /**
@@ -563,22 +541,22 @@ public class Database
      * @return Par entre booleano e um objeto. O Booleano serve para avaliar se a base de dados
      * soube responder ou não, e o objeto é a resposta.
      */
-    public Tuple<Boolean,String> getInfo(String param, byte type) {
-        String res = "";
+    public Tuple<Boolean,String[]> getInfo(String param, byte type) {
+        String[] res = new String[1];
         switch (type)
         {
-            case 0 -> res = this.getSOASP(param); // SOASP
-            case 1 -> res = this.getSOAADMIN(param); // SOADMIN
-            case 2 -> res = this.getSOASERIAL(param); // SOASERIAL
-            case 3 -> res = this.getSOAREFRESH(param); // SOAREFRESH
-            case 4 -> res = this.getSOARETRY(param); // SOARETRY
-            case 5 -> res = this.getSOAEXPIRE(param); // SOAEXPIRE
-            case 6 -> res = this.getNS(param); // NS
-            case 7 -> res = this.getA(param); // A
-            case 8 -> res = this.getCNAME(param); // CNAME
-            case 9 -> res = this.getMX(param); // MX
+            case 0 -> res[0] = this.getSOASP(param); // SOASP
+            case 1 -> res[0] = this.getSOAADMIN(param); // SOADMIN
+            case 2 -> res[0] = this.getSOASERIAL(param); // SOASERIAL
+            case 3 -> res[0] = this.getSOAREFRESH(param); // SOAREFRESH
+            case 4 -> res[0] = this.getSOARETRY(param); // SOARETRY
+            case 5 -> res[0] = this.getSOAEXPIRE(param); // SOAEXPIRE
+            case 6 -> res    = this.getNS(param); // NS
+            case 7 -> res    = this.getA(param); // A
+            case 8 -> res[0] = this.getCNAME(param); // CNAME
+            case 9 -> res    = this.getMX(param); // MX
         }
-        boolean resSuc = res.length() != 0;
+        boolean resSuc = res.length != 0;
         return new Tuple<>(resSuc,res);
     }
 }
