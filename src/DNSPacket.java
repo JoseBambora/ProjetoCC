@@ -8,6 +8,7 @@ public class DNSPacket implements Serializable {
     private Data data;
 
 
+
     public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, String name, byte typeOfValue) {
         this.header = new Header(messageID,flagQ,flagR,flagA);
         this.data = new Data(name,typeOfValue);
@@ -16,6 +17,11 @@ public class DNSPacket implements Serializable {
     public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues, String name, byte typeOfValue, String[] responseValues, String[] authoriteValues, String[] extraValues) {
         this.header = new Header(messageID,flagQ,flagR,flagA,responseCode,numberOfValues,numberOfAuthorites,numberOfExtraValues);
         this.data = new Data(name,typeOfValue,responseValues,authoriteValues,extraValues);
+    }
+
+    public DNSPacket(Header header, Data data) {
+        this.header = header;
+        this.data = data;
     }
 
     public Header getHeader() {
