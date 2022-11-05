@@ -20,6 +20,8 @@ public class ServidorConfiguracao {
 
     private final List <String> allLG;
 
+    private final Cache cache;
+
     /**
      * Construtor de objetos da classe ServidorConfiguracao
      */
@@ -28,6 +30,7 @@ public class ServidorConfiguracao {
         this.ST = new ArrayList<>();
         this.LG = new ArrayList<>();
         this.allLG = new ArrayList<>();
+        this.cache = new Cache(5);
     }
 
     /**
@@ -93,11 +96,27 @@ public class ServidorConfiguracao {
     }
 
     /**
-     * Getter do campo allLG de um objeto da classe ServidorConfiguracao
+     * Geter do campo allLG de um objeto da classe ServidorConfiguracao
      * @return O campo allLG do ServidorConfiguracao
      */
     public List<String> getAllLG() {
         return allLG;
+    }
+
+    /**
+     * Getter do campo cache de um objeto da classe ServidorConfiguracao
+     * @return O campo cache do ServidorConfiguracao
+     */
+    public Cache getCache() {
+        return cache;
+    }
+
+    /**
+     * Método cuja função é atualizar o valor do campo espaço da cache de um servidor
+     * @param n - o novo valor do tamanho da cache do servidor
+     */
+    public void setEspacoCache(int n) {
+        this.cache.setEspaco(n);
     }
 
     /**
@@ -131,64 +150,60 @@ public class ServidorConfiguracao {
         ServidorSP sp = null;
         ServidorSS ss = null;
         List<String> warnings = new ArrayList<>();
+        String dominio = null;
         int logcounter = 0;
         for(String line : lines){
             if (line.length() > 0 && line.charAt(0) != '#') {
                 String[] words = line.split(" ");
-                switch(words[1]){
-                    case "SS"->{
-                        if (words.length>2) {
+                if(words.length>2){
+                    switch(words[1]){
+                        case "SS"->{
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
+                                dominio = words[0];
                             }
+                            sp.setEspacoCache(100);
                             sp.addSS(Endereco.stringToIP(words[2]));
                         }
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-                    }
-                    case "DB" -> {
-                        if (words.length>2) {
+                        case "DB" -> {
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
+                                dominio = words[0];
                             }
                             sp.setBD(words[2]);
                         }
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-                    }
-                    case "SP" -> {
-                        if (words.length>2) {
-                            if (ss == null){
-                                ss = new ServidorSS();
-                                server = ss;
+                        case "SP" -> {
+                                if (ss == null){
+                                    ss = new ServidorSS();
+                                    server = ss;
+                                    dominio = words[0];
+                                }
+                                ss.setEspacoCache(10);
+                                ss.addSP(Endereco.stringToIP(words[2]));
+                        }
+                        case "DD" -> {
+                                if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
+                        }
+                        case "ST" -> {
+                            if (words[0].equals("root") && server!=null) server.FicheiroST(words[2]);
+                        }
+                        case "LG" -> {
+                            if (words[0].equals("all") && server!=null) {
+                                server.addAllLog(words[2]);
+                                logcounter++;
                             }
-                            ss.addSP(Endereco.stringToIP(words[2]));
+                            if (!words[0].equals("all") && server!=null) {
+                                System.out.println(dominio);
+                                if (dominio.matches("(.*)"+words[0])) {
+                                    server.addLog(words[2]);
+                                }
+                            }
                         }
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-                    }
-                    case "DD" -> {
-                        if (words.length>2) {
-                            if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
-                        }
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-                    }
-                    case "ST" -> {
-                        if (words.length>2 && words[0].equals("root") && server!=null) server.FicheiroST(words[2]);
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
-
-                    }
-                    case "LG" -> {
-
-                        if (words.length>2 && words[0].equals("all") && server!=null) {
-                            server.addAllLog(words[2]);
-                            logcounter++;
-                        }
-                        if (words.length>2 && server!=null) {
-                            server.addLog(words[2]);
-                        }
-                        else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
                     }
                 }
+                else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
             }
         }
         if (logcounter == 0) server = null;
@@ -212,10 +227,11 @@ public class ServidorConfiguracao {
     @Override
     public String toString() {
         return "ServidorConfiguracao:" + "\n" +
-                "   DD=" + DD + "\n" +
-                "   ST=" + ST + "\n" +
-                "   LG=" + LG + "\n"+
-                "   all LG=" + LG + "\n";
+                "   DD = " + DD + "\n" +
+                "   ST = " + ST + "\n" +
+                "   LG = " + LG + "\n" +
+                "   all LG =" + LG + "\n" +
+                "   cache = " + cache;
     }
 }
 

@@ -16,5 +16,9 @@ public class Main {
         System.out.println(Arrays.toString(bd.getInfo("example.com.",(byte) 7).getValue2()));
         System.out.println(Arrays.toString(bd.getInfo("mail1.example.com.",(byte) 8).getValue2()));
         System.out.println(Arrays.toString(bd.getInfo("example.com.",(byte) 9).getValue2()));
-    }
+        /**
+        ServidorConfiguracao SP = ServidorConfiguracao.parseServer("ConfigurationFiles/config");
+        System.out.println(SP);
+        **/
+     }
 }

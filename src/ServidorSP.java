@@ -55,12 +55,14 @@ public class ServidorSP extends ServidorConfiguracao {
     @Override
     public String toString() {
         return "ServidorSP:" + "\n" +
-                "   DB=" + this.getDB() + "\n" +
-                "   DD=" + this.getDD() + "\n" +
-                "   ST=" + this.getST() + "\n" +
-                "   LG=" + this.getLG() + "\n" +
-                "   allLG=" + this.getAllLG() + "\n"+
-                "   SS=" + SS + "\n";
+                "   DB =" + this.getDB() + "\n" +
+                "   SS =" + SS + "\n" +
+                "   DD =" + this.getDD() + "\n" +
+                "   ST =" + this.getST() + "\n" +
+                "   LG =" + this.getLG() + "\n" +
+                "   allLG =" + this.getAllLG() + "\n"+
+                "   cache =" + this.getCache();
+
     }
 
     /**

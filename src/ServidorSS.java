@@ -44,12 +44,13 @@ public class ServidorSS extends ServidorConfiguracao{
     @Override
     public String toString() {
         return "ServidorSS{" + "\n" +
-                "   DB=" + this.getDB() + "\n" +
-                "   DD=" + this.getDD() + "\n" +
-                "   ST=" + this.getST() + "\n" +
-                "   LG=" + this.getLG() + "\n" +
-                "   allLG=" + this.getAllLG() + "\n"+
-                "   SP=" + SP + "\n";
+                "   DB = " + this.getDB() + "\n" +
+                "   SP = " + SP + "\n" +
+                "   DD = " + this.getDD() + "\n" +
+                "   ST = " + this.getST() + "\n" +
+                "   LG = " + this.getLG() + "\n" +
+                "   allLG = " + this.getAllLG() + "\n"+
+                "   cache = " + this.getCache();
     }
 
     /**
