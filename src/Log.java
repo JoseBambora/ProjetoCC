@@ -3,6 +3,7 @@
  * Created date: 22/10/2022                             *
  * Last Update: 22/10/2022                              *
  ********************************************************/
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -20,9 +21,9 @@ public class Log {
     EntryType type; /* Tipo de entrada */
     Endereco addr; /* Endereço IP */
     int port; /* Porta */
-    Byte[] data; /* Dados de entrada */
+    byte[] data; /* Dados de entrada */
 
-    public Log(Date date, EntryType type, Endereco addr, int port, Byte[] data) {
+    public Log(Date date, EntryType type, Endereco addr, int port, byte[] data) {
         this.date = date;
         this.type = type;
         this.addr = addr;
@@ -42,7 +43,11 @@ public class Log {
             sb.append(port);
         }
         sb.append(" ");
-        sb.append(Arrays.toString(data));
+        try {
+            sb.append(DNSPacket.bytesToDnsPacket(data).toString());
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         sb.append("\n");
         return sb.toString();
     }
