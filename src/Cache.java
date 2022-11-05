@@ -6,16 +6,25 @@ import java.util.ArrayList;
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * Data criação: 29/10/2022
- * Data última atualização: 29/10/2022
+ * Data última atualização: 5/11/2022
  */
 public class Cache
 {
     // Pergunta, Resposta, Tempo
     private final List<Triple<DNSPacket,DNSPacket, LocalDateTime>> cache;
-    private final int espaco;
+    private int espaco;
+    public Cache()
+    {
+        this.cache = new ArrayList<>();
+        this.espaco = 0;
+    }
     public Cache(int espaco)
     {
         this.cache = new ArrayList<>();
+        this.espaco = espaco;
+    }
+    public void setEspaco(int espaco)
+    {
         this.espaco = espaco;
     }
     public void addLog(DNSPacket pergunta, DNSPacket resposta)

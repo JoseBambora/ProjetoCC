@@ -8,7 +8,7 @@ import java.util.*;
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
  * Data criação: 23/10/2022
- * Data última atualização: 2/11/2022
+ * Data última atualização: 5/11/2022
  */
 public class Database
 {
@@ -91,7 +91,7 @@ public class Database
         List<Triple<String,Integer,Integer>> list = this.NS.get(dominio);
         boolean res = list.stream().noneMatch(t -> t.getValue1().equals(server));
         if(res)
-            list.add(new Triple<>(server,prioridade,TTL));
+            list.add(new Triple<>(server,TTL,prioridade));
         else
             throw new Exception("Campo NS - Endereço URL repetido para o mesmo domínio");
     }
@@ -138,7 +138,7 @@ public class Database
         List<Triple<String,Integer,Integer>> list = this.MX.get(dominio);
         boolean res = list.stream().noneMatch(t -> t.getValue1().equals(email));
         if(res)
-            list.add(new Triple<>(email,prioridade, TTL));
+            list.add(new Triple<>(email,TTL,prioridade));
         else
             throw new Exception("Campo MX - Endereço de email repetido para o mesmo domínio");
     }
@@ -389,8 +389,8 @@ public class Database
      */
     private String getSOASP(String dominio)
     {
-        if(dominio.contains(this.SOASP.getValue1()))
-            return SOASP.getValue2();
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+            return SOASP.getValue1() + " SOASP " + SOASP.getValue2() + " " + SOASP.getValue3();
         else
             return "";
     }
@@ -402,8 +402,8 @@ public class Database
      */
     private String getSOAADMIN(String dominio)
     {
-        if(dominio.contains(this.SOAADMIN.getValue1()))
-            return SOAADMIN.getValue2();
+        if(dominio.matches("(.*)" + this.SOAADMIN.getValue1()))
+            return SOAADMIN.getValue1() + " SOAADMIN " + SOAADMIN.getValue2() + " " + SOAADMIN.getValue3();
         else
             return "";
     }
@@ -415,8 +415,8 @@ public class Database
      */
     private String getSOASERIAL(String dominio)
     {
-        if(dominio.contains(this.SOASERIAL.getValue1()))
-            return SOASERIAL.getValue2();
+        if(dominio.matches("(.*)" + this.SOASERIAL.getValue1()))
+            return SOASERIAL.getValue1() + " SOASERIAL " + SOASERIAL.getValue2() + " " + SOASERIAL.getValue3();
         else
             return "";
     }
@@ -426,12 +426,12 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOAREFRESH
      */
-    private Integer getSOAREFRESH(String dominio)
+    private String getSOAREFRESH(String dominio)
     {
-        if(dominio.contains(this.SOAREFRESH.getValue1()))
-            return SOAREFRESH.getValue2();
+        if(dominio.matches("(.*)" + this.SOAREFRESH.getValue1()))
+            return SOAREFRESH.getValue1() + " SOAREFRESH " + SOAREFRESH.getValue2() + " " + SOAREFRESH.getValue3();
         else
-            return -1;
+            return "";
     }
 
     /**
@@ -439,12 +439,12 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOARETRY
      */
-    private Integer getSOARETRY(String dominio)
+    private String getSOARETRY(String dominio)
     {
-        if(dominio.contains(this.SOARETRY.getValue1()))
-            return SOARETRY.getValue2();
+        if(dominio.matches("(.*)" + this.SOARETRY.getValue1()))
+            return SOARETRY.getValue1() + " SOARETRY " + SOARETRY.getValue2() + " " + SOARETRY.getValue3();
         else
-            return -1;
+            return "";
     }
 
     /**
@@ -452,12 +452,12 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOAEXPIRE
      */
-    private Integer getSOAEXPIRE(String dominio)
+    private String getSOAEXPIRE(String dominio)
     {
-        if(dominio.contains(this.SOAEXPIRE.getValue1()))
-            return SOAEXPIRE.getValue2();
+        if(dominio.matches("(.*)" + this.SOAEXPIRE.getValue1()))
+            return SOAEXPIRE.getValue1() + " SOAEXPIRE " + SOAEXPIRE.getValue2() + " " + SOAEXPIRE.getValue3();
         else
-            return -1;
+            return "";
     }
 
     /**
@@ -465,19 +465,26 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Lista com todos os endereços URL
      */
-    private List<String> getNS(String dominio)
+    private String getNS(String dominio)
     {
         List<String> list = new ArrayList<>();
         for(String key : this.NS.keySet())
         {
-            if(key.contains(dominio))
+            if(key.matches("(.*)" + dominio))
             {
                 for (Triple<String, Integer, Integer> triple : this.NS.get(key)) {
-                    list.add(triple.getValue1());
+                    list.add(key + " NS " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
                 }
             }
         }
-        return list;
+        StringBuilder str = new StringBuilder("");
+        for(String string : list)
+        {
+            str.append(string);
+            str.append('\n');
+        }
+        str.deleteCharAt(str.length()-1);
+        return str.toString();
     }
 
     /**
@@ -485,20 +492,28 @@ public class Database
      * @param dominio Domínio para ir buscar os endereços.
      * @return Set com todos os endereços.
      */
-    private Set<Endereco> getA(String dominio)
+    private String getA(String dominio)
     {
-        Set<Endereco> set = new HashSet<>();
+        List<String> list = new ArrayList<>();
         for(String key : this.A.keySet())
         {
-            if(key.contains(dominio))
+            if(key.matches("(.*)" + dominio))
             {
                 for(Triple<Endereco,Integer,Integer> triple : this.A.get(key))
                 {
-                    set.add(triple.getValue1());
+                    list.add(key + " A " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
                 }
             }
         }
-        return set;
+
+        StringBuilder str = new StringBuilder("");
+        for(String string : list)
+        {
+            str.append(string);
+            str.append('\n');
+        }
+        str.deleteCharAt(str.length()-1);
+        return str.toString();
     }
 
     /**
@@ -509,7 +524,7 @@ public class Database
     private String getCNAME(String canonico)
     {
         if(this.CNAME.containsKey(canonico))
-            return CNAME.get(canonico).getValue1();
+            return canonico + " CNAME " + CNAME.get(canonico).getValue1() + " " + CNAME.get(canonico).getValue2();
         else
             return "";
     }
@@ -519,19 +534,26 @@ public class Database
      * @param dominio domínio em questão
      * @return Lista com os emails
      */
-    private List<String> getMX(String dominio)
+    private String getMX(String dominio)
     {
         List<String> list = new ArrayList<>();
         for(String key : this.MX.keySet())
         {
-            if(key.contains(dominio))
+            if(key.matches("(.*)" + dominio))
             {
                 for (Triple<String, Integer, Integer> triple : this.MX.get(key)) {
-                    list.add(triple.getValue1());
+                    list.add(key + " MX " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
                 }
             }
         }
-        return list;
+        StringBuilder str = new StringBuilder("");
+        for(String string : list)
+        {
+            str.append(string);
+            str.append('\n');
+        }
+        str.deleteCharAt(str.length()-1);
+        return str.toString();
     }
 
     /**
@@ -541,54 +563,22 @@ public class Database
      * @return Par entre booleano e um objeto. O Booleano serve para avaliar se a base de dados
      * soube responder ou não, e o objeto é a resposta.
      */
-    public Tuple<Boolean,Object> getInfo(String param, byte type) {
-        String resSTR = null;
-        Integer resINT = null;
-        Collection<String> resLSTR = null;
-        Collection<Endereco> resLEND = null;
+    public Tuple<Boolean,String> getInfo(String param, byte type) {
+        String res = "";
         switch (type)
         {
-            case 0 -> resSTR  = this.getSOASP(param); // SOASP
-            case 1 -> resSTR  = this.getSOAADMIN(param); // SOADMIN
-            case 2 -> resSTR  = this.getSOASERIAL(param); // SOASERIAL
-            case 3 -> resINT  = this.getSOAREFRESH(param); // SOAREFRESH
-            case 4 -> resINT  = this.getSOARETRY(param); // SOARETRY
-            case 5 -> resINT  = this.getSOAEXPIRE(param); // SOAEXPIRE
-            case 6 -> resLSTR = this.getNS(param); // NS
-            case 7 -> resLEND = this.getA(param); // A
-            case 8 -> resSTR  = this.getCNAME(param); // CNAME
-            case 9 -> resLSTR = this.getMX(param); // MX
+            case 0 -> res = this.getSOASP(param); // SOASP
+            case 1 -> res = this.getSOAADMIN(param); // SOADMIN
+            case 2 -> res = this.getSOASERIAL(param); // SOASERIAL
+            case 3 -> res = this.getSOAREFRESH(param); // SOAREFRESH
+            case 4 -> res = this.getSOARETRY(param); // SOARETRY
+            case 5 -> res = this.getSOAEXPIRE(param); // SOAEXPIRE
+            case 6 -> res = this.getNS(param); // NS
+            case 7 -> res = this.getA(param); // A
+            case 8 -> res = this.getCNAME(param); // CNAME
+            case 9 -> res = this.getMX(param); // MX
         }
-        boolean resSuc = true;
-        Object resObj = null;
-        if(resSTR != null)
-        {
-            if(resSTR.equals(""))
-                resSuc = false;
-            else
-                resObj = resSTR;
-        }
-        else if (resINT != null)
-        {
-            if(resINT == -1)
-                resSuc = false;
-            else
-                resObj = resINT;
-        }
-        else if (resLSTR != null)
-        {
-            if(resLSTR.size() == 0)
-                resSuc = false;
-            else
-                resObj = resLSTR;
-        }
-        else if(resLEND != null)
-        {
-            if(resLEND.size() == 0)
-                resSuc = false;
-            else
-                resObj = resLEND;
-        }
-        return new Tuple<>(resSuc,resObj);
+        boolean resSuc = res.length() != 0;
+        return new Tuple<>(resSuc,res);
     }
 }
