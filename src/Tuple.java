@@ -2,7 +2,7 @@
  * Classe auxiliar para criação de tuplos com 2 elementos
  * @author José Carvalho
  * Data criação: 23/10/2022
- * Data última atualização: 24/10/2022
+ * Data última atualização: 5/11/2022
  */
 public class Tuple<V1,V2>
 {
@@ -37,5 +37,10 @@ public class Tuple<V1,V2>
     @Override
     public String toString() {
         return "(" + value1 + "," +  value2  + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        return this.toString().hashCode();
     }
 }

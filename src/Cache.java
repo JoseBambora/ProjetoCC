@@ -1,6 +1,9 @@
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
@@ -11,60 +14,70 @@ import java.util.ArrayList;
 public class Cache
 {
     // Pergunta, Resposta, Tempo
-    private final List<Triple<DNSPacket,DNSPacket, LocalDateTime>> cache;
+    private final Map<Tuple<String,Byte>,Data> cache;
+    private final Map<Tuple<String,Byte>,LocalDateTime> time;
     private int espaco;
-    public Cache()
-    {
-        this.cache = new ArrayList<>();
-        this.espaco = 0;
-    }
     public Cache(int espaco)
     {
-        this.cache = new ArrayList<>();
+        this.time = new HashMap<>();
+        this.cache = new HashMap<>();
         this.espaco = espaco;
     }
     public void setEspaco(int espaco)
     {
         this.espaco = espaco;
     }
-    public void addLog(DNSPacket pergunta, DNSPacket resposta)
+    public void addLog(DNSPacket resposta)
     {
+        // Adicionar uma entrada para cada type of value
         if(this.cache.size() == this.espaco)
             this.removeLog();
-        this.cache.add(new Triple<>(pergunta, resposta, LocalDateTime.now()));
+        Data data = resposta.getData();
+        Tuple<String,Byte> t = new Tuple<>(data.getName(), data.getTypeOfValue());
+        this.cache.put(t,data);
+        this.time.put(t,LocalDateTime.now());
     }
     public void removeLog()
     {
-        Tuple<Integer,LocalDateTime> indexLRU = new Tuple<>(0,this.cache.get(0).getValue3());
-        int i = 0;
-        for(Triple<DNSPacket,DNSPacket,LocalDateTime> triple : this.cache)
+        Tuple<String,Byte> tuple = new Tuple<>("",(byte) 0);
+        LocalDateTime date = LocalDateTime.now();
+        for(Tuple<String,Byte> elem : this.time.keySet())
         {
-            if(triple.getValue3().isBefore(indexLRU.getValue2()))
+            LocalDateTime dateelem = this.time.get(elem);
+            long num = ChronoUnit.NANOS.between(dateelem,date);
+            if(num > 0)
             {
-                indexLRU.setValue1(i);
-                indexLRU.setValue2(triple.getValue3());
+                tuple = elem;
+                date = this.time.get(elem);
             }
-            i++;
         }
-        this.cache.remove((int) indexLRU.getValue1());
+        this.cache.remove(tuple);
     }
-    public DNSPacket findAnswer(DNSPacket mensagem)
+    public Data findAnswer(DNSPacket mensagem)
     {
-        DNSPacket res = null;
-        int i = 0;
-        for(Triple<DNSPacket,DNSPacket,LocalDateTime> triple : this.cache)
+        Data data = mensagem.getData();
+        String name = data.getName();
+        Byte type = data.getTypeOfValue();
+        Data res = new Data(name,type);
+        for(Tuple<String,Byte> elem : this.cache.keySet())
         {
-            if(mensagem.equals(triple.getValue1()))
+            if(elem.getValue1().equals(name) && elem.getValue2().equals(type))
             {
-                res = this.cache.get(i).getValue2();
-                this.cache.get(i).setValue3(LocalDateTime.now());
+                // Set -> addicionar resposta
+                res.setResponseValues(this.cache.get(elem).getResponseValues());
+                res.setAuthoriteValues(this.cache.get(elem).getAuthoriteValues());
+                res.setExtraValues(this.cache.get(elem).getResponseValues());
+                this.time.put(elem,LocalDateTime.now());
             }
-            i++;
         }
         return res;
     }
     @Override
-    public String toString() {
-        return this.cache.toString();
+    public String toString()
+    {
+        StringBuilder res = new StringBuilder();
+        for(Data data : this.cache.values())
+            res.append(data.toString()).append("\n");
+        return res.toString();
     }
 }
