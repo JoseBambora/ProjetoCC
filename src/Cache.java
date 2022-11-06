@@ -1,7 +1,7 @@
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,17 +9,15 @@ import java.util.Map;
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * Data criação: 29/10/2022
- * Data última atualização: 5/11/2022
+ * Data última atualização: 6/11/2022
  */
 public class Cache
 {
     // Pergunta, Resposta, Tempo
-    private final Map<Tuple<String,Byte>,Data> cache;
-    private final Map<Tuple<String,Byte>,LocalDateTime> time;
+    private final Map<Tuple<String,Byte>,EntryCache> cache;
     private int espaco;
     public Cache(int espaco)
     {
-        this.time = new HashMap<>();
         this.cache = new HashMap<>();
         this.espaco = espaco;
     }
@@ -31,45 +29,40 @@ public class Cache
     {
         // Adicionar uma entrada para cada type of value
         if(this.cache.size() == this.espaco)
-            this.removeLog();
+            this.removeData();
         Data data = resposta.getData();
         Tuple<String,Byte> t = new Tuple<>(data.getName(), data.getTypeOfValue());
-        this.cache.put(t,data);
-        this.time.put(t,LocalDateTime.now());
+        this.cache.put(t,new EntryCache(data, EntryCache.Origin.SP,LocalDateTime.now()));
     }
-    public void removeLog()
+
+    public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
-        Tuple<String,Byte> tuple = new Tuple<>("",(byte) 0);
-        LocalDateTime date = LocalDateTime.now();
-        for(Tuple<String,Byte> elem : this.time.keySet())
+        Data data = resposta.getData();
+        Tuple<String,Byte> t = new Tuple<>(data.getName(), data.getTypeOfValue());
+        if(!this.cache.containsKey(t))
         {
-            LocalDateTime dateelem = this.time.get(elem);
-            long num = ChronoUnit.NANOS.between(dateelem,date);
-            if(num > 0)
-            {
-                tuple = elem;
-                date = this.time.get(elem);
-            }
+            if(this.cache.size() == this.espaco)
+                this.removeData();
+            this.cache.put(t,new EntryCache(data, origin,LocalDateTime.now()));
         }
-        this.cache.remove(tuple);
+        else if(EntryCache.Origin.OTHERS == origin)
+        {
+            this.cache.get(t).setTempo(LocalDateTime.now());
+        }
+    }
+
+    public void removeData()
+    {
+        // Comparar TTL, não remover entradas do SP / SS que TTL esteja válido
+        List<Tuple<String,Byte>> remove = new ArrayList<>(this.cache.keySet());
+        remove.sort((t1,t2) -> this.cache.get(t1).compareTo(this.cache.get(t2)));
+        for(int i = 0; i < this.cache.size()/2; i++)
+            this.cache.remove(remove.get(i));
     }
     public Tuple<Boolean,Data> findAnswer(DNSPacket mensagem)
     {
-        Data data = mensagem.getData();
-        String name = data.getName();
-        Byte type = data.getTypeOfValue();
-        Data resData = new Data(name,type);
-        for(Tuple<String,Byte> elem : this.cache.keySet())
-        {
-            if(elem.getValue1().equals(name) && elem.getValue2().equals(type))
-            {
-                // Set -> addicionar resposta
-                resData.setResponseValues(this.cache.get(elem).getResponseValues());
-                resData.setAuthoriteValues(this.cache.get(elem).getAuthoriteValues());
-                resData.setExtraValues(this.cache.get(elem).getResponseValues());
-                this.time.put(elem,LocalDateTime.now());
-            }
-        }
+        Tuple<String,Byte> t = new Tuple<>(mensagem.getData().getName(),mensagem.getData().getTypeOfValue());
+        Data resData = this.cache.get(t).getDados();
         boolean resBool = true;
         if (resData.getResponseValues() == null)
         {
@@ -78,12 +71,25 @@ public class Cache
         }
         return new Tuple<>(resBool,resData);
     }
+
+    // exclusiva dos SS
+    public void removeByName(String name)
+    {
+        for(Tuple<String,Byte> elem : this.cache.keySet())
+        {
+            if(elem.getValue1().equals(name))
+            {
+                this.cache.remove(elem);
+            }
+        }
+    }
+
     @Override
     public String toString()
     {
         StringBuilder res = new StringBuilder();
-        for(Data data : this.cache.values())
-            res.append(data.toString()).append("\n");
+        for(EntryCache entryCache : this.cache.values())
+            res.append(entryCache.toString()).append("\n");
         return res.toString();
     }
 }

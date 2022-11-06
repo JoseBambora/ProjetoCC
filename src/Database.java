@@ -8,7 +8,7 @@ import java.util.*;
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
  * Data criação: 23/10/2022
- * Data última atualização: 5/11/2022
+ * Data última atualização: 6/11/2022
  */
 public class Database
 {
@@ -47,7 +47,7 @@ public class Database
     /**
      * Indica o endereço IPv4 dum host/servidor indicado no parâmetro como nome
      */
-    private final Map<String,List<Triple<Endereco,Integer,Integer>>> A; // PRIORIDADE
+    private final Map<String,List<Triple<Endereco,Integer,Integer>>> A;
     /**
      * Indica um nome canónico (ou alias) associado ao nome indicado no
      * parâmetro
@@ -556,7 +556,9 @@ public class Database
             case 8 -> res[0] = this.getCNAME(param); // CNAME
             case 9 -> res    = this.getMX(param); // MX
         }
-        boolean resSuc = res.length != 0;
+        boolean resSuc = res.length != 0 && !res[0].equals("");
+        if(!resSuc)
+            res = null;
         return new Tuple<>(resSuc,res);
     }
 }

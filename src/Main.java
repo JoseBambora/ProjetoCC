@@ -22,7 +22,7 @@ public class Main {
         byte b = (byte) 1;
         cache.addLog(new DNSPacket((short) 0,true,true,true,b,b,b,b,"Teste",b,aux,aux,aux));
         System.out.println(cache);
-        cache.removeLog();
+        cache.removeData();
         System.out.println(cache);
         /**
         ServidorConfiguracao SP = ServidorConfiguracao.parseServer("ConfigurationFiles/config");
