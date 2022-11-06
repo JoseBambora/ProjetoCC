@@ -46,13 +46,12 @@ public class Server {
                 debug = args[i].compareTo("D")==0;
             }
 
-            // file configuraçãos
+            // configurar servidor
             ServidorConfiguracao sc = ServidorConfiguracao.parseServer(configFile);
 
             // flag para identificar o tipo do servidor
             boolean sp = sc instanceof ServidorSP;
             boolean ss = sc instanceof ServidorSS;
-
 
             DatagramSocket socket = new DatagramSocket(porta);
 
@@ -62,28 +61,54 @@ public class Server {
                 byte[] receiveBytes = new byte[1000];
                 DatagramPacket request = new DatagramPacket(receiveBytes, receiveBytes.length);
                 socket.receive(request);
-
                 DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
-
-
 
                 //criar log e escrever no output
                 InetAddress clientAddress = request.getAddress();
                 int clientPort = request.getPort();
                 Log qr = new Log(new Date(), Log.EntryType.QR,Endereco.stringToIP(clientAddress.toString()),clientPort,receiveBytes);
+                if (debug) System.out.println(qr);
 
+                DNSPacket sendPacket = null;
+                Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
                 // todos acedem à cache
-                // se for sp ou ss acede à bd
-                // não obtem resposta perguntam aos st
+                Data resp = sc.getCache().findAnswer(receivePacket).getValue2();
+                if (resp != null) {
+                    sendPacket = new DNSPacket(header,resp);
+                }
+                else if (sp) {
+                    ServidorSP spServer = (ServidorSP) sc;
+                    String[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
 
+                    if (responseValues!=null) {
+                        header.setFlagA(true);
+                        sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
+                    }
+                }
+                else if (ss) {
+                    ServidorSS ssServer = (ServidorSS) sc;
+                    String[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
 
-                // criar resposta
-                // A se for autoritativo - 3 flag
-                DNSPacket sendPacket= new DNSPacket(receivePacket.getHeader().getMessageID(),false,false,true,receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue());
-                byte[] sendBytes = sendPacket.dnsPacketToBytes();
-                // enviar resposta
-                DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
-                socket.send(response);
+                    if (responseValues!=null) {
+                        header.setFlagA(true);
+                        sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
+                    }
+                }
+
+                // campo dd
+
+                if (sendPacket==null && !sc.getST().isEmpty()) {
+                    // perguntar aos st
+                }
+
+                if (sendPacket!= null) {
+                    byte[] sendBytes = sendPacket.dnsPacketToBytes();
+                    // enviar resposta
+                    DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+                    socket.send(response);
+                    Log qe = new Log(new Date(), Log.EntryType.QE,Endereco.stringToIP(clientAddress.toString()),clientPort,sendBytes);
+                    if (debug) System.out.println(qe);
+                }
             }
 
         }

@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Header {
+public class Header implements Serializable {
     private short messageID;
     private boolean flagQ;
     private boolean flagR;

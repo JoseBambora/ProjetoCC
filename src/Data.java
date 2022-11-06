@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Data {
+public class Data implements Serializable {
     private String name;
     private byte typeOfValue; // 11 tipos
     private String[] responseValues;
