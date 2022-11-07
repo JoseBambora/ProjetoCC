@@ -1,13 +1,12 @@
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Data implements Serializable {
     private String name;
     private byte typeOfValue; // 11 tipos
-    private String[] responseValues;
-    private String[] authoriteValues;
-    private String[] extraValues;
+    private Value[] responseValues;
+    private Value[] authoriteValues;
+    private Value[] extraValues;
 
 
     public Data(String name, byte typeOfValue) {
@@ -18,7 +17,7 @@ public class Data implements Serializable {
         this.extraValues = null;
     }
 
-    public Data(String name, byte typeOfValue, String[] responseValues, String[] authoriteValues, String[] extraValues) {
+    public Data(String name, byte typeOfValue, Value[] responseValues, Value[] authoriteValues, Value[] extraValues) {
         this.name = name;
         this.typeOfValue = typeOfValue;
         this.responseValues = responseValues;
@@ -42,27 +41,27 @@ public class Data implements Serializable {
         this.typeOfValue = typeOfValue;
     }
 
-    public String[] getResponseValues() {
+    public Value[] getResponseValues() {
         return responseValues;
     }
 
-    public void setResponseValues(String[] responseValues) {
+    public void setResponseValues(Value[] responseValues) {
         this.responseValues = responseValues;
     }
 
-    public String[] getAuthoriteValues() {
+    public Value[] getAuthoriteValues() {
         return authoriteValues;
     }
 
-    public void setAuthoriteValues(String[] authoriteValues) {
+    public void setAuthoriteValues(Value[] authoriteValues) {
         this.authoriteValues = authoriteValues;
     }
 
-    public String[] getExtraValues() {
+    public Value[] getExtraValues() {
         return extraValues;
     }
 
-    public void setExtraValues(String[] extraValues) {
+    public void setExtraValues(Value[] extraValues) {
         this.extraValues = extraValues;
     }
 

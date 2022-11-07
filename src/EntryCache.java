@@ -21,17 +21,16 @@ public class EntryCache implements Comparable<EntryCache>
     public void setTempo(LocalDateTime tempoEntrada) {
         this.tempo = tempoEntrada;
     }
-    public String[] getResponseValues()
-    {
+    public Value[] getResponseValues() {
         return this.dados.getResponseValues();
     }
 
-    public String[] getAuthoriteValues()
+    public Value[] getAuthoriteValues()
     {
         return this.dados.getAuthoriteValues();
     }
 
-    public String[] getExtraValues()
+    public Value[] getExtraValues()
     {
         return this.dados.getExtraValues();
     }

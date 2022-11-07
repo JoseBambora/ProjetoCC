@@ -78,21 +78,21 @@ public class Server {
                 }
                 else if (sp) {
                     ServidorSP spServer = (ServidorSP) sc;
-                    String[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
+                    /* Value[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
 
                     if (responseValues!=null) {
                         header.setFlagA(true);
                         sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }
+                    }*/
                 }
                 else if (ss) {
                     ServidorSS ssServer = (ServidorSS) sc;
-                    String[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
+                    /*String[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
 
                     if (responseValues!=null) {
                         header.setFlagA(true);
                         sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }
+                    }*/
                 }
 
                 // campo dd

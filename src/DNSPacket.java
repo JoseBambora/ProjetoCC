@@ -14,7 +14,7 @@ public class DNSPacket implements Serializable {
         this.data = new Data(name,typeOfValue);
     }
 
-    public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues, String name, byte typeOfValue, String[] responseValues, String[] authoriteValues, String[] extraValues) {
+    public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues, String name, byte typeOfValue, Value[] responseValues, Value[] authoriteValues, Value[] extraValues) {
         this.header = new Header(messageID,flagQ,flagR,flagA,responseCode,numberOfValues,numberOfAuthorites,numberOfExtraValues);
         this.data = new Data(name,typeOfValue,responseValues,authoriteValues,extraValues);
     }
