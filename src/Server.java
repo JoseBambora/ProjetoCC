@@ -66,8 +66,9 @@ public class Server {
                 //criar log e escrever no output
                 InetAddress clientAddress = request.getAddress();
                 int clientPort = request.getPort();
-                Log qr = new Log(new Date(), Log.EntryType.QR,Endereco.stringToIP(clientAddress.toString()),clientPort,receiveBytes);
+                Log qr = new Log(new Date(), Log.EntryType.QR,Endereco.stringToIP(clientAddress.toString().substring(1)),clientPort,receiveBytes);
                 if (debug) System.out.println(qr);
+
 
                 DNSPacket sendPacket = null;
                 Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
@@ -78,21 +79,21 @@ public class Server {
                 }
                 else if (sp) {
                     ServidorSP spServer = (ServidorSP) sc;
-                    /* Value[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
+                    Value[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue());
 
                     if (responseValues!=null) {
                         header.setFlagA(true);
                         sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }*/
+                    }
                 }
                 else if (ss) {
                     ServidorSS ssServer = (ServidorSS) sc;
-                    /*String[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue()).getValue2();
+                    Value[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue());
 
                     if (responseValues!=null) {
                         header.setFlagA(true);
                         sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }*/
+                    }
                 }
 
                 // campo dd
@@ -106,9 +107,10 @@ public class Server {
                     // enviar resposta
                     DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
                     socket.send(response);
-                    Log qe = new Log(new Date(), Log.EntryType.QE,Endereco.stringToIP(clientAddress.toString()),clientPort,sendBytes);
+                    Log qe = new Log(new Date(), Log.EntryType.QE,Endereco.stringToIP(clientAddress.toString().substring(1)),clientPort,sendBytes);
                     if (debug) System.out.println(qe);
                 }
+
             }
 
         }

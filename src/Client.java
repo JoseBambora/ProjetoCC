@@ -7,35 +7,37 @@
 
 
 /*
- * Servidor de destino das suas queries - 1 argumento - IP[:Porta]
- * 2 argummento - Name
- * 3 argumento - Type os value
- * 4 (Opcional) argumento - R , query recursiva ou não
+ * 1 argumento - IP[:Porta]
+ * 2 argumento - timeout *MUDAR NO RELATORIO
+ * 3 argummento - Name
+ * 4 argumento - Type os value
+ * 5 (Opcional) argumento - R , query recursiva ou não
  */
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Random;
-
 
 public class Client {
     public static void main(String[] args) {
         try {
-            String[] words = args[0].split(":");
-            String ipn = words[0];
+            int i = 0;
+            String[] words = args[i].split(":");
+            String ipn = words[i++];
+            InetAddress address = InetAddress.getByName(ipn);
             int porta = 53;
             if (words.length == 2) {
-                porta = Integer.parseInt(words[1]);
+                porta = Integer.parseInt(words[i]);
             }
-            String name = args[1];
-            String type = args[2];
-            boolean isRecursive = args.length == 4 && args[3].compareTo("R") == 0;
+            int timeout = Integer.parseInt(args[i++]);
+            String name = args[i++];
+            String type = args[i++];
+            boolean isRecursive = args.length == 5 && args[i].compareTo("R") == 0;
 
-            InetAddress address = InetAddress.getByName(ipn);
             DatagramSocket socket = new DatagramSocket();
+            socket.setSoTimeout(timeout);
 
             // ver message id
-            DNSPacket sendPacket = new DNSPacket((short) 0,true,false,isRecursive,name,DNSPacket.typeOfValueConvert(type));
+            DNSPacket sendPacket = new DNSPacket((short) 0,true,isRecursive,false,name,DNSPacket.typeOfValueConvert(type));
             byte[] sendBytes = sendPacket.dnsPacketToBytes();
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, address, porta);
             socket.send(request);
