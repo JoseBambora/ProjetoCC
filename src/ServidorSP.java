@@ -6,7 +6,7 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 02/11/2022
+ * Data de edição 07/11/2022
  */
 
 public class ServidorSP extends ServidorConfiguracao {

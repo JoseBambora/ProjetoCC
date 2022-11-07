@@ -9,7 +9,7 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 02/11/2022
+ * Data de edição 07/11/2022
  */
 
 public class ServidorConfiguracao {
@@ -135,6 +135,7 @@ public class ServidorConfiguracao {
         if(this instanceof ServidorSS){
             aux2 = ((ServidorSS) this).verificaSS();
         }
+        //System.out.println(aux2);
         return aux && aux2;
     }
 
@@ -179,9 +180,10 @@ public class ServidorConfiguracao {
                                     ss = new ServidorSS();
                                     server = ss;
                                     dominio = words[0];
+                                    ss.addSP(Endereco.stringToIP(words[2]));
+                                    ss.setEspacoCache(10);
                                 }
-                                ss.setEspacoCache(10);
-                                ss.addSP(Endereco.stringToIP(words[2]));
+                                else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
                         }
                         case "DD" -> {
                                 if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
@@ -195,7 +197,6 @@ public class ServidorConfiguracao {
                                 logcounter++;
                             }
                             if (!words[0].equals("all") && server!=null) {
-                                System.out.println(dominio);
                                 if (dominio.matches("(.*)"+words[0])) {
                                     server.addLog(words[2]);
                                 }

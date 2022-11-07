@@ -1,3 +1,4 @@
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,12 +6,12 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
  * Data de criação 23/10/2022
- * Data de edição 02/11/2022
+ * Data de edição 07/11/2022
  */
 
 public class ServidorSS extends ServidorConfiguracao{
 
-    private final List<Endereco> SP;
+    private Endereco SP;
     private Database BD;
 
     /**
@@ -19,14 +20,14 @@ public class ServidorSS extends ServidorConfiguracao{
     public ServidorSS () {
         super();
         this.BD = new Database();
-        this.SP = new ArrayList<>();
+        this.SP = null;
     }
     /**
      * Método que adiciona valores ao campo SP de objetos do tipo ServidorSP
      * @param e endereço do SP a adicionar
      */
     public void addSP(Endereco e){
-        this.SP.add(e);
+        this.SP = e;
     }
 
     /**
@@ -58,6 +59,6 @@ public class ServidorSS extends ServidorConfiguracao{
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSS() {
-        return !this.SP.isEmpty(); //não verificamos BD pois está apenas tem valores após a transferência de zona
+        return !(this.SP == null); //não verificamos BD pois está apenas tem valores após a transferência de zona
     }
 }
