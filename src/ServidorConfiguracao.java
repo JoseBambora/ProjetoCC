@@ -158,7 +158,7 @@ public class ServidorConfiguracao {
                 String[] words = line.split(" ");
                 if(words.length>2){
                     switch(words[1]){
-                        case "SS"->{
+                        case "SS":
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
@@ -166,32 +166,32 @@ public class ServidorConfiguracao {
                             }
                             sp.setEspacoCache(100);
                             sp.addSS(Endereco.stringToIP(words[2]));
-                        }
-                        case "DB" -> {
+                            break;
+                        case "DB":
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
                                 dominio = words[0];
                             }
                             sp.setBD(words[2]);
-                        }
-                        case "SP" -> {
-                                if (ss == null){
-                                    ss = new ServidorSS();
-                                    server = ss;
-                                    dominio = words[0];
-                                    ss.addSP(Endereco.stringToIP(words[2]));
-                                    ss.setEspacoCache(10);
-                                }
-                                else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
-                        }
-                        case "DD" -> {
-                                if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
-                        }
-                        case "ST" -> {
+                            break;
+                        case "SP":
+                            if (ss == null){
+                                ss = new ServidorSS();
+                                server = ss;
+                                dominio = words[0];
+                                ss.addSP(Endereco.stringToIP(words[2]));
+                                ss.setEspacoCache(10);
+                            }
+                            else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
+                            break;
+                        case "DD":
+                            if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
+                            break;
+                        case "ST":
                             if (words[0].equals("root") && server!=null) server.FicheiroST(words[2]);
-                        }
-                        case "LG" -> {
+                            break;
+                        case "LG":
                             if (words[0].equals("all") && server!=null) {
                                 server.addAllLog(words[2]);
                                 logcounter++;
@@ -201,7 +201,7 @@ public class ServidorConfiguracao {
                                     server.addLog(words[2]);
                                 }
                             }
-                        }
+                            break;
                     }
                 }
                 else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
