@@ -8,7 +8,7 @@ import java.util.*;
  * @author José Carvalho
  * Classe que representa a estrutura de um servidor principal
  * Data criação: 23/10/2022
- * Data última atualização: 6/11/2022
+ * Data última atualização: 7/11/2022
  */
 public class Database
 {
@@ -346,17 +346,17 @@ public class Database
                         Integer TTL = converteInt(words, macro,3, "'TTL'");
                         switch (words[1])
                         {
-                            case "SOASP"      -> servidorBD.setSOASP(dom, words[2], TTL);
-                            case "SOAADMIN"   -> servidorBD.setSOAADMIN(dom, words[2], TTL);
-                            case "SOASERIAL"  -> servidorBD.setSOASERIAL(dom, words[2], TTL);
-                            case "SOAREFRESH" -> servidorBD.setSOAREFRESH(dom, converteInt(words,macro,2, "'Tempo'"), TTL);
-                            case "SOARETRY"   -> servidorBD.setSOARETRY(dom, converteInt(words,macro,2, "'Tempo'"), TTL);
-                            case "SOAEXPIRE"  -> servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2 ,"'Tempo'"), TTL);
-                            case "NS"         -> servidorBD.addNS(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL);
-                            case "CNAME"      -> servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL);
-                            case "MX"         -> servidorBD.addMX(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL);
-                            case "A"          -> servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4,"'Prioridade'"), TTL);
-                            default           -> warnings.add("Erro linha " + l + ": Tipo de valor não identificado na linha " + l);
+                            case "SOASP"      : servidorBD.setSOASP(dom, words[2], TTL); break;
+                            case "SOAADMIN"   : servidorBD.setSOAADMIN(dom, words[2], TTL); break;
+                            case "SOASERIAL"  : servidorBD.setSOASERIAL(dom, words[2], TTL); break;
+                            case "SOAREFRESH" : servidorBD.setSOAREFRESH(dom, converteInt(words,macro,2, "'Tempo'"), TTL); break;
+                            case "SOARETRY"   : servidorBD.setSOARETRY(dom, converteInt(words,macro,2, "'Tempo'"), TTL); break;
+                            case "SOAEXPIRE"  : servidorBD.setSOAEXPIRE(dom, converteInt(words,macro,2 ,"'Tempo'"), TTL); break;
+                            case "NS"         : servidorBD.addNS(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL); break;
+                            case "CNAME"      : servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL); break;
+                            case "MX"         : servidorBD.addMX(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL); break;
+                            case "A"          : servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4,"'Prioridade'"), TTL); break;
+                            default           : warnings.add("Erro linha " + l + ": Tipo de valor não identificado na linha " + l); break;
                         }
                     }
                     catch (Exception e)
@@ -387,12 +387,15 @@ public class Database
      * @param dominio Domínio que queremos considerar.
      * @return O campo SOASP
      */
-    private String getSOASP(String dominio)
+    private Value[] getSOASP(String dominio, byte b)
     {
+        Value[] res = null;
         if(dominio.matches("(.*)" + this.SOASP.getValue1()))
-            return SOASP.getValue1() + " SOASP " + SOASP.getValue2() + " " + SOASP.getValue3();
-        else
-            return "";
+        {
+            res = new Value[1];
+            res[0] = new Value(dominio,b,SOASP.getValue2(),SOASP.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -400,12 +403,15 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return O campo SOADMIN
      */
-    private String getSOAADMIN(String dominio)
+    private Value[] getSOAADMIN(String dominio, byte b)
     {
-        if(dominio.matches("(.*)" + this.SOAADMIN.getValue1()))
-            return SOAADMIN.getValue1() + " SOAADMIN " + SOAADMIN.getValue2() + " " + SOAADMIN.getValue3();
-        else
-            return "";
+        Value[] res = null;
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+        {
+            res = new Value[1];
+            res[0] = new Value(dominio,b,SOAADMIN.getValue2(),SOAADMIN.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -413,12 +419,15 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOASERIAL
      */
-    private String getSOASERIAL(String dominio)
+    private Value[] getSOASERIAL(String dominio, byte b)
     {
-        if(dominio.matches("(.*)" + this.SOASERIAL.getValue1()))
-            return SOASERIAL.getValue1() + " SOASERIAL " + SOASERIAL.getValue2() + " " + SOASERIAL.getValue3();
-        else
-            return "";
+        Value[] res = null;
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+        {
+            res = new Value[1];
+            res[0] = new Value(dominio,b,SOASERIAL.getValue2(),SOASERIAL.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -426,12 +435,16 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOAREFRESH
      */
-    private String getSOAREFRESH(String dominio)
+    private Value[] getSOAREFRESH(String dominio, byte b)
     {
-        if(dominio.matches("(.*)" + this.SOAREFRESH.getValue1()))
-            return SOAREFRESH.getValue1() + " SOAREFRESH " + SOAREFRESH.getValue2() + " " + SOAREFRESH.getValue3();
-        else
-            return "";
+        Value[] res = null;
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+        {
+            res = new Value[1];
+            String val = SOAREFRESH.getValue2().toString();
+            res[0] = new Value(dominio,b,val,SOAREFRESH.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -439,12 +452,16 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOARETRY
      */
-    private String getSOARETRY(String dominio)
+    private Value[] getSOARETRY(String dominio, byte b)
     {
-        if(dominio.matches("(.*)" + this.SOARETRY.getValue1()))
-            return SOARETRY.getValue1() + " SOARETRY " + SOARETRY.getValue2() + " " + SOARETRY.getValue3();
-        else
-            return "";
+        Value[] res = null;
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+        {
+            res = new Value[1];
+            String val = SOARETRY.getValue2().toString();
+            res[0] = new Value(dominio,b,val,SOARETRY.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -452,12 +469,16 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Valor do SOAEXPIRE
      */
-    private String getSOAEXPIRE(String dominio)
+    private Value[] getSOAEXPIRE(String dominio, byte b)
     {
-        if(dominio.matches("(.*)" + this.SOAEXPIRE.getValue1()))
-            return SOAEXPIRE.getValue1() + " SOAEXPIRE " + SOAEXPIRE.getValue2() + " " + SOAEXPIRE.getValue3();
-        else
-            return "";
+        Value[] res = null;
+        if(dominio.matches("(.*)" + this.SOASP.getValue1()))
+        {
+            res = new Value[1];
+            String val = SOAEXPIRE.getValue2().toString();
+            res[0] = new Value(dominio,b,val,SOAEXPIRE.getValue3());
+        }
+        return res;
     }
 
     /**
@@ -465,19 +486,19 @@ public class Database
      * @param dominio Domínio que queremos considerar
      * @return Lista com todos os endereços URL
      */
-    private String[] getNS(String dominio)
+    private Value[] getNS(String dominio, byte b)
     {
-        List<String> list = new ArrayList<>();
+        List<Value> list = new ArrayList<>();
         for(String key : this.NS.keySet())
         {
             if(key.matches("(.*)" + dominio))
             {
                 for (Triple<String, Integer, Integer> triple : this.NS.get(key)) {
-                    list.add(key + " NS " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
+                    list.add(new Value(dominio,b,triple.getValue1(), triple.getValue2(),triple.getValue3()));
                 }
             }
         }
-        return list.toArray(new String[0]);
+        return list.toArray(new Value[0]);
     }
 
     /**
@@ -485,20 +506,20 @@ public class Database
      * @param dominio Domínio para ir buscar os endereços.
      * @return Set com todos os endereços.
      */
-    private String[] getA(String dominio)
+    private Value[] getA(String dominio, byte b)
     {
-        List<String> list = new ArrayList<>();
+        List<Value> list = new ArrayList<>();
         for(String key : this.A.keySet())
         {
             if(key.matches("(.*)" + dominio))
             {
                 for(Triple<Endereco,Integer,Integer> triple : this.A.get(key))
                 {
-                    list.add(key + " A " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
+                    list.add(new Value(dominio,b,triple.getValue1().toString(),triple.getValue2(), triple.getValue3()));
                 }
             }
         }
-        return list.toArray(new String[0]);
+        return list.toArray(new Value[0]);
     }
 
     /**
@@ -506,12 +527,15 @@ public class Database
      * @param canonico canonico
      * @return O real valor do nome
      */
-    private String getCNAME(String canonico)
+    private Value[] getCNAME(String canonico, byte b)
     {
+        Value[] res = null;
         if(this.CNAME.containsKey(canonico))
-            return canonico + " CNAME " + CNAME.get(canonico).getValue1() + " " + CNAME.get(canonico).getValue2();
-        else
-            return "";
+        {
+            res = new Value[1];
+            res[0] = new Value(canonico,b,CNAME.get(canonico).getValue1() ,CNAME.get(canonico).getValue2());
+        }
+        return res;
     }
 
     /**
@@ -519,46 +543,44 @@ public class Database
      * @param dominio domínio em questão
      * @return Lista com os emails
      */
-    private String[] getMX(String dominio)
+    private Value[] getMX(String dominio, byte b)
     {
-        List<String> list = new ArrayList<>();
+        List<Value> list = new ArrayList<>();
         for(String key : this.MX.keySet())
         {
             if(key.matches("(.*)" + dominio))
             {
                 for (Triple<String, Integer, Integer> triple : this.MX.get(key)) {
-                    list.add(key + " MX " + triple.getValue1() + " " + triple.getValue2() + " " + triple.getValue3());
+                    list.add(new Value(dominio,b,triple.getValue1(), triple.getValue2(), triple.getValue3()));
                 }
             }
         }
-        return list.toArray(new String[0]);
+        return list.toArray(new Value[0]);
     }
 
     /**
      * Método para a base de dados responder a queries
      * @param param dominio da querie
      * @param type campo da resposta
-     * @return Par entre booleano e um objeto. O Booleano serve para avaliar se a base de dados
-     * soube responder ou não, e o objeto é a resposta.
+     * @return Um array com a informação. Se a informação não existir, iremos devolver um
+     * apontador para null.
      */
-    public Tuple<Boolean,String[]> getInfo(String param, byte type) {
-        String[] res = new String[1];
+    public Value[] getInfo(String param, byte type)
+    {
+        Value[] res = null;
         switch (type)
         {
-            case 0 -> res[0] = this.getSOASP(param); // SOASP
-            case 1 -> res[0] = this.getSOAADMIN(param); // SOADMIN
-            case 2 -> res[0] = this.getSOASERIAL(param); // SOASERIAL
-            case 3 -> res[0] = this.getSOAREFRESH(param); // SOAREFRESH
-            case 4 -> res[0] = this.getSOARETRY(param); // SOARETRY
-            case 5 -> res[0] = this.getSOAEXPIRE(param); // SOAEXPIRE
-            case 6 -> res    = this.getNS(param); // NS
-            case 7 -> res    = this.getA(param); // A
-            case 8 -> res[0] = this.getCNAME(param); // CNAME
-            case 9 -> res    = this.getMX(param); // MX
+            case 0: res = this.getSOASP(param,type); break;
+            case 1 : res = this.getSOAADMIN(param,type); break;
+            case 2 : res = this.getSOASERIAL(param,type); break;
+            case 3 : res = this.getSOAREFRESH(param,type);break;
+            case 4 : res = this.getSOARETRY(param,type);break;
+            case 5 : res = this.getSOAEXPIRE(param,type);break;
+            case 6 : res = this.getNS(param,type); break;
+            case 7 : res = this.getA(param,type); break;
+            case 8 : res = this.getCNAME(param,type); break;
+            case 9 : res = this.getMX(param,type); break;
         }
-        boolean resSuc = res.length != 0 && !res[0].equals("");
-        if(!resSuc)
-            res = null;
-        return new Tuple<>(resSuc,res);
+        return res;
     }
 }

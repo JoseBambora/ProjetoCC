@@ -53,6 +53,14 @@ public class Value {
         this.prioridade = prioridade;
     }
 
+    public int getTTL() {
+        return TTL;
+    }
+
+    public void setTTL(int TTL) {
+        this.TTL = TTL;
+    }
+
     @Override
     public String toString() {
         String prioridade = "";

@@ -72,7 +72,7 @@ public class Server {
                 DNSPacket sendPacket = null;
                 Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
                 // todos acedem à cache
-                Data resp = sc.getCache().findAnswer(receivePacket).getValue2();
+                Data resp = sc.getCache().findAnswer(receivePacket);
                 if (resp != null) {
                     sendPacket = new DNSPacket(header,resp);
                 }

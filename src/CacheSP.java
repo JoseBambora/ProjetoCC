@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class CacheSP extends Cache
 {
-    private Map<String,String> filesDataBase;
+    private final Map<String,String> filesDataBase;
     public CacheSP(int espaco)
     {
         super(espaco);

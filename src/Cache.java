@@ -1,85 +1,114 @@
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * Data criação: 29/10/2022
- * Data última atualização: 6/11/2022
+ * Data última atualização: 7/11/2022
  */
 public class Cache
 {
-    // Pergunta, Resposta, Tempo
-    private final Map<Tuple<String,Byte>,EntryCache> cache;
+    private final Map<Tuple<String,Byte>,EntryCache> cacheRV;
+    private final Map<Tuple<String,Byte>,EntryCache> cacheAV;
+    private final Map<Tuple<String,Byte>,EntryCache> cacheEV;
+    private final Map<Tuple<String,Byte>,LocalDateTime> times;
     private int espaco;
+    private int answers;
     public Cache(int espaco)
     {
-        this.cache = new HashMap<>();
+        this.cacheRV = new HashMap<>();
+        this.cacheAV = new HashMap<>();
+        this.cacheEV = new HashMap<>();
+        this.times = new HashMap<>();
         this.espaco = espaco;
+        this.answers = 0;
     }
     public void setEspaco(int espaco)
     {
         this.espaco = espaco;
-    }
-    public void addLog(DNSPacket resposta)
-    {
-        // Adicionar uma entrada para cada type of value
-        if(this.cache.size() == this.espaco)
-            this.removeData();
-        Data data = resposta.getData();
-        Tuple<String,Byte> t = new Tuple<>(data.getName(), data.getTypeOfValue());
-        this.cache.put(t,new EntryCache(data, EntryCache.Origin.SP,LocalDateTime.now()));
     }
 
     public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
         Data data = resposta.getData();
         Tuple<String,Byte> t = new Tuple<>(data.getName(), data.getTypeOfValue());
-        if(!this.cache.containsKey(t))
+        if(this.answers == this.espaco)
+            this.removeData();
+        if(!this.cacheRV.containsKey(t))
         {
-            if(this.cache.size() == this.espaco)
-                this.removeData();
-            this.cache.put(t,new EntryCache(data, origin,LocalDateTime.now()));
+            this.answers++;
+            this.cacheRV.put(t,new EntryCache(data.getResponseValues(),origin));
+            this.cacheAV.put(t,new EntryCache(data.getResponseValues(),origin));
+            this.cacheEV.put(t,new EntryCache(data.getResponseValues(),origin));
+            this.times.put(t,LocalDateTime.now());
         }
-        else if(EntryCache.Origin.OTHERS == origin)
+        else if(origin == EntryCache.Origin.OTHERS)
+            this.times.put(t,LocalDateTime.now());
+    }
+    public void removeExpireInfo()
+    {
+        for(Tuple<String,Byte> key : this.cacheRV.keySet())
         {
-            this.cache.get(t).setTempo(LocalDateTime.now());
+            EntryCache rv = this.cacheRV.get(key);
+            EntryCache av = this.cacheAV.get(key);
+            EntryCache ev = this.cacheEV.get(key);
+            LocalDateTime localDateTime = this.times.get(key);
+            int num = rv.removeExpired(localDateTime);
+            av.removeExpired(localDateTime);
+            ev.removeExpired(localDateTime);
+            if(num == 0)
+            {
+                this.cacheRV.remove(key);
+                this.cacheAV.remove(key);
+                this.cacheEV.remove(key);
+            }
         }
     }
-
     public void removeData()
     {
-        // Comparar TTL, não remover entradas do SP / SS que TTL esteja válido
-        List<Tuple<String,Byte>> remove = new ArrayList<>(this.cache.keySet());
-        remove.sort((t1,t2) -> this.cache.get(t1).compareTo(this.cache.get(t2)));
-        for(int i = 0; i < this.cache.size()/2; i++)
-            this.cache.remove(remove.get(i));
-    }
-    public Tuple<Boolean,Data> findAnswer(DNSPacket mensagem)
-    {
-        Tuple<String,Byte> t = new Tuple<>(mensagem.getData().getName(),mensagem.getData().getTypeOfValue());
-        Data resData = this.cache.get(t).getDados();
-        boolean resBool = true;
-        if (resData.getResponseValues() == null)
+        this.removeExpireInfo();
+        if(this.answers == this.espaco)
         {
-            resBool = false;
-            resData = null;
+            List<Tuple<String,Byte>> remove = new ArrayList<>(this.cacheRV.keySet());
+            remove.sort((t1,t2) -> (int) ChronoUnit.NANOS.between(this.times.get(t2),this.times.get(t1)));
+            for(int i = 0; i < this.espaco/2; i++)
+            {
+                this.cacheRV.remove(remove.get(i));
+                this.cacheAV.remove(remove.get(i));
+                this.cacheEV.remove(remove.get(i));
+            }
+            this.answers -= (this.espaco/2);
         }
-        return new Tuple<>(resBool,resData);
+    }
+    public Data findAnswer(DNSPacket mensagem)
+    {
+        String name = mensagem.getData().getName();
+        byte b = mensagem.getData().getTypeOfValue();
+        Tuple<String,Byte> t = new Tuple<>(name,b);
+        Data res = null;
+        if(this.cacheRV.containsKey(t))
+        {
+            res =  new Data(name,b);
+            res.setResponseValues(this.cacheRV.get(t).getDados());
+            res.setAuthoriteValues(this.cacheAV.get(t).getDados());
+            res.setExtraValues(this.cacheEV.get(t).getDados());
+        }
+        return res;
     }
 
     // exclusiva dos SS
     public void removeByName(String name)
     {
-        for(Tuple<String,Byte> elem : this.cache.keySet())
+        for(Tuple<String,Byte> elem : this.cacheRV.keySet())
         {
             if(elem.getValue1().equals(name))
             {
-                this.cache.remove(elem);
+                this.cacheRV.remove(elem);
+                this.cacheAV.remove(elem);
+                this.cacheEV.remove(elem);
             }
         }
     }
@@ -88,8 +117,10 @@ public class Cache
     public String toString()
     {
         StringBuilder res = new StringBuilder();
-        for(EntryCache entryCache : this.cache.values())
+        for(EntryCache entryCache : this.cacheRV.values())
+        {
             res.append(entryCache.toString()).append("\n");
+        }
         return res.toString();
     }
 }
