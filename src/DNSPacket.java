@@ -56,20 +56,44 @@ public class DNSPacket implements Serializable {
     }
 
     public static byte typeOfValueConvert (String type) throws Exception {
-        return switch (type) {
-            case "SOASP" -> (byte) 0;
-            case "SOAADMIN" -> (byte) 1;
-            case "SOASERIAL" -> (byte) 2;
-            case "SOAREFRESH" -> (byte) 3;
-            case "SOARETRY" -> (byte) 4;
-            case "SOAEXPIRE" -> (byte) 5;
-            case "NS" -> (byte) 6;
-            case "A" -> (byte) 7;
-            case "CNAME" -> (byte) 8;
-            case "MX" -> (byte) 9;
-            case "PTR" -> (byte) 10;
-            default -> throw new Exception();
+        byte ret;
+        switch (type) {
+            case "SOASP":
+                ret = (byte) 0;
+                break;
+            case "SOAADMIN":
+                ret = (byte) 1;
+                break;
+            case "SOASERIAL":
+                ret = (byte) 2;
+                break;
+            case "SOAREFRESH":
+                ret = (byte) 3;
+                break;
+            case "SOARETRY":
+                ret = (byte) 4;
+                break;
+            case "SOAEXPIRE":
+                ret = (byte) 5;
+                break;
+            case "NS":
+                ret = (byte) 6;
+                break;
+            case "A":
+                ret = (byte) 7;
+                break;
+            case "CNAME":
+                ret = (byte) 8;
+                break;
+            case "MX":
+                ret = (byte) 9;
+                break;
+            case "PTR":
+                ret = (byte) 10;
+            default:
+                throw new Exception();
         };
+        return ret;
     }
 
 
