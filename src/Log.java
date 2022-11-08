@@ -1,8 +1,9 @@
-/********************************************************
- * Author: João Martins                                 *
- * Created date: 22/10/2022                             *
- * Last Update: 22/10/2022                              *
- ********************************************************/
+/**
+ * @Author João Martins
+ * @Class Client
+ * Created date: 22/10/2022
+ * Last Update: 07/11/2022
+ */
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,11 +20,11 @@ public class Log {
 
     Date date; /* Etiqueta temporal */
     EntryType type; /* Tipo de entrada */
-    Endereco addr; /* Endereço IP */
+    String addr; /* Endereço IP */
     int port; /* Porta */
     byte[] data; /* Dados de entrada */
 
-    public Log(Date date, EntryType type, Endereco addr, int port, byte[] data) {
+    public Log(Date date, EntryType type, String addr, int port, byte[] data) {
         this.date = date;
         this.type = type;
         this.addr = addr;
@@ -37,15 +38,16 @@ public class Log {
         sb.append(dateFormat.format(this.date));
         sb.append(" ");
         sb.append(type);
+        sb.append(" ");
         sb.append(addr);
-        if (port!=-1) {       /* Ainda vou mudar isto */
+        if (port!=53) {
             sb.append(":");
             sb.append(port);
         }
         sb.append(" ");
         try {
             sb.append(DNSPacket.bytesToDnsPacket(data).toString());
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {  // MUDAR ISTO BYTE PARA VALUE
             throw new RuntimeException(e);
         }
         sb.append("\n");

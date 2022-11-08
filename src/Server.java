@@ -1,121 +1,99 @@
 /**
- * @author João Martins
- * Classe Servidor
- * Data de criação 03/11/2022
- * Data de edição 04/11/2022
+ * @Author João Martins
+ * @Class Server
+ * Created date: 03/11/2022
+ * Last update: 07/11/2022
  */
 
-
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.util.Date;
 
+
 /*
-    Argumento 1: Ficheiro de configuração
-    Argumento 2: Valor de timeout à espera de um query
-    Argumento 3: (opcional) porta de funcionameto
-    Argumento 4: (opcional) funcionar em Debug (usar um 'D')
+ Tipo do valor | DB   SP   SS   ST
+ SP            |  t   nt    t    t
+ SS            |  nt  t    nt    t
+ SR            |  nt  nt   nt    t
+ ST            |  t   nt   nt   nt
+ SDT           funciona como sp
  */
-
-// Tipo do valor | DB   SP   SS   ST
-// SP            |  t   nt    t    t
-// SS            |  nt  t    nt    t
-// SR            |  nt  nt   nt    t
-// ST            |  t   nt   nt   nt
-// SDT           funciona como sp
-
 public class Server {
+    private String configFile;  /* 1º arg: config file */
+    private int timeout;        /* 2º arg: timeout */
+    private int port;           /* 3º arg: porta de funcionameto */
+    private boolean debug;      /* 4º arg: funcionar em debug */
+
+    public Server() {
+        this.configFile = "";
+        this.timeout = 0;
+        this.port = 53;
+        this.debug = false;
+    }
 
     public static void main(String[] args) {
+        Server s = new Server();
+
         try {
             int i = 0;
-            int porta = 53;
-            String configFile = args[i++];
-            String timeout = args[i++];
-            boolean debug = false;
-
-            if (args.length == 3 && args[i].compareTo("D")==0) {
-                debug = true;
-            }
-            else if (args.length == 3) {
-                porta = Integer.parseInt(args[i]);
-            }
-            else if (args.length == 4){
-                porta = Integer.parseInt(args[i++]);
-                debug = args[i].compareTo("D")==0;
+            s.configFile = args[i++];
+            s.timeout = Integer.parseInt(args[i++]);
+            if (args.length == 3 && args[i].compareTo("D")==0) { s.debug = true; }
+            else if (args.length == 3) { s.port = Integer.parseInt(args[i]); }
+            else if (args.length == 4) {
+                s.port = Integer.parseInt(args[i++]);
+                s.debug = args[i].compareTo("D")==0;
             }
 
-            // configurar servidor
-            ServidorConfiguracao sc = ServidorConfiguracao.parseServer(configFile);
+            /* Configurate server */
+            ServidorConfiguracao sc = ServidorConfiguracao.parseServer(s.configFile);
 
-            // flag para identificar o tipo do servidor
+            /* Identificate the type of server */
             boolean sp = sc instanceof ServidorSP;
             boolean ss = sc instanceof ServidorSS;
 
-            DatagramSocket socket = new DatagramSocket(porta);
+            /* Zone transfer if is SS */
+            if (ss) {
+
+            }
+
+
+            DatagramSocket socket = new DatagramSocket(s.port);
 
             while (true) {
 
-                // receber pacote
+                /* Receive packet */
                 byte[] receiveBytes = new byte[1000];
                 DatagramPacket request = new DatagramPacket(receiveBytes, receiveBytes.length);
                 socket.receive(request);
                 DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
-                //criar log e escrever no output
+                /* Create Log and write in the output */
                 InetAddress clientAddress = request.getAddress();
                 int clientPort = request.getPort();
-                Log qr = new Log(new Date(), Log.EntryType.QR,Endereco.stringToIP(clientAddress.toString().substring(1)),clientPort,receiveBytes);
-                if (debug) System.out.println(qr);
+                Log qr = new Log(new Date(), Log.EntryType.QR,clientAddress.getHostAddress(),clientPort,receiveBytes);
+                // Log no ficheiro respetivo
+                if (s.debug) System.out.println(qr);
 
-
+                /* Find answer */
                 DNSPacket sendPacket = null;
                 Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
-                // todos acedem à cache
                 Data resp = sc.getCache().findAnswer(receivePacket);
-                if (resp != null) {
-                    sendPacket = new DNSPacket(header,resp);
-                }
-                else if (sp) {
-                    ServidorSP spServer = (ServidorSP) sc;
-                    Value[] responseValues = spServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue());
+                sendPacket = new DNSPacket(header,resp);
 
-                    if (responseValues!=null) {
-                        header.setFlagA(true);
-                        sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }
-                }
-                else if (ss) {
-                    ServidorSS ssServer = (ServidorSS) sc;
-                    Value[] responseValues = ssServer.getDB().getInfo(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue());
-
-                    if (responseValues!=null) {
-                        header.setFlagA(true);
-                        sendPacket = new DNSPacket(header,new Data(receivePacket.getData().getName(),receivePacket.getData().getTypeOfValue(),responseValues,null,null));
-                    }
-                }
-
-                // campo dd
-
-                if (sendPacket==null && !sc.getST().isEmpty()) {
-                    // perguntar aos st
-                }
-
-                if (sendPacket!= null) {
-                    byte[] sendBytes = sendPacket.dnsPacketToBytes();
-                    // enviar resposta
-                    DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
-                    socket.send(response);
-                    Log qe = new Log(new Date(), Log.EntryType.QE,Endereco.stringToIP(clientAddress.toString().substring(1)),clientPort,sendBytes);
-                    if (debug) System.out.println(qe);
-                }
+                /* Send answer */
+                byte[] sendBytes = sendPacket.dnsPacketToBytes();
+                DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+                socket.send(response);
+                Log qe = new Log(new Date(), Log.EntryType.QE,clientAddress.getHostAddress(),clientPort,sendBytes);
+                if (s.debug) System.out.println(qe);
 
             }
 
-        }
-        catch (Exception e) {
-            System.out.println("Invalid Arguments.");
+        } catch (Exception e) {
+            if (s.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL,"127.0.0.1",53,null);
+                System.out.println(fl);
+            }
         }
 
     }

@@ -55,7 +55,7 @@ public class DNSPacket implements Serializable {
                data.equals(dnsPacket.data);
     }
 
-    public static byte typeOfValueConvert (String type) throws Exception {
+    public static byte typeOfValueConvert (String type) throws TypeOfValueException {
         byte ret;
         switch (type) {
             case "SOASP":
@@ -91,7 +91,7 @@ public class DNSPacket implements Serializable {
             case "PTR":
                 ret = (byte) 10;
             default:
-                throw new Exception();
+                throw new TypeOfValueException("");
         };
         return ret;
     }
