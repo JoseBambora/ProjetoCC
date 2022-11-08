@@ -13,7 +13,7 @@ import java.util.Map;
  * Data criação: 5/11/2022
  * Data última atualização: 5/11/2022
  */
-public class DatabaseReverse
+public class DatabaseReverse extends Database
 {
     /**
      * Indica o nome dum servidor/host que usa o endereço IPv4 indicado no parâmetro
@@ -21,6 +21,7 @@ public class DatabaseReverse
     private final Map<Endereco,Tuple<String,Integer>> PTR;
     DatabaseReverse()
     {
+        super();
         this.PTR = new HashMap<>();
     }
     /**
@@ -40,37 +41,47 @@ public class DatabaseReverse
         return this.PTR.get(endereco).getValue1();
     }
 
-    public static DatabaseReverse createReverseDB(String filename) throws IOException
+    /**
+     * Método que faz o parsing de um ficheiro para um BD
+     * @param filename Nome do ficheiro.
+     * @return Base de Dados.
+     */
+    public static Database createBD(String filename) throws IOException
     {
         DatabaseReverse databaseReverse = new DatabaseReverse();
         int l = 0;
         List<String> warnings = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+        Map<String,String> macro = new HashMap<>();
         for(String line : lines)
         {
             String[]words = line.split(" ");
             if(line.length() > 0 && line.charAt(0) != '#'&& words.length > 3)
             {
-                if(words[1].equals("PTR"))
+                if(words[1].equals("DEFAULT"))
+                    macro.put(words[0], words[2]);
+                else
                 {
                     try
                     {
-                        Integer TTL = Integer.parseInt(words[3]);
-                        databaseReverse.addPTR(Endereco.stringToIP(words[0]),words[2],TTL);
+                        String dom = Database.converteDom(words[0], macro);
+                        Integer TTL = Database.converteInt(words, macro,3, "'TTL'");
+                        switch (words[1])
+                        {
+                            case "NS"  : databaseReverse.addNS(dom, words[2], Database.converteInt(words,macro,4,"'Prioridade'"), TTL); break;
+                            case "PTR" : databaseReverse.addPTR(Endereco.stringToIP(words[0]),words[2],TTL); break;
+                            default    : warnings.add("Erro linha " + l + ": Tipo de valor não identificado."); break;
+                        }
                     }
                     catch (Exception e)
                     {
                         warnings.add("Erro linha " + l + ": " + e.getMessage());
                     }
                 }
-                else
-                {
-                    warnings.add("Erro linha " + l + ": com campo não identificável.");
-                }
             }
             else if(words.length < 4)
             {
-                warnings.add("Erro linha " + l + ": com campos incompletos.");
+                warnings.add("Erro linha " + l + ": Não respeita a sintaxe.");
             }
             l++;
         }

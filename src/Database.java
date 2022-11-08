@@ -240,7 +240,7 @@ public class Database
      * @param macro Mapeamento que contém as macros guardados. É util para ir buscar a marco "@".
      * @return Endereço URL final.
      */
-    private static String converteDom(String str, Map<String,String> macro)
+    public static String converteDom(String str, Map<String,String> macro)
     {
         String res = str;
         if(str.charAt(str.length()-1) != '.')
@@ -262,7 +262,7 @@ public class Database
      * @param campo Campo que queremos ir buscar o inteiro. Esta string serve para saber quais os limites.
      * @return Inteiro Convertido
      */
-    private static int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
+    public static int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
         Tuple<Integer,Integer> tuple;
         if(campo.equals("'Prioridade'"))
             tuple = pri;
@@ -356,7 +356,7 @@ public class Database
                             case "CNAME"      : servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL); break;
                             case "MX"         : servidorBD.addMX(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL); break;
                             case "A"          : servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4,"'Prioridade'"), TTL); break;
-                            default           : warnings.add("Erro linha " + l + ": Tipo de valor não identificado na linha " + l); break;
+                            default           : warnings.add("Erro linha " + l + ": Tipo de valor não identificado."); break;
                         }
                     }
                     catch (Exception e)
