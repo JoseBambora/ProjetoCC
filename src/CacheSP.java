@@ -151,7 +151,7 @@ public class CacheSP extends Cache
                             case "PTR"        :
                                 cacheRes.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),words[2],TTL), EntryCache.Origin.FILE); break;
                             case "CNAME"      :
-                                String name = converteDom(words[0], macro);
+                                String name = converteDom(words[2], macro);
                                 cacheRes.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),name,TTL), EntryCache.Origin.FILE); break;
                             case "NS"         :
                             case "MX"         :
