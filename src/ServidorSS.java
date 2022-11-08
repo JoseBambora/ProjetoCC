@@ -45,6 +45,7 @@ public class ServidorSS extends ServidorConfiguracao{
     @Override
     public String toString() {
         return "ServidorSS{" + "\n" +
+                "   Dominio = " + this.getDominio() +"\n" +
                 "   DB = " + this.getDB() + "\n" +
                 "   SP = " + SP + "\n" +
                 "   DD = " + this.getDD() + "\n" +

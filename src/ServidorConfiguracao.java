@@ -14,6 +14,7 @@ import java.util.List;
 
 public class ServidorConfiguracao {
 
+    private String dominio;
     private final List<Endereco> DD;
     private final List<Endereco> ST;
     private final List<String> LG;
@@ -26,6 +27,7 @@ public class ServidorConfiguracao {
      * Construtor de objetos da classe ServidorConfiguracao
      */
     public ServidorConfiguracao() {
+        this.dominio = null;
         this.DD = new ArrayList<>();
         this.ST = new ArrayList<>();
         this.LG = new ArrayList<>();
@@ -69,6 +71,14 @@ public class ServidorConfiguracao {
                 ST.add(Endereco.stringToIP(str));
             }
         }
+    }
+
+    /**
+     * Getter do dominio de um objeto da classe ServidorConfiguracao
+     * @return O dominio do ServidorConfiguracao
+     */
+    public String getDominio() {
+        return dominio;
     }
 
     /**
@@ -151,7 +161,6 @@ public class ServidorConfiguracao {
         ServidorSP sp = null;
         ServidorSS ss = null;
         List<String> warnings = new ArrayList<>();
-        String dominio = null;
         int logcounter = 0;
         for(String line : lines){
             if (line.length() > 0 && line.charAt(0) != '#') {
@@ -162,7 +171,7 @@ public class ServidorConfiguracao {
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
-                                dominio = words[0];
+                                server.dominio = words[0];
                             }
                             sp.setEspacoCache(100);
                             sp.addSS(Endereco.stringToIP(words[2]));
@@ -171,7 +180,7 @@ public class ServidorConfiguracao {
                             if (sp == null) {
                                 sp = new ServidorSP();
                                 server = sp;
-                                dominio = words[0];
+                                server.dominio = words[0];
                             }
                             sp.setBD(words[2]);
                             break;
@@ -179,25 +188,34 @@ public class ServidorConfiguracao {
                             if (ss == null){
                                 ss = new ServidorSS();
                                 server = ss;
-                                dominio = words[0];
+                                server.dominio = words[0];
                                 ss.addSP(Endereco.stringToIP(words[2]));
                                 ss.setEspacoCache(10);
                             }
                             else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
                             break;
                         case "DD":
-                            if(server!=null) server.addEnderecoDD(Endereco.stringToIP(words[2]));
+                            if(server==null){
+                                server = new ServidorConfiguracao();
+                            }
+                            server.addEnderecoDD(Endereco.stringToIP(words[2]));
                             break;
                         case "ST":
-                            if (words[0].equals("root") && server!=null) server.FicheiroST(words[2]);
+                            if(server==null){
+                                server = new ServidorConfiguracao();
+                            }
+                            if (words[0].equals("root")) server.FicheiroST(words[2]);
                             break;
                         case "LG":
-                            if (words[0].equals("all") && server!=null) {
+                            if(server==null){
+                                server = new ServidorConfiguracao();
+                            }
+                            if (words[0].equals("all")) {
                                 server.addAllLog(words[2]);
                                 logcounter++;
                             }
-                            if (!words[0].equals("all") && server!=null) {
-                                if (dominio.matches("(.*)"+words[0])) {
+                            if (!words[0].equals("all")) {
+                                if (server.dominio.matches("(.*)"+words[0])) {
                                     server.addLog(words[2]);
                                 }
                             }
@@ -228,10 +246,11 @@ public class ServidorConfiguracao {
     @Override
     public String toString() {
         return "ServidorConfiguracao:" + "\n" +
+                "   Dominio = " + dominio +" \n" +
                 "   DD = " + DD + "\n" +
                 "   ST = " + ST + "\n" +
                 "   LG = " + LG + "\n" +
-                "   all LG =" + LG + "\n" +
+                "   all LG = " + LG + "\n" +
                 "   cache = " + cache;
     }
 }
