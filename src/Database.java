@@ -304,6 +304,10 @@ public class Database
             throw new Exception("Não respeita a sintaxe.");
        return num;
     }
+    public boolean emptyNS()
+    {
+        return this.NS.isEmpty();
+    }
 
     /**
      * Método que verifica se a base de dados contém todos os campos e naqueles que

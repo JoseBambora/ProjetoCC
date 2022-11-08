@@ -85,6 +85,11 @@ public class DatabaseReverse extends Database
             }
             l++;
         }
+        if(databaseReverse.PTR.isEmpty() || databaseReverse.emptyNS())
+        {
+            databaseReverse = null;
+            warnings.add("Campos em falta. BD reverse não criada");
+        }
         System.out.println("Warnings no ficheiro '" + filename + "':");
         for(String warning : warnings)
         {
