@@ -1,16 +1,12 @@
-import java.io.Serializable;
-import java.util.Objects;
-
-public class Header implements Serializable {
+public class Header {
     private short messageID;
     private boolean flagQ;
     private boolean flagR;
     private boolean flagA;
-    private byte responseCode; // 0 1 2 3 ver situações
+    private byte responseCode;
     private byte numberOfValues;
     private byte numberOfAuthorites;
     private byte numberOfExtraValues;
-
 
     public Header(short messageID, boolean flagQ, boolean flagR, boolean flagA, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues) {
         this.messageID = messageID;
@@ -105,13 +101,13 @@ public class Header implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Header header = (Header) o;
         return messageID == header.messageID &&
-               flagQ == header.flagQ &&
-               flagR == header.flagR &&
-               flagA == header.flagA &&
-               responseCode == header.responseCode &&
-               numberOfValues == header.numberOfValues &&
-               numberOfAuthorites == header.numberOfAuthorites &&
-               numberOfExtraValues == header.numberOfExtraValues;
+                flagQ == header.flagQ &&
+                flagR == header.flagR &&
+                flagA == header.flagA &&
+                responseCode == header.responseCode &&
+                numberOfValues == header.numberOfValues &&
+                numberOfAuthorites == header.numberOfAuthorites &&
+                numberOfExtraValues == header.numberOfExtraValues;
     }
 
     public String flagsToString () {
@@ -125,6 +121,49 @@ public class Header implements Serializable {
         else if (this.flagA) out = "A";                                 // 0 0 1
         else out = "";                                                  // 0 0 0
         return out;
+    }
+
+    public static Header stringToHeader (String header) {
+        String[] headerFields = header.split(",");
+        short mId = (short) Integer.parseInt(headerFields[0]);
+        boolean q = false;
+        boolean r = false;
+        boolean a = false;
+        switch (headerFields[1]) {
+            case "Q+R+A":
+                q = true;
+                r = true;
+                a = true;
+                break;
+            case "Q+R":
+                q = true;
+                r = true;
+                break;
+            case "Q+A":
+                q = true;
+                a = true;
+                break;
+            case "Q":
+                q = true;
+                break;
+            case "R+A":
+                r = true;
+                a = true;
+                break;
+            case "R":
+                r = true;
+                break;
+            case "A":
+                a = true;
+                break;
+            default:
+                break;
+        }
+        byte rc = (byte) Integer.parseInt(headerFields[2]);
+        byte nv = (byte) Integer.parseInt(headerFields[3]);
+        byte na = (byte) Integer.parseInt(headerFields[4]);
+        byte ne = (byte) Integer.parseInt(headerFields[5]);
+        return new Header(mId,q,r,a,rc,nv,na,ne);
     }
 
     @Override

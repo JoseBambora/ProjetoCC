@@ -1,13 +1,6 @@
-import java.io.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Objects;
-
-public class DNSPacket implements Serializable {
+public class DNSPacket {
     private Header header;
     private Data data;
-
-
 
     public DNSPacket(short messageID, boolean flagQ, boolean flagR, boolean flagA, String name, byte typeOfValue) {
         this.header = new Header(messageID,flagQ,flagR,flagA);
@@ -52,7 +45,7 @@ public class DNSPacket implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         DNSPacket dnsPacket = (DNSPacket) o;
         return header.equals(dnsPacket.header) &&
-               data.equals(dnsPacket.data);
+                data.equals(dnsPacket.data);
     }
 
     public static byte typeOfValueConvert (String type) throws TypeOfValueException {
@@ -96,22 +89,80 @@ public class DNSPacket implements Serializable {
         return ret;
     }
 
-
-    public byte[] dnsPacketToBytes() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(this);
-        oos.flush();
-        return bos.toByteArray();
+    public static String typeOfValueConvertSring (byte type) {
+        String ret;
+        switch (type) {
+            case 0:
+                ret = "SOASP";
+                break;
+            case 1:
+                ret = "SOAADMIN";
+                break;
+            case 2:
+                ret = "SOASERIAL";
+                break;
+            case 3:
+                ret = "SOAREFRESH";
+                break;
+            case 4:
+                ret = "SOARETRY";
+                break;
+            case 5:
+                ret = "SOAEXPIRE";
+                break;
+            case 6:
+                ret = "NS";
+                break;
+            case 7:
+                ret = "A";
+                break;
+            case 8:
+                ret = "CNAME";
+                break;
+            case 9:
+                ret = "MX";
+                break;
+            case 10:
+                ret = "PTR";
+            default:
+                ret = "";
+        };
+        return ret;
     }
 
-    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream bi = new ByteArrayInputStream(bytes);
-        ObjectInputStream oi = new ObjectInputStream(bi);
-        DNSPacket r = (DNSPacket) oi.readObject();
-        bi.close();
-        oi.close();
-        return r;
+
+    public byte[] dnsPacketToBytes() {
+        return this.toString().getBytes();
     }
+
+    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws TypeOfValueException {
+        String packet = new String(bytes);
+        String[] fields = packet.split(";");
+        Header h = Header.stringToHeader(fields[0]);
+        String[] qi = fields[1].split(",");
+        String name = qi[0];
+        byte tv = DNSPacket.typeOfValueConvert(qi[1]);
+
+        int i = 0;
+        Value[] rv = new Value[h.getNumberOfValues()];
+        String[] rvAux = fields[2].split(",");
+        for (String str : rvAux) {
+            rv[i++] = Value.stringToValue(str.substring(1));
+        }
+        i = 0;
+        Value[] av = new Value[h.getNumberOfAuthorites()];
+        String[] avAux = fields[3].split(",");
+        for (String str : avAux) {
+            av[i++] = Value.stringToValue(str.substring(1));
+        }
+        i = 0;
+        Value[] ev = new Value[h.getNumberOfExtraValues()];
+        String[] evAux = fields[4].split(",");
+        for (String str : evAux) {
+            ev[i++] = Value.stringToValue(str.substring(1));
+        }
+        return new DNSPacket(h,new Data(name,tv,rv,av,ev));
+    }
+
 
 }

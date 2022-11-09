@@ -61,11 +61,24 @@ public class Value {
         this.TTL = TTL;
     }
 
+    public static Value stringToValue (String value) throws TypeOfValueException {
+        String[] fields = value.split(" ");
+        int prioridade = -1;
+        if (fields.length == 5) {
+            prioridade = Integer.parseInt(fields[4]);
+        }
+        return new Value(fields[0],(byte) DNSPacket.typeOfValueConvert(fields[1]),fields[2],Integer.parseInt(fields[3]),prioridade);
+    }
+
     @Override
     public String toString() {
-        String prioridade = "";
-        if(this.prioridade != -1)
-            prioridade = Integer.toString(this.prioridade);
-        return this.dominio + " " + this.type + " " + this.value + " " + this.TTL + " " + prioridade;
+        String out;
+        if (this.prioridade != -1) {
+            out = this.dominio + " " + DNSPacket.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL + " " + this.prioridade;
+        }
+        else {
+            out = this.dominio + " " + DNSPacket.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL;
+        }
+        return out;
     }
 }

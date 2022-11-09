@@ -9,14 +9,6 @@ import java.net.*;
 import java.util.Date;
 
 
-/*
- Tipo do valor | DB   SP   SS   ST
- SP            |  t   nt    t    t
- SS            |  nt  t    nt    t
- SR            |  nt  nt   nt    t
- ST            |  t   nt   nt   nt
- SDT           funciona como sp
- */
 public class Server {
     private String configFile;  /* 1º arg: config file */
     private int timeout;        /* 2º arg: timeout */
@@ -59,35 +51,32 @@ public class Server {
 
             DatagramSocket socket = new DatagramSocket(s.port);
 
-            while (true) {
+            /* Receive packet */
+            byte[] receiveBytes = new byte[1000];
+            DatagramPacket request = new DatagramPacket(receiveBytes, receiveBytes.length);
+            socket.receive(request);
+            DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
-                /* Receive packet */
-                byte[] receiveBytes = new byte[1000];
-                DatagramPacket request = new DatagramPacket(receiveBytes, receiveBytes.length);
-                socket.receive(request);
-                DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
+            /* Create Log and write in the output */
+            InetAddress clientAddress = request.getAddress();
+            int clientPort = request.getPort();
+            Log qr = new Log(new Date(), Log.EntryType.QR,clientAddress.getHostAddress(),clientPort,"");
+            // Log no ficheiro respetivo
+            if (s.debug) System.out.println(qr);
 
-                /* Create Log and write in the output */
-                InetAddress clientAddress = request.getAddress();
-                int clientPort = request.getPort();
-                Log qr = new Log(new Date(), Log.EntryType.QR,clientAddress.getHostAddress(),clientPort,receiveBytes);
-                // Log no ficheiro respetivo
-                if (s.debug) System.out.println(qr);
+            /* Find answer */
+            DNSPacket sendPacket = null;
+            Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
+            Data resp = sc.getCache().findAnswer(receivePacket);
+            sendPacket = new DNSPacket(header,resp);
 
-                /* Find answer */
-                DNSPacket sendPacket = null;
-                Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(),false);
-                Data resp = sc.getCache().findAnswer(receivePacket);
-                sendPacket = new DNSPacket(header,resp);
+            /* Send answer */
+            byte[] sendBytes = sendPacket.dnsPacketToBytes();
+            DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+            socket.send(response);
+            Log re = new Log(new Date(), Log.EntryType.QE,clientAddress.getHostAddress(),clientPort,"");
+            if (s.debug) System.out.println(re);
 
-                /* Send answer */
-                byte[] sendBytes = sendPacket.dnsPacketToBytes();
-                DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
-                socket.send(response);
-                Log qe = new Log(new Date(), Log.EntryType.QE,clientAddress.getHostAddress(),clientPort,sendBytes);
-                if (s.debug) System.out.println(qe);
-
-            }
 
         } catch (Exception e) {
             if (s.debug) {

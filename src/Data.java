@@ -1,7 +1,6 @@
-import java.io.Serializable;
 import java.util.Arrays;
 
-public class Data implements Serializable {
+public class Data {
     private String name;
     private byte typeOfValue; // 11 tipos
     private Value[] responseValues;
@@ -71,10 +70,10 @@ public class Data implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Data data = (Data) o;
         return typeOfValue == data.typeOfValue &&
-               name.equals(data.name) &&
-               Arrays.equals(responseValues, data.responseValues) &&
-               Arrays.equals(authoriteValues, data.authoriteValues) &&
-               Arrays.equals(extraValues, data.extraValues);
+                name.equals(data.name) &&
+                Arrays.equals(responseValues, data.responseValues) &&
+                Arrays.equals(authoriteValues, data.authoriteValues) &&
+                Arrays.equals(extraValues, data.extraValues);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class Data implements Serializable {
         StringBuilder out = new StringBuilder();
         out.append(name);
         out.append(",");
-        out.append(typeOfValue);
+        out.append(DNSPacket.typeOfValueConvertSring(typeOfValue));
         out.append(";\n");
         int i, tam;
         if (responseValues!=null) {

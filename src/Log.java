@@ -22,9 +22,9 @@ public class Log {
     EntryType type; /* Tipo de entrada */
     String addr; /* Endereço IP */
     int port; /* Porta */
-    byte[] data; /* Dados de entrada */
+    String data; /* Dados de entrada */
 
-    public Log(Date date, EntryType type, String addr, int port, byte[] data) {
+    public Log(Date date, EntryType type, String addr, int port, String data) {
         this.date = date;
         this.type = type;
         this.addr = addr;
@@ -45,11 +45,7 @@ public class Log {
             sb.append(port);
         }
         sb.append(" ");
-        try {
-            sb.append(DNSPacket.bytesToDnsPacket(data).toString());
-        } catch (IOException | ClassNotFoundException e) {  // MUDAR ISTO BYTE PARA VALUE
-            throw new RuntimeException(e);
-        }
+        sb.append(data);
         sb.append("\n");
         return sb.toString();
     }
@@ -63,6 +59,6 @@ public class Log {
                this.type == l.type &&
                this.port == l.port &&
                this.addr.equals(l.addr) &&
-               Arrays.equals(this.data, l.data);
+               this.data.equals(l.data);
     }
 }
