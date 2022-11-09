@@ -32,7 +32,7 @@ public class CacheSP extends Cache
      * @param macro Mapeamento que contém as macros guardados. É util para ir buscar a marco "@".
      * @return Endereço URL final.
      */
-    private static String converteDom(String str, Map<String,String> macro)
+    private String converteDom(String str, Map<String,String> macro)
     {
         String res = str;
         if(str.charAt(str.length()-1) != '.')
@@ -54,7 +54,7 @@ public class CacheSP extends Cache
      * @param campo Campo que queremos ir buscar o inteiro. Esta string serve para saber quais os limites.
      * @return Inteiro Convertido
      */
-    private static int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
+    private int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
         Tuple<Integer,Integer> tuple;
         if(campo.equals("'Prioridade'"))
             tuple = pri;
@@ -101,10 +101,9 @@ public class CacheSP extends Cache
      * @param filename Nome do ficheiro.
      * @return Base de Dados.
      */
-    public static Cache createBD(String filename) throws IOException {
+    public void createBD(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         Map<String,String> macro = new HashMap<>();
-        Cache cacheRes = new CacheSP(1000);
         List<String> warnings = new ArrayList<>();
         Map<String,Byte> aux = new HashMap<>();
         int l = 1;
@@ -149,15 +148,15 @@ public class CacheSP extends Cache
                             case "SOARETRY"   :
                             case "SOAEXPIRE"  :
                             case "PTR"        :
-                                cacheRes.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),words[2],TTL), EntryCache.Origin.FILE); break;
+                                this.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),words[2],TTL), EntryCache.Origin.FILE); break;
                             case "CNAME"      :
                                 String name = converteDom(words[2], macro);
-                                cacheRes.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),name,TTL), EntryCache.Origin.FILE); break;
+                                this.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),name,TTL), EntryCache.Origin.FILE); break;
                             case "NS"         :
                             case "MX"         :
                             case "A"          :
                                 int prioridade = converteInt(words,macro,4,"'Prioridade'");
-                                cacheRes.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),words[2],TTL,prioridade), EntryCache.Origin.FILE); break;
+                                this.addData(dom, aux.get(words[1]), new Value(dom,aux.get(words[1]),words[2],TTL,prioridade), EntryCache.Origin.FILE); break;
                             default           : warnings.add("Erro linha " + l + ": Tipo de valor não identificado."); break;
                         }
                     }
@@ -177,8 +176,6 @@ public class CacheSP extends Cache
         {
             System.out.println("- " + warning);
         }
-
-        return cacheRes;
     }
 
     @Override
