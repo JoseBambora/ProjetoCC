@@ -39,12 +39,14 @@ public class Client {
             cl.recursive = args.length == 5 && args[4].compareTo("R") == 0;
             cl.debug = (args.length == 5 && args[4].compareTo("D") == 0) || (args.length == 6 && args[4].compareTo("R") == 0 && args[5].compareTo("D") == 0);
 
+            /* Create the packet */
+            DNSPacket sendPacket = new DNSPacket((short) (new Random()).nextInt(1,65535), true, cl.recursive, false, cl.name, cl.type);
+
             /* Create the client udp socket with the preset timeout */
             DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(cl.timeout);
 
-            /* Create and send the query */
-            DNSPacket sendPacket = new DNSPacket((short) (new Random()).nextInt(1,65535), true, cl.recursive, false, cl.name, cl.type);
+            /* Send the packet */
             byte[] sendBytes = sendPacket.dnsPacketToBytes();
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
             socket.send(request);
@@ -62,7 +64,14 @@ public class Client {
                 System.out.println(rr);
             }
 
-            System.out.println(DNSPacket.bytesToDnsPacket(receiveBytes).toString());
+            /* Close the socket */
+            socket.close();
+
+            /* Build the response message */
+            DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
+
+            /* Print the response */
+            System.out.println(resPacket);
 
         } catch (UnknownHostException | TypeOfValueException | SocketException e) {
             if (cl.debug) {
