@@ -9,10 +9,10 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 07/11/2022
+ * Data de edição 10/11/2022
  */
 
-public class ServidorConfiguracao {
+public class ObjectServer {
 
     private String dominio;
     private final List<Endereco> DD;
@@ -21,12 +21,12 @@ public class ServidorConfiguracao {
 
     private final List <String> allLG;
 
-    private final Cache cache;
+    private Cache cache;
 
     /**
      * Construtor de objetos da classe ServidorConfiguracao
      */
-    public ServidorConfiguracao() {
+    public ObjectServer() {
         this.dominio = null;
         this.DD = new ArrayList<>();
         this.ST = new ArrayList<>();
@@ -129,6 +129,12 @@ public class ServidorConfiguracao {
         this.cache.setEspaco(n);
     }
 
+    public void setCache(Cache cache){
+        this.cache = cache;
+    }
+
+
+
     /**
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
      * @return true se o processo ocorre como esperado, false caso não ocorra como esperado
@@ -139,11 +145,11 @@ public class ServidorConfiguracao {
                 !this.LG.isEmpty() &&
                 !this.allLG.isEmpty();
         boolean aux2 = false;
-        if(this instanceof ServidorSP){
-            aux2 = ((ServidorSP) this).verificaSP();
+        if(this instanceof ObjectSP){
+            aux2 = ((ObjectSP) this).verificaSP();
         }
-        if(this instanceof ServidorSS){
-            aux2 = ((ServidorSS) this).verificaSS();
+        if(this instanceof ObjectSS){
+            aux2 = ((ObjectSS) this).verificaSS();
         }
         //System.out.println(aux2);
         return aux && aux2;
@@ -155,11 +161,11 @@ public class ServidorConfiguracao {
      * @return O servidor configurado
      * @throws IOException exceção lançada caso haja erros de input/output
      */
-    public static ServidorConfiguracao parseServer(String filename) throws IOException {
+    public static ObjectServer parseServer(String filename) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        ServidorConfiguracao server = null;
-        ServidorSP sp = null;
-        ServidorSS ss = null;
+        ObjectServer server = null;
+        ObjectSP sp = null;
+        ObjectSS ss = null;
         List<String> warnings = new ArrayList<>();
         int logcounter = 0;
         for(String line : lines){
@@ -169,24 +175,25 @@ public class ServidorConfiguracao {
                     switch(words[1]){
                         case "SS":
                             if (sp == null) {
-                                sp = new ServidorSP();
+                                sp = new ObjectSP();
                                 server = sp;
                                 server.dominio = words[0];
+                                sp.setEspacoCache(100);
                             }
-                            sp.setEspacoCache(100);
                             sp.addSS(Endereco.stringToIP(words[2]));
                             break;
                         case "DB":
                             if (sp == null) {
-                                sp = new ServidorSP();
+                                sp = new ObjectSP();
                                 server = sp;
                                 server.dominio = words[0];
+                                sp.setEspacoCache(100);
                             }
-                            sp.setBD(words[2]);
+                            sp.getCache().createBD(words[2]);
                             break;
                         case "SP":
                             if (ss == null){
-                                ss = new ServidorSS();
+                                ss = new ObjectSS();
                                 server = ss;
                                 server.dominio = words[0];
                                 ss.addSP(Endereco.stringToIP(words[2]));
@@ -196,19 +203,19 @@ public class ServidorConfiguracao {
                             break;
                         case "DD":
                             if(server==null){
-                                server = new ServidorConfiguracao();
+                                server = new ObjectServer();
                             }
                             server.addEnderecoDD(Endereco.stringToIP(words[2]));
                             break;
                         case "ST":
                             if(server==null){
-                                server = new ServidorConfiguracao();
+                                server = new ObjectServer();
                             }
                             if (words[0].equals("root")) server.FicheiroST(words[2]);
                             break;
                         case "LG":
                             if(server==null){
-                                server = new ServidorConfiguracao();
+                                server = new ObjectServer();
                             }
                             if (words[0].equals("all")) {
                                 server.addAllLog(words[2]);

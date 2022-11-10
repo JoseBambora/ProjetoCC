@@ -1,42 +1,29 @@
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
  * Data de criação 23/10/2022
- * Data de edição 07/11/2022
+ * Data de edição 10/11/2022
  */
 
-public class ServidorSS extends ServidorConfiguracao{
+public class ObjectSS extends ObjectServer {
 
     private Endereco SP;
-    private Database BD;
 
     /**
-     * Construtor de objetos da classe ServidorSP
+     * Construtor de objetos da classe ServidorSS
      */
-    public ServidorSS () {
+    public ObjectSS() {
         super();
-        this.BD = new Database();
         this.SP = null;
     }
     /**
-     * Método que adiciona valores ao campo SP de objetos do tipo ServidorSP
+     * Método que adiciona valores ao campo SP de objetos do tipo ServidorSS
      * @param e endereço do SP a adicionar
      */
     public void addSP(Endereco e){
         this.SP = e;
     }
 
-    /**
-     * Getter do valor do campo DB de um objeto do tipo Servidor SP
-     * @return o valor do campo DB
-     */
-    public Database getDB() {
-        return BD;
-    }
 
     /**
      * Método toString da classe ServidorSS
@@ -46,7 +33,6 @@ public class ServidorSS extends ServidorConfiguracao{
     public String toString() {
         return "ServidorSS{" + "\n" +
                 "   Dominio = " + this.getDominio() +"\n" +
-                "   DB = " + this.getDB() + "\n" +
                 "   SP = " + SP + "\n" +
                 "   DD = " + this.getDD() + "\n" +
                 "   ST = " + this.getST() + "\n" +
