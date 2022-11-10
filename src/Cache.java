@@ -284,6 +284,15 @@ public class Cache
     {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         this.createBD(lines.toArray(new String[1]));
+        EntryCache entryCache = new EntryCacheDBF("",filename);
+        this.cache.put(entryCache.getKey(),entryCache);
+    }
+    public void createBD(String filename,String dom) throws IOException
+    {
+        List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+        this.createBD(lines.toArray(new String[1]));
+        EntryCache entryCache = new EntryCacheDBF(dom,filename);
+        this.cache.put(entryCache.getKey(),entryCache);
     }
     @Override
     public String toString()
