@@ -6,38 +6,19 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 07/11/2022
+ * Data de edição 10/11/2022
  */
 
 public class ServidorSP extends ServidorConfiguracao {
 
     private final List<Endereco> SS;
-    private Database BD;
 
     /**
      * Construtor de objetos da classe ServidorSP
      */
     public ServidorSP() {
         super();
-        this.BD = new Database();
         this.SS = new ArrayList<>();
-    }
-
-    /**
-     * Setter do valor do campo DB de um objeto do tipo Servidor SP
-     * @param path caminho do ficheiro de base de dados
-     * @throws IOException exceção lançada caso haja erros de input/output
-     */
-    public void setBD(String path) throws IOException {
-        this.BD = Database.createBD(path);
-    }
-
-    /**
-     * Getter do valor do campo DB de um objeto do tipo Servidor SP
-     * @return o valor do campo DB
-     */
-    public Database getDB() {
-        return BD;
     }
 
     /**
@@ -56,7 +37,6 @@ public class ServidorSP extends ServidorConfiguracao {
     public String toString() {
         return "ServidorSP:" + "\n" +
                 "   Dominio = " + this.getDominio() +"\n" +
-                "   DB = " + this.getDB() + "\n" +
                 "   SS = " + SS + "\n" +
                 "   DD = " + this.getDD() + "\n" +
                 "   ST = " + this.getST() + "\n" +
@@ -71,6 +51,6 @@ public class ServidorSP extends ServidorConfiguracao {
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSP() {
-        return !this.SS.isEmpty() && this.BD != null;
+        return !this.SS.isEmpty() && this.getCache().checkBD();
     }
 }

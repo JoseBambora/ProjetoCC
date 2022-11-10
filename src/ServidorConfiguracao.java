@@ -9,7 +9,7 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 07/11/2022
+ * Data de edição 10/11/2022
  */
 
 public class ServidorConfiguracao {
@@ -21,7 +21,7 @@ public class ServidorConfiguracao {
 
     private final List <String> allLG;
 
-    private final Cache cache;
+    private Cache cache;
 
     /**
      * Construtor de objetos da classe ServidorConfiguracao
@@ -129,6 +129,12 @@ public class ServidorConfiguracao {
         this.cache.setEspaco(n);
     }
 
+    public void setCache(Cache cache){
+        this.cache = cache;
+    }
+
+
+
     /**
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
      * @return true se o processo ocorre como esperado, false caso não ocorra como esperado
@@ -172,8 +178,8 @@ public class ServidorConfiguracao {
                                 sp = new ServidorSP();
                                 server = sp;
                                 server.dominio = words[0];
+                                sp.setEspacoCache(100);
                             }
-                            sp.setEspacoCache(100);
                             sp.addSS(Endereco.stringToIP(words[2]));
                             break;
                         case "DB":
@@ -181,8 +187,9 @@ public class ServidorConfiguracao {
                                 sp = new ServidorSP();
                                 server = sp;
                                 server.dominio = words[0];
+                                sp.setEspacoCache(100);
                             }
-                            sp.setBD(words[2]);
+                            sp.getCache().createBD(words[2]);
                             break;
                         case "SP":
                             if (ss == null){

@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        /**
         Cache bd = new Cache(10);
         bd.createBD("DatabasesFiles/Example.db");
         //System.out.println(bd);
@@ -40,9 +41,9 @@ public class Main {
         //cache.addData(answer2, EntryCache.Origin.SP);
         //System.out.println("Inserção repetidos:\n" + cache);
 
-        /**
         ServidorConfiguracao SP = ServidorConfiguracao.parseServer("ConfigurationFiles/config");
         System.out.println(SP);
-        **/
+         **/
      }
+
 }
