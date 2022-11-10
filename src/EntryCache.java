@@ -7,22 +7,24 @@ import java.util.List;
  * @author José Carvalho
  * Classe que define uma entrada na cache
  * Data criação: 7/11/2022
- * Data última atualização: 7/11/2022
+ * Data última atualização: 10/11/2022
  */
 public class EntryCache
 {
-
     public enum Origin {FILE, SP, OTHERS }
-    private Tuple<String,Byte> key;
+    private String key;
+    private String dominio;
+    private Byte typeofValue;
     private List<Value> responseValues;
     private List<Value> authorityValues;
     private List<Value> extraValues;
     private Origin origem;
     private LocalDateTime tempoEntrada;
-
-    public EntryCache(Tuple<String,Byte> key,Origin origem)
+    public EntryCache(String dominio, Byte typeofValue,Origin origem)
     {
-        this.key = key;
+        this.key = new Tuple<>(dominio,typeofValue).toString();
+        this.dominio = dominio;
+        this.typeofValue = typeofValue;
         this.responseValues = new ArrayList<>();
         this.authorityValues = new ArrayList<>();
         this.extraValues = new ArrayList<>();
@@ -32,7 +34,9 @@ public class EntryCache
 
     public EntryCache(DNSPacket dnsPacket, Origin origem)
     {
-        this.key = new Tuple<>(dnsPacket.getData().getName(),dnsPacket.getData().getTypeOfValue());
+        this.dominio = dnsPacket.getData().getName();
+        this.typeofValue = dnsPacket.getData().getTypeOfValue();
+        this.key = new Tuple<>(this.dominio,this.typeofValue).toString();
         this.responseValues = new ArrayList<>(List.of(dnsPacket.getData().getResponseValues()));
         this.authorityValues = new ArrayList<>(List.of(dnsPacket.getData().getAuthoriteValues()));
         this.extraValues = new ArrayList<>(List.of(dnsPacket.getData().getExtraValues()));
@@ -40,6 +44,14 @@ public class EntryCache
         this.tempoEntrada = LocalDateTime.now();
     }
 
+
+    public String getDominio() {
+        return dominio;
+    }
+
+    public Byte getTypeofValue() {
+        return typeofValue;
+    }
     public LocalDateTime getTempoEntrada() {
         return tempoEntrada;
     }
@@ -54,7 +66,7 @@ public class EntryCache
         }
     }
 
-    public Tuple<String, Byte> getKey() {
+    public String getKey() {
         return key;
     }
 
@@ -70,7 +82,12 @@ public class EntryCache
         if(!authorityValues.isEmpty()) aut = authorityValues.toArray(new Value[1]);
         Value[] ext = null;
         if(!extraValues.isEmpty()) ext = extraValues.toArray(new Value[1]);
-        return new Data(key.getValue1(), key.getValue2(),res,aut,ext);
+        return new Data(dominio, typeofValue,res,aut,ext);
+    }
+
+    public Origin getOrigem()
+    {
+        return this.origem;
     }
 
     public void addValueDB(Value value)

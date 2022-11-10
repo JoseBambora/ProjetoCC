@@ -14,6 +14,10 @@ public class Endereco {
         this.enderecoIP = InetAddress.getByAddress(endereco);
         this.porta = porta;
     }
+    Endereco(String host, short porta) throws UnknownHostException {
+        this.enderecoIP = InetAddress.getByName(host);
+        this.porta = porta;
+    }
     @Override
     public String toString()
     {
@@ -40,12 +44,6 @@ public class Endereco {
         short porta = 0;
         if(end.length > 1)
             porta = Short.parseShort(end[1]);
-        String[] l = str.split("\\.");
-        byte[] endereco = new byte[4];
-        endereco[0] = (byte) (Integer.parseInt(l[0]));
-        endereco[1] = (byte) (Integer.parseInt(l[1]));
-        endereco[2] = (byte) (Integer.parseInt(l[2]));
-        endereco[3] = (byte) (Integer.parseInt(l[3]));
-        return new Endereco(endereco,porta);
+        return new Endereco(str,porta);
     }
 }

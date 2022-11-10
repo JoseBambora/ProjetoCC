@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        CacheSP bd = new CacheSP(10);
+        Cache bd = new Cache(10);
         bd.createBD("DatabasesFiles/Example.db");
         //System.out.println(bd);
         System.out.println(bd.findAnswer("example.com.",(byte) 0));

@@ -359,7 +359,6 @@ public class Database
                             case "NS"         : servidorBD.addNS(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL); break;
                             case "CNAME"      : servidorBD.addCNAME(dom, converteDom(words[2],macro), TTL); break;
                             case "MX"         : servidorBD.addMX(dom, words[2], converteInt(words,macro,4,"'Prioridade'"), TTL); break;
-                            case "A"          : servidorBD.addA(dom, Endereco.stringToIP(words[2]), converteInt(words,macro,4,"'Prioridade'"), TTL); break;
                             default           : warnings.add("Erro linha " + l + ": Tipo de valor não identificado."); break;
                         }
                     }
