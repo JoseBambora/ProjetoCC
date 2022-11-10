@@ -37,11 +37,11 @@ public class Server {
             }
 
             /* Configurate server */
-            ServidorConfiguracao sc = ServidorConfiguracao.parseServer(s.configFile);
+            ObjectServer sc = ObjectServer.parseServer(s.configFile);
 
             /* Identificate the type of server */
-            boolean sp = sc instanceof ServidorSP;
-            boolean ss = sc instanceof ServidorSS;
+            boolean sp = sc instanceof ObjectSP;
+            boolean ss = sc instanceof ObjectSS;
 
             /* Zone transfer if is SS */
             if (ss) {

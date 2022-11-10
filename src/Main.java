@@ -40,10 +40,10 @@ public class Main {
         //cache.addData(answer, EntryCache.Origin.SP);
         //cache.addData(answer2, EntryCache.Origin.SP);
         //System.out.println("Inserção repetidos:\n" + cache);
-
-        ServidorConfiguracao SP = ServidorConfiguracao.parseServer("ConfigurationFiles/config");
-        System.out.println(SP);
          **/
+        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/config");
+        System.out.println(SP);
+
      }
 
 }

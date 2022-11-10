@@ -1,7 +1,3 @@
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
@@ -9,14 +5,14 @@ import java.util.List;
  * Data de edição 10/11/2022
  */
 
-public class ServidorSS extends ServidorConfiguracao{
+public class ObjectSS extends ObjectServer {
 
     private Endereco SP;
 
     /**
      * Construtor de objetos da classe ServidorSS
      */
-    public ServidorSS () {
+    public ObjectSS() {
         super();
         this.SP = null;
     }

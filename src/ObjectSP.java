@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,14 +8,14 @@ import java.util.List;
  * Data de edição 10/11/2022
  */
 
-public class ServidorSP extends ServidorConfiguracao {
+public class ObjectSP extends ObjectServer {
 
     private final List<Endereco> SS;
 
     /**
      * Construtor de objetos da classe ServidorSP
      */
-    public ServidorSP() {
+    public ObjectSP() {
         super();
         this.SS = new ArrayList<>();
     }
