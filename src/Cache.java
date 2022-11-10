@@ -279,10 +279,85 @@ public class Cache
         {
             warnings.add("BD não criada");
         }
-        // campos em falta
         System.out.println("Warnings no ficheiro '" + filename + "':");
         for(String warning : warnings)
         {
+            System.out.println("- " + warning);
+        }
+    }
+
+    /**
+     * Método que faz o parsing de um ficheiro para um BD.
+     * @param lines Linhas de um ficheiro.
+     * @return Base de Dados.
+     */
+    public void createBD(String[] lines)
+    {
+        Map<String, String> macro = new HashMap<>();
+        List<String> warnings = new ArrayList<>();
+        Map<String, Byte> aux = new HashMap<>();
+        int l = 1;
+        try {
+            aux.put("SOASP", DNSPacket.typeOfValueConvert("SOASP"));
+            aux.put("SOAADMIN", DNSPacket.typeOfValueConvert("SOAADMIN"));
+            aux.put("SOASERIAL", DNSPacket.typeOfValueConvert("SOASERIAL"));
+            aux.put("SOAREFRESH", DNSPacket.typeOfValueConvert("SOAREFRESH"));
+            aux.put("SOARETRY", DNSPacket.typeOfValueConvert("SOARETRY"));
+            aux.put("SOAEXPIRE", DNSPacket.typeOfValueConvert("SOAEXPIRE"));
+            aux.put("NS", DNSPacket.typeOfValueConvert("NS"));
+            aux.put("CNAME", DNSPacket.typeOfValueConvert("CNAME"));
+            aux.put("MX", DNSPacket.typeOfValueConvert("MX"));
+            aux.put("A", DNSPacket.typeOfValueConvert("A"));
+            aux.put("PTR", DNSPacket.typeOfValueConvert("PTR"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println(aux);
+        for (String str : lines) {
+            String[] words = str.split(" ");
+            if (str.length() > 0 && str.charAt(0) != '#' && words.length > 2) {
+                if (words[1].equals("DEFAULT"))
+                    macro.put(words[0], words[2]);
+                else if (words.length > 3) {
+                    try {
+                        String dom = converteDom(words[0], macro);
+                        int TTL = converteInt(words, macro, 3, "'TTL'");
+                        switch (words[1]) {
+                            case "SOASP":
+                            case "SOAADMIN":
+                            case "SOASERIAL":
+                            case "SOAREFRESH":
+                            case "SOARETRY":
+                            case "SOAEXPIRE":
+                            case "PTR":
+                                this.addData(dom, aux.get(words[1]), new Value(dom, aux.get(words[1]), words[2], TTL), EntryCache.Origin.FILE);
+                                break;
+                            case "CNAME":
+                                String name = converteDom(words[2], macro);
+                                this.addData(dom, aux.get(words[1]), new Value(dom, aux.get(words[1]), name, TTL), EntryCache.Origin.FILE);
+                                break;
+                            case "NS":
+                            case "MX":
+                            case "A":
+                                int prioridade = converteInt(words, macro, 4, "'Prioridade'");
+                                this.addData(dom, aux.get(words[1]), new Value(dom, aux.get(words[1]), words[2], TTL, prioridade), EntryCache.Origin.FILE);
+                                break;
+                            default:
+                                warnings.add("Erro linha " + l + ": Tipo de valor não identificado.");
+                                break;
+                        }
+                    } catch (Exception e) {
+                        warnings.add("Erro linha " + l + ": " + e.getMessage());
+                    }
+                } else
+                    warnings.add("Erro linha " + l + ": Não respeita a sintaxe.");
+            }
+            l++;
+        }
+        if (!this.checkBD()) {
+            warnings.add("BD não criada");
+        }
+        for (String warning : warnings) {
             System.out.println("- " + warning);
         }
     }
