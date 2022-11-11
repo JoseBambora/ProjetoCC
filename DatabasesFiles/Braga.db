@@ -18,7 +18,7 @@ TTL DEFAULT 90000
 
 # Email
 @ MX fernando1.@ TTL 10
-@ MX fernando1.@ TTL 20
+@ MX fernando2.@ TTL 20
 
 # SP
 braga A 10.0.15.10 TTL

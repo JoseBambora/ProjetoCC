@@ -13,8 +13,8 @@ TTL DEFAULT 90000
 # SP
 @ NS cancelo.@ TTL
 # SS
-@ NS rafael.@  TTL
-@ NS ruben.@   TTL
+@ NS rafael.@ TTL
+@ NS ruben.@ TTL
 
 # Email
 @ MX scaloni1.@ TTL 10

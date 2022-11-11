@@ -14,7 +14,7 @@ m10 NS cancelo.m10 TTL
 kb9 NS rui.KB9 TTL
 
 # ST
-pepe A 10.0.14.11  TTL
+pepe A 10.0.14.11 TTL
 palhinha A 10.0.13.11 TTL
 braga A 10.0.15.10 TTL
 cancelo A 10.0.9.11 TTL

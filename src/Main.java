@@ -4,20 +4,22 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-
         Cache bd = new Cache(10);
-        bd.createBD("DatabasesFiles/Example.db");
+        bd.createBD("DatabasesFiles/Braga.db");
+        Cache bd1 = new Cache(10);
+        bd1.createBD("DatabasesFiles/Cancelo.db");
         //System.out.println(bd);
-        System.out.println(bd.findAnswer("example.com.",(byte) 0));
-        System.out.println(bd.findAnswer("example.com.",(byte) 1));
-        System.out.println(bd.findAnswer("example.com.",(byte) 2));
-        System.out.println(bd.findAnswer("example.com.",(byte) 3));
-        System.out.println(bd.findAnswer("example.com.",(byte) 4));
-        System.out.println(bd.findAnswer("example.com.",(byte) 5));
-        System.out.println(bd.findAnswer("example.com.",(byte) 6));
-        System.out.println(bd.findAnswer("ns1.example.com.",(byte) 7));
-        System.out.println(bd.findAnswer("mail1.example.com.",(byte) 8));
-        System.out.println(bd.findAnswer("example.com.",(byte) 9));
+        String domQ = "M10.JJM.G706.";
+        System.out.println(bd1.findAnswer(domQ,(byte) 0));
+        System.out.println(bd1.findAnswer(domQ,(byte) 1));
+        System.out.println(bd1.findAnswer(domQ,(byte) 2));
+        System.out.println(bd1.findAnswer(domQ,(byte) 3));
+        System.out.println(bd1.findAnswer(domQ,(byte) 4));
+        System.out.println(bd1.findAnswer(domQ,(byte) 5));
+        System.out.println(bd1.findAnswer(domQ,(byte) 6));
+        System.out.println(bd1.findAnswer("cancelo." + domQ,(byte) 7));
+        System.out.println(bd1.findAnswer("sp." + domQ,(byte) 8));
+        System.out.println(bd1.findAnswer(domQ,(byte) 9));
         //Cache cache = new Cache(10);
         //Value []aux = new Value[1];
         //Value []aux2 = new Value[1];
@@ -41,8 +43,8 @@ public class Main {
         //cache.addData(answer2, EntryCache.Origin.SP);
         //System.out.println("Inserção repetidos:\n" + cache);
 
-        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/config");
-        System.out.println(SP);
+        //ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/config");
+        //System.out.println(SP);
 
      }
 
