@@ -8,4 +8,4 @@
 .reverse.G706. DD 10.0.8.12
 .reverse.G706. LG LogsFiles/rui.log
 all LG all.log
-root ST rootservers.db
+root ST ConfigurationFiles/rootservers.db

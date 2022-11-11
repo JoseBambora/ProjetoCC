@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        /**
         Cache bd = new Cache(10);
         bd.createBD("DatabasesFiles/Braga.db");
         Cache bd1 = new Cache(10);
@@ -42,8 +43,10 @@ public class Main {
         //cache.addData(answer, EntryCache.Origin.SP);
         //cache.addData(answer2, EntryCache.Origin.SP);
         //System.out.println("Inserção repetidos:\n" + cache);
+**/
 
-        //ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/config");
+        // ERRO AQUI NÃO CONFIGURA OS ST os outros servers configura
+        //ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPalinha");
         //System.out.println(SP);
 
      }

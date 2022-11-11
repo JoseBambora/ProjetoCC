@@ -11,4 +11,4 @@
 .CR7.CMS.G706. DD 10.0.8.10
 .CR7.CMS.G706. LG LogsFiles/braga.log
 all LG /var/dns/all.log
-root ST rootservers.db 
+root ST ConfigurationFiles/rootservers.db

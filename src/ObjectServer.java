@@ -146,19 +146,24 @@ public class ObjectServer {
      */
     private boolean verificaConfig() {
         boolean aux;
-        if (ST.isEmpty() && DD.isEmpty()) aux = !this.LG.isEmpty() && !this.allLG.isEmpty();
+        boolean flag = false;
+        if (ST.isEmpty() && DD.isEmpty()){
+            aux = !this.LG.isEmpty() && !this.allLG.isEmpty();
+        }
         else aux = !this.DD.isEmpty() &&
                    !this.ST.isEmpty() &&
                    !this.LG.isEmpty() &&
                    !this.allLG.isEmpty();
-        boolean aux2 = false;
+        boolean aux2;
         if(this instanceof ObjectSP){
             aux2 = ((ObjectSP) this).verificaSP();
+            return aux && aux2;
         }
         if(this instanceof ObjectSS){
             aux2 = ((ObjectSS) this).verificaSS();
+            return aux && aux2;
         }
-        return aux && aux2;
+        else return aux;
     }
 
     /**
@@ -218,6 +223,8 @@ public class ObjectServer {
                         case "DD":
                             if(server==null){
                                 server = new ObjectServer();
+                                server.setEspacoCache(5);
+                                server.dominio = words[0];
                             }
                             String[] enderecoPortaDD = words[2].split(":");
                             if(enderecoPortaDD.length>1){

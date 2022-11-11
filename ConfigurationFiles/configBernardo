@@ -7,4 +7,4 @@
 .M10.JJM.G706. DD 10.0.14.10
 .M10.JJM.G706. LG LogsFiles/bernardo.log
 all LG /var/dns/all.log
-root ST rootservers.db 
+root ST ConfigurationFiles/rootservers.db
