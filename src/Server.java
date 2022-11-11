@@ -51,7 +51,7 @@ public class Server {
 
             /* Zone transfer if is SS */
             if (ss) {
-                ServidorSS sec = (ServidorSS) sc;
+                ObjectSS sec = (ObjectSS) sc;
 
 
 
