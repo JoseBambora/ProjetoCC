@@ -35,7 +35,7 @@ public class ObjectServer {
         this.ST = new ArrayList<>();
         this.LG = new ArrayList<>();
         this.allLG = new ArrayList<>();
-        this.cache = new Cache(5);
+        this.cache = new Cache();
     }
 
     /**
@@ -128,13 +128,6 @@ public class ObjectServer {
         return cache;
     }
 
-    /**
-     * Método cuja função é atualizar o valor do campo espaço da cache de um servidor
-     * @param n - o novo valor do tamanho da cache do servidor
-     */
-    public void setEspacoCache(int n) {
-        this.cache.setEspaco(n);
-    }
 
     public void setCache(Cache cache){
         this.cache = cache;
@@ -189,7 +182,6 @@ public class ObjectServer {
                                 sp = new ObjectSP();
                                 server = sp;
                                 server.dominio = words[0];
-                                sp.setEspacoCache(100);
                             }
                             String[] enderecoPortaSS = words[2].split(":");
                             if(enderecoPortaSS.length>1){
@@ -202,7 +194,6 @@ public class ObjectServer {
                                 sp = new ObjectSP();
                                 server = sp;
                                 server.dominio = words[0];
-                                sp.setEspacoCache(100);
                             }
                             sp.getCache().createBD(words[2]);
                             break;
@@ -216,14 +207,12 @@ public class ObjectServer {
                                     ss.addSP(new InetSocketAddress(InetAddress.getByName(enderecoPortaSP[0]), Integer.parseInt(enderecoPortaSP[1])));
                                 }
                                 else ss.addSP(new InetSocketAddress(InetAddress.getByName(words[2]),53));
-                                ss.setEspacoCache(10);
                             }
                             else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
                             break;
                         case "DD":
                             if(server==null){
                                 server = new ObjectServer();
-                                server.setEspacoCache(5);
                                 server.dominio = words[0];
                             }
                             String[] enderecoPortaDD = words[2].split(":");

@@ -1,33 +1,29 @@
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author José Carvalho
  * Classe que define uma entrada na cache
  * Data criação: 7/11/2022
- * Data última atualização: 10/11/2022
+ * Data última atualização: 12/11/2022
  */
 public class EntryCache
 {
     public enum Origin {FILE, SP, OTHERS }
-    private String key;
-    private String dominio;
-    private Byte typeofValue;
-    private List<Value> responseValues;
-    private List<Value> authorityValues;
-    private List<Value> extraValues;
-    private Origin origem;
+    private final String key;
+    private final String dominio;
+    private final Byte typeofValue;
+    private final DadosCache dadosCache;
+    private final Origin origem;
     private LocalDateTime tempoEntrada;
     public EntryCache(String dominio, Byte typeofValue,Origin origem)
     {
         this.key = new Tuple<>(dominio,typeofValue).toString();
         this.dominio = dominio;
         this.typeofValue = typeofValue;
-        this.responseValues = new ArrayList<>();
-        this.authorityValues = new ArrayList<>();
-        this.extraValues = new ArrayList<>();
+        if(origem == Origin.FILE)
+            this.dadosCache = new DadosCacheDB();
+        else
+            this.dadosCache = new DadosCacheAnswer();
         this.origem = origem;
         this.tempoEntrada = LocalDateTime.now();
     }
@@ -37,9 +33,7 @@ public class EntryCache
         this.dominio = dnsPacket.getData().getName();
         this.typeofValue = dnsPacket.getData().getTypeOfValue();
         this.key = new Tuple<>(this.dominio,this.typeofValue).toString();
-        this.responseValues = new ArrayList<>(List.of(dnsPacket.getData().getResponseValues()));
-        this.authorityValues = new ArrayList<>(List.of(dnsPacket.getData().getAuthoriteValues()));
-        this.extraValues = new ArrayList<>(List.of(dnsPacket.getData().getExtraValues()));
+        this.dadosCache = new DadosCacheAnswer(dnsPacket);
         this.origem = origem;
         this.tempoEntrada = LocalDateTime.now();
     }
@@ -52,17 +46,16 @@ public class EntryCache
     public Byte getTypeofValue() {
         return typeofValue;
     }
-    public LocalDateTime getTempoEntrada() {
-        return tempoEntrada;
-    }
 
+    /**
+     * Remove informação que já esteja expirada.
+     */
     public void removeExpireInfo()
     {
         if(this.origem != Origin.FILE)
         {
-            this.responseValues  = this.responseValues.stream().filter(v -> v.getTTL() < ChronoUnit.SECONDS.between(LocalDateTime.now(), tempoEntrada)).toList();
-            this.authorityValues = this.authorityValues.stream().filter(v -> v.getTTL() < ChronoUnit.SECONDS.between(LocalDateTime.now(), tempoEntrada)).toList();
-            this.extraValues     = this.extraValues.stream().filter(v -> v.getTTL() < ChronoUnit.SECONDS.between(LocalDateTime.now(), tempoEntrada)).toList();
+            DadosCacheAnswer data = (DadosCacheAnswer) this.dadosCache;
+            data.removeExpiredInfo(this.tempoEntrada);
         }
     }
 
@@ -74,15 +67,13 @@ public class EntryCache
         this.tempoEntrada = tempoEntrada;
     }
 
+    /**
+     * Buscar dados de uma posição da cache.
+     * @return Dados.
+     */
     public Data getData()
     {
-        Value[] res = null;
-        if(!responseValues.isEmpty()) res = responseValues.toArray(new Value[1]);
-        Value[] aut = null;
-        if(!authorityValues.isEmpty()) aut = authorityValues.toArray(new Value[1]);
-        Value[] ext = null;
-        if(!extraValues.isEmpty()) ext = extraValues.toArray(new Value[1]);
-        return new Data(dominio, typeofValue,res,aut,ext);
+        return this.dadosCache.getData(this.dominio,typeofValue);
     }
 
     public Origin getOrigem()
@@ -90,13 +81,45 @@ public class EntryCache
         return this.origem;
     }
 
-    public void addValueDB(Value value)
+    /**
+     * Adiciona um valor há cache.
+     * @param value Valor a adicionar.
+     */
+    public void addValue(Value value)
     {
-        this.responseValues.add(value);
+        this.dadosCache.addData(value);
     }
 
     @Override
     public String toString() {
         return this.getData().toString();
+    }
+
+    /**
+     * Método usado apenas pelos SPs, de forma a ir buscar os nomes correspondentes a nomes canónicos.
+     * @param can Nome canónico
+     * @param cname CNAME sub a forma de byte.
+     * @return Nome se existir correspondência ou string vazia caso contrário.
+     */
+    public String getNameCNAME(String can, byte cname)
+    {
+        if(this.getOrigem() == EntryCache.Origin.FILE)
+        {
+            if(this.getTypeofValue() == cname && this.getDominio().equals(can))
+            {
+                DadosCacheDB dadosCacheAnswer = (DadosCacheDB) this.dadosCache;
+                return dadosCacheAnswer.getNameCNAME(can);
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Verifica se os dados da estão vazios
+     * @return true caso sim, falso caso não.
+     */
+    public boolean isEmpty()
+    {
+        return this.dadosCache.isEmpty();
     }
 }

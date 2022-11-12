@@ -11,65 +11,93 @@ import java.util.*;
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * Data criação: 29/10/2022
- * Data última atualização: 11/11/2022
+ * Data última atualização: 12/11/2022
  */
 public class Cache
 {
     private static final Tuple<Integer,Integer> pri = new Tuple<>(0,255);
     private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
     private final Map<String,EntryCache> cache;
-    private Map<String, Byte> aux;
-    private int espaco;
-    private int answers;
-    public Cache(int espaco)
+    private final Map<String, Byte> aux;
+    public Cache()
     {
-        aux = new HashMap<>();
+        this.aux = new HashMap<>();
         this.cache = new HashMap<>();
-        this.espaco = espaco;
-        this.answers = 0;
-    }
-    public void setEspaco(int espaco)
-    {
-        this.espaco = espaco;
     }
 
+    /**
+     * Adicionar dados de um pacote recebido. Usado para transferência de zona e para receção
+     * de respostas a queries.
+     * @param resposta Resposta à query.
+     * @param origin Origem da mensagem, SP se for transferência de zona, OTHERs no resto.
+     */
     public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
         this.removeExpireInfo();
-        Data data = resposta.getData();
         EntryCache entryCache = new EntryCache(resposta,origin);
-        if(this.answers == this.espaco)
-            this.removeData();
         if(!this.cache.containsKey(entryCache.getKey()))
         {
-            this.answers++;
             this.cache.put(entryCache.getKey(),entryCache);
         }
         else if(origin == EntryCache.Origin.OTHERS)
             this.cache.get(entryCache.getKey()).setTempoEntrada(LocalDateTime.now());
     }
-    public void addData(String dom, byte type, Value valor, EntryCache.Origin origin) throws Exception
-    {
-        EntryCache entryCache = new EntryCache(dom,type,origin);
-        if(!this.cache.containsKey(entryCache.getKey()))
-            this.cache.put(entryCache.getKey(),entryCache);
-        this.cache.get(entryCache.getKey()).addValueDB(valor);
-    }
+
+    /**
+     * Remove informação que já está expirada da cache.
+     */
     public void removeExpireInfo()
     {
         this.cache.values().forEach(EntryCache::removeExpireInfo);
-    }
-    public void removeData()
-    {
-        if(this.answers == this.espaco)
+        for(EntryCache entryCache : this.cache.values())
         {
-            List<EntryCache> remove = new ArrayList<>(this.cache.values());
-            remove.sort((t1,t2) -> (int) ChronoUnit.NANOS.between(t2.getTempoEntrada(),t1.getTempoEntrada()));
-            for(int i = 0; i < this.espaco/2; i++)
-                this.cache.remove(remove.get(i).getKey());
-            this.answers -= (this.espaco/2);
+            if(entryCache.isEmpty())
+                this.cache.remove(entryCache.getKey());
         }
     }
+
+    /**
+     * Procura resposta a uma dada query, dando o domínio da query e o tipo.
+     * @param dom Domínio da pergunta.
+     * @param type Tipo da pergunta.
+     * @return Null se resposta não for encontrada, ou Data se for encontrada.
+     */
+    private Data getAnswer(String dom, byte type)
+    {
+        EntryCache entryCache = new EntryCache(dom,type, EntryCache.Origin.SP);
+        Data res = null;
+        if(this.cache.containsKey(entryCache.getKey()))
+            res = this.cache.get(entryCache.getKey()).getData();
+        return res;
+    }
+
+    /**
+     * Procura resposta a uma dada query, dando o domínio da query e o tipo.
+     * @param dom Domínio da pergunta.
+     * @param type Tipo da pergunta.
+     * @return Null se resposta não for encontrada, ou Data se for encontrada.
+     */
+    public Data findAnswer(String dom, byte type)
+    {
+        Data res = getAnswer(dom,type);
+        if(res == null)
+        {
+            // Caso de ser SP -> vai ve correspondência no CNAME.
+            for(EntryCache entryCache1 : this.cache.values())
+            {
+                String str = entryCache1.getNameCNAME(dom,aux.get("CNAME"));
+                if(str.length() > 0)
+                    res = getAnswer(str,type);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Procura resposta quando é recebida um pacote DNS.
+     * @param mensagem Query dns.
+     * @return Null se resposta não for encontrada, ou Data se for encontrada.
+     */
     public Data findAnswer(DNSPacket mensagem)
     {
         String name = mensagem.getData().getName();
@@ -77,35 +105,10 @@ public class Cache
         return this.findAnswer(name,b);
     }
 
-    public Data findAnswer(String dom, byte type)
-    {
-        EntryCache entryCache = new EntryCache(dom,type, EntryCache.Origin.SP);
-        Data res = null;
-        if(this.cache.containsKey(entryCache.getKey()))
-            res = this.cache.get(entryCache.getKey()).getData();
-        else
-        {
-            try {
-                entryCache = new EntryCache("DB", DNSPacket.typeOfValueConvert("CNAME"),EntryCache.Origin.SP);
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
-            }
-            if(this.cache.containsKey(entryCache.getKey()))
-            {
-                Value[] values = this.cache.get(entryCache.getKey()).getData().getResponseValues();
-                for(Value value : values)
-                {
-                    if(value.getDominio().equals(dom))
-                        res = this.findAnswer(value.getValue(),type);
-                }
-            }
-        }
-        return res;
-    }
-
-    // exclusiva dos SS
+    /**
+     * Método exclusivo dos SS.
+     * @param name Domínio que queremos remover da cache.
+     */
     public void removeByName(String name)
     {
         for(EntryCache val : this.cache.values())
@@ -113,7 +116,12 @@ public class Cache
                 this.cache.remove(val.getKey());
     }
 
-    public boolean checkBD()
+    /**
+     * Verifica se todos os campos da cache estão completos.
+     * @param type Tipo do servidor (SP, ST, REVERSE)
+     * @return true se não faltar campos, false caso contrário.
+     */
+    public boolean checkBD(String type)
     {
         try
         {
@@ -136,7 +144,14 @@ public class Cache
                     counter.put(entryCache.getTypeofValue(), counter.get(entryCache.getTypeofValue())+1);
                 }
             }
-            return counter.values().stream().allMatch(b -> b > 0);
+            switch (type) {
+                case "SP":
+                    return counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
+                case "ST":
+                    return counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
+                case "REVERSE":
+                    return counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
+            }
         }
         catch (Exception e)
         {
@@ -217,32 +232,63 @@ public class Cache
             throw new Exception("Não respeita a sintaxe.");
         return num;
     }
-    private void addValue(Value value)
+
+    /**
+     * Adiciona um valor da Base de dados à cache.
+     * @param value Valor a adicionar.
+     */
+    private void addValueDB(Value value)
     {
         EntryCache entryCache = new EntryCache(value.getDominio(),value.getType(), EntryCache.Origin.FILE);
         if(!this.cache.containsKey(entryCache.getKey()))
             this.cache.put(entryCache.getKey(), entryCache);
-        this.cache.get(entryCache.getKey()).addValueDB(value);
+        this.cache.get(entryCache.getKey()).addValue(value);
     }
+
+    /**
+     * Adiciona valor de um tipo há cache. Só é usado para tipos elementares, isto é, SOADMIN, SOASP (...).
+     * @param valores Map de todos os valores lidos do ficheiro.
+     * @param type Tipo a acrescentar na cache
+     */
     private void addFSTValueBD(Map<String,List<Value>> valores, String type)
     {
-        this.addValue(valores.get(type).get(0));
+        if(!valores.get(type).isEmpty())
+            this.addValueDB(valores.get(type).get(0));
     }
+
+    /**
+     * Adiciona valor de um tipo há cache. Só é usado para tipos multiplos, isto é, A, NS (...).
+     * @param valores Map de todos os valores lidos do ficheiro.
+     * @param type Tipo a acrescentar na cache
+     */
     private void addAllValueBD(Map<String,List<Value>> valores, String type)
     {
         for(Value value : valores.get(type))
-            this.addValue(value);
+            this.addValueDB(value);
     }
+
+    /**
+     * Adiciona um CNAME há cache.
+     * @param valores Map de todos os valores lidos do ficheiro.
+     * @param warnings Lista de avisos, para verificar se os cnames não são canónicos de um servidor
+     *                 inexistente.
+     */
     private void addCnameBD(Map<String,List<Value>> valores, List<String> warnings)
     {
         List<Value> values = valores.get("CNAME");
         for(Value value : values)
             if(valores.get("A").stream().anyMatch( e -> e.getDominio().equals(value.getValue())))
-                this.addValue(value);
+                this.addValueDB(value);
             else
                 warnings.add("CNAME " + value.getDominio() + " não guardado pois " +value.getValue() + " não existe");
 
     }
+
+    /**
+     * Passa os valores lidos do ficheiro da base de dados para a cache.
+     * @param valores Valores lidos.
+     * @param warnings Lista com os avisos de erros do ficheiro. Apenas usado no tipo CNAME.
+     */
     private void converteBD(Map<String,List<Value>> valores, List<String> warnings)
     {
         addFSTValueBD(valores,"SOASP");
@@ -257,48 +303,82 @@ public class Cache
         addAllValueBD(valores,"PTR");
         addCnameBD(valores,warnings);
     }
-    private void addValor(Map<String,List<Value>> valores,String dom, String type, String name, Integer TTL) throws Exception
+
+    /**
+     * Adiciona um valor lido do ficheiro aos valores lidos até ao momento. Funciona para tipos
+     * elementares.
+     * @param valores Valores lidos até ao momento.
+     * @param type Tipo do valor a adicionar.
+     * @param value Valor lido da linha.
+     * @throws Exception Caso o valor já tenha sido lido.
+     */
+    private void addValor(Map<String,List<Value>> valores,String type, Value value) throws Exception
     {
         if(valores.get(type).size() > 0)
             throw new Exception("Valor de " + type + " repetido.");
         else
         {
-            Value value = new Value(dom, aux.get(type), name, TTL);
             valores.get(type).add(value);
         }
     }
-    private void addValores(Map<String,List<Value>> valores, String dom,String type, String name, Value value) throws Exception
+
+    /**
+     * Adiciona um valor lido do ficheiro aos valores lidos até ao momento. Funciona para tipos
+     * multiplos.
+     * @param valores Valores lidos até ao momento.
+     * @param type Tipo do valor a adicionar sub o formato de String.
+     * @param value Valor a adicionar
+     * @throws Exception Caso o valor já tenha sido lido.
+     */
+    private void addValores(Map<String,List<Value>> valores,String type, Value value) throws Exception
     {
+        String dom = value.getDominio();
+        String val = value.getValue();
         List<Value> values = valores.get(type);
-        if (values.stream().anyMatch(v -> v.getDominio().equals(dom) && (type.equals("A") || v.getValue().equals(name))))
+        if (values.stream().anyMatch(v -> v.getDominio().equals(dom) && (type.equals("A") || v.getValue().equals(val))))
             throw new Exception("Valor do " + type + " repetido para o mesmo domínio");
         else
             valores.get(type).add(value);
     }
 
-    private void addValoresCNAME(Map<String,List<Value>> valores, String dom,String type, String name, Value value) throws Exception
+    /**
+     * Adicionar um CNAME aos valores lidos até ao momento.
+     * @param valores Valores lidos até ao momento.
+     * @param value Valor do CNAME a adicioanr
+     * @throws Exception Caso o valor seja repetido ou esteja a apontar para outro CNAME.
+     */
+    private void addValoresCNAME(Map<String,List<Value>> valores, Value value) throws Exception
     {
-        List<Value> values = valores.get(type);
-        if (values.stream().anyMatch(v -> v.getDominio().equals(dom)))
-            throw new Exception("Valor do " + type + " repetido para o mesmo domínio");
-        if (values.stream().anyMatch(v -> v.getDominio().equals(name)))
-            throw new Exception("Valor do " + type + " a apontar para outro CNAME");
-        valores.get(type).add(value);
+        String can = value.getDominio();
+        String val = value.getValue();
+        List<Value> values = valores.get("CNAME");
+        if (values.stream().anyMatch(v -> v.getDominio().equals(can)))
+            throw new Exception("Valor do CNAME repetido para o mesmo domínio");
+        if (values.stream().anyMatch(v -> v.getDominio().equals(val)))
+            throw new Exception("Valor do CNAME a não pode ser um canónico de um canónico");
+        valores.get("CNAME").add(value);
 
     }
 
-    private void addValoresPri(Map<String,List<Value>> valores, String[]words, String dom, String type,String name, Integer TTL, Map<String,String> macro) throws Exception
+    /**
+     * Adiciona os valores aos valores lidos até ao momento com prioridade.
+     * @param valores Todos os valores lidos até ao momento.
+     * @param words lista de palavras de uma linha.
+     * @param value Valor lido sem a prioridade.
+     * @param macro Macros de valores default.
+     * @throws Exception método addValores.
+     */
+    private void addValoresPri(Map<String,List<Value>> valores,String[] words, String type, Value value, Map<String,String> macro) throws Exception
     {
-        Value value;
         if(words.length > 4)
         {
+            String dom = value.getDominio();
+            String val = value.getValue();
+            int TTL = value.getTTL();
             int prioridade = converteInt(words, macro, 4, "'Prioridade'");
-            value = new Value(dom, aux.get(type), name, TTL, prioridade);
+            value = new Value(dom, aux.get(type), val, TTL, prioridade);
         }
-        else
-            value = new Value(dom, aux.get(words[1]), name, TTL);
-        addValores(valores,dom,type,name,value);
-
+        addValores(valores, type,value);
     }
 
     /**
@@ -356,30 +436,32 @@ public class Cache
                             case "SOASP":
                             case "SOAADMIN":
                                 String name = converteDom(words[2], macro);
-                                addValor(valores,dom,words[1],name,TTL);
+                                addValor(valores,words[1], new Value(dom,aux.get(words[1]),name,TTL));
                                 break;
                             case "SOASERIAL":
                             case "SOAREFRESH":
                             case "SOARETRY":
                             case "SOAEXPIRE":
-                                addValor(valores,dom,words[1],words[2],TTL);
+                                addValor(valores,words[1], new Value(dom,aux.get(words[1]),words[2],TTL));
                                 break;
                             case "PTR":
                                 Value value = new Value(dom, aux.get(words[1]), words[2], TTL);
-                                addValores(valores,dom,words[1],words[2],value);
+                                addValores(valores,words[1],value);
                                 break;
                             case "CNAME":
                                 name = converteDom(words[2], macro);
                                 value = new Value(dom, aux.get(words[1]), name, TTL);
-                                addValoresCNAME(valores,dom,words[1],name,value);
+                                addValoresCNAME(valores,value);
                                 break;
                             case "NS":
                             case "MX":
                                 name = converteDom(words[2], macro);
-                                addValoresPri(valores,words,dom,words[1],name,TTL,macro);
+                                value = new Value(dom, aux.get(words[1]), name, TTL);
+                                addValoresPri(valores,words,words[1],value,macro);
                                 break;
                             case "A":
-                                addValoresPri(valores,words,dom,words[1],words[2],TTL,macro);
+                                value = new Value(dom, aux.get(words[1]), words[2], TTL);
+                                addValoresPri(valores,words,words[1],value,macro);
                                 break;
                             default:
                                 warnings.add("Erro linha " + l + ": Tipo de valor não identificado.");

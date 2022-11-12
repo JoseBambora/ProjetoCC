@@ -51,6 +51,6 @@ public class ObjectSP extends ObjectServer {
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSP() {
-        return !this.SS.isEmpty() && this.getCache().checkBD();
+        return !this.SS.isEmpty() && this.getCache().checkBD("ST");
     }
 }
