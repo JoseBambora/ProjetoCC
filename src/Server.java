@@ -42,16 +42,21 @@ public class Server {
             boolean sp = sc instanceof ObjectSP;
             boolean ss = sc instanceof ObjectSS;
 
+            Thread transfer;
             /* Create thread for tcp socket */
             if (sp) {
-                
+                ObjectSP pri = (ObjectSP) sc;
+                ZoneTransfer zt = new ZoneTransfer("",null, pri.getDominio(), 0);
+                transfer = new Thread(zt);
+                transfer.start();
+
             }
 
 
 
             /* Zone transfer if is SS */
             if (ss) {
-                ServidorSS sec = (ServidorSS) sc;
+                ObjectSS sec = (ObjectSS) sc;
 
 
 
@@ -101,6 +106,7 @@ public class Server {
                     socket1.close();
                 }
             }
+
 
         } catch (Exception e) {
             if (s.debug) {
