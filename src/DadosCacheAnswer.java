@@ -59,6 +59,6 @@ public class DadosCacheAnswer implements DadosCache
 
     @Override
     public boolean isEmpty() {
-        return this.authorityValues.isEmpty() && this.responseValues.isEmpty() && this.extraValues.isEmpty();
+        return this.responseValues.isEmpty();
     }
 }
