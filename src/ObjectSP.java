@@ -1,3 +1,4 @@
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,12 +6,12 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 10/11/2022
+ * Data de edição 11/11/2022
  */
 
 public class ObjectSP extends ObjectServer {
 
-    private final List<Endereco> SS;
+    private final List<Object> SS;
 
     /**
      * Construtor de objetos da classe ServidorSP
@@ -24,7 +25,7 @@ public class ObjectSP extends ObjectServer {
      * Método que adiciona valores ao campo SS de objetos do tipo ServidorSP
      * @param e endereço do SS a adicionar
      */
-    public void addSS(Endereco e){
+    public void addSS(Object e){
         this.SS.add(e);
     }
 
@@ -50,6 +51,6 @@ public class ObjectSP extends ObjectServer {
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSP() {
-        return !this.SS.isEmpty() && this.getCache().checkBD();
+        return !this.SS.isEmpty() && this.getCache().checkBD("ST");
     }
 }

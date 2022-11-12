@@ -1,0 +1,8 @@
+# Configuration file for SS Mario
+.reverse.G706. SP 10.0.16.10
+.reverse.G706. DD 10.0.10.10
+.reverse.G706. DD 10.0.16.13
+.reverse.G706. DD 10.0.8.12
+.reverse.G706. LG LogsFiles/mario.log
+all LG all.log
+root ST ConfigurationFiles/rootservers.db

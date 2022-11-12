@@ -1,0 +1,41 @@
+# Base de dados para o SP do domínio M10.JJM.G706.
+
+@ DEFAULT M10.JJM.G706.
+TTL DEFAULT 90000
+
+@ SOASP cancelo.@ TTL
+@ SOAADMIN scaloni\.admin.@ TTL
+@ SOASERIAL 123123 TTL
+@ SOAREFRESH 15000 TTL
+@ SOARETRY 4000 TTL
+@ SOAEXPIRE 502000 TTL
+
+# SP
+@ NS cancelo.@ TTL
+# SS
+@ NS rafael.@ TTL
+@ NS ruben.@ TTL
+
+# Email
+@ MX scaloni1.@ TTL 10
+@ MX scaloni2.@ TTL 20
+
+# SP
+cancelo A 10.0.9.11 TTL
+# SS
+rafael A 10.0.15.11 TTL
+ruben A 10.0.15.12 TTL
+# Email
+scaloni1 A 10.0.10.11 TTL
+scaloni2 A 10.0.16.12 TTL
+# Web
+bruno A 10.0.14.10 TTL
+guerreiro A 10.0.9.10 TTL
+
+sp CNAME cancelo TTL
+ss1 CNAME rafael TTL
+ss2 CNAME ruben TTL
+mail1 CNAME scaloni1 TTL
+mail2 CNAME scaloni2 TTL
+www1 CNAME bruno TTL
+www2 CNAME guerreiro TTL

@@ -1,0 +1,33 @@
+# Base de dados para o SP do domínio KB9.REVERSE.G706.
+
+@ DEFAULT KB9.REVERSE.G706.
+cr7 DEFAULT CR7.CMS.G706.
+m10 DEFAULT M10.CMS.G706.
+TTL DEFAULT 90000
+
+# SP
+@ NS rui.@ TTL
+# SS 
+@ NS mario.@ TTL
+@ NS dalot.@ TTL
+
+# PTR
+10.0.14.11 PTR pepe.G706.
+10.0.13.11 PTR palhinha.G706.
+10.0.10.10 PTR rui.@
+10.0.15.10 PTR braga.cr7
+10.0.16.10 PTR renato.cr7
+10.0.16.11 PTR vitinha.cr7
+10.0.8.11 PTR fernando1.cr7
+10.0.10.12 PTR fernando2.cr7
+10.0.13.10 PTR mendes.cr7
+10.0.8.1 PTR silva.cr7
+10.0.9.14 PTR horta.m10
+10.0.9.13 PTR bernardo.m10
+10.0.9.11 PTR cancelo.m10
+10.0.15.11 PTR rafael.m10
+10.0.15.12 PTR ruben.m10
+10.0.10.11 PTR scaloni1.m10
+10.0.16.1 PTR scaloni2.m10
+10.0.14.1 PTR bruno.m10
+10.0.9.10 PTR guerreiro.m10

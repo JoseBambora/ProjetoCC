@@ -1,13 +1,16 @@
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
  * Data de criação 23/10/2022
- * Data de edição 10/11/2022
+ * Data de edição 11/11/2022
  */
 
 public class ObjectSS extends ObjectServer {
 
-    private Endereco SP;
+    private InetSocketAddress SP;
 
     /**
      * Construtor de objetos da classe ServidorSS
@@ -20,7 +23,7 @@ public class ObjectSS extends ObjectServer {
      * Método que adiciona valores ao campo SP de objetos do tipo ServidorSS
      * @param e endereço do SP a adicionar
      */
-    public void addSP(Endereco e){
+    public void addSP(InetSocketAddress e){
         this.SP = e;
     }
 

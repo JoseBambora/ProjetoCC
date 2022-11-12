@@ -1,0 +1,12 @@
+#Configuration file for SS Rafael
+.M10.JJM.G706. SP 10.0.9.11
+.M10.JJM.G706. DD 10.0.9.13
+.M10.JJM.G706. DD 10.0.15.11
+.M10.JJM.G706. DD 10.0.15.12
+.M10.JJM.G706. DD 10.0.10.11
+.M10.JJM.G706. DD 10.0.16.12
+.M10.JJM.G706. DD 10.0.14.10
+.M10.JJM.G706. DD 10.0.9.10
+.M10.JJM.G706. LG LogsFiles/rafael.log
+all LG /var/dns/all.log
+root ST ConfigurationFiles/rootservers.db

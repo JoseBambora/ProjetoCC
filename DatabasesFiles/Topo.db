@@ -1,0 +1,25 @@
+# Base de dados para o SP do domínio G706.
+
+@ DEFAULT G706.
+cr7 DEFAULT CR7.CMS.G706.
+m10 DEFAULT M10.JJM.G706.
+kb9 DEFAULT KB9.REVERSE.G706.
+TTL DEFAULT 90000
+
+# SP + SS
+@ NS pepe.G706. TTL
+@ NS palhinha.G706. TTL
+cr7 NS braga.cr7 TTL
+m10 NS cancelo.m10 TTL
+kb9 NS rui.KB9 TTL
+
+# ST
+pepe A 10.0.14.11 TTL
+palhinha A 10.0.13.11 TTL
+braga A 10.0.15.10 TTL
+cancelo A 10.0.9.11 TTL
+
+st1 CNAME pepe TTL
+st2 CNAME palhinha TTL
+sd1 CNAME braga TTL
+sd2 CNAME cancelo TTL
