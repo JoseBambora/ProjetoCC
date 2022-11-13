@@ -48,9 +48,16 @@ public class ObjectSP extends ObjectServer {
 
     /**
      * Método que verifica se os valores dos campos de um ServidorSP estão bem preenchidos após processo de parsing
+     * @param dominio - Dominio do servidor
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
-    public boolean verificaSP() {
-        return !this.SS.isEmpty() && this.getCache().checkBD("ST");
+    public boolean verificaSP(String dominio) {
+        boolean emptyfields;
+        if (this.SS.isEmpty() && this.getDD().isEmpty()&& this.getST().isEmpty()) emptyfields = true; //caso seja um ST deve ter estes campos vazios
+        else emptyfields= !this.SS.isEmpty(); //se for um SP está mal configurado caso não tenha nenhum SS
+        boolean dbchecker;
+        if (dominio.equals(".reverse.G706.")) dbchecker = this.getCache().checkBD("REVERSE");
+        else dbchecker = this.getCache().checkBD("SP");
+        return emptyfields && dbchecker;
     }
 }

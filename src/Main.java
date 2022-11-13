@@ -49,9 +49,7 @@ public class Main {
         cache.addData(answer, EntryCache.Origin.OTHERS);
         cache.addData(answer2, EntryCache.Origin.OTHERS);
         System.out.println("Inserção repetidos:\n" + cache);
-
-        // Condição dá null -> ST não tem SS, sp = "SP", st = "ST", reverse = "REVERSE"
-        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPalinha");
+        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPepe");
         System.out.println(SP);
 
      }

@@ -129,34 +129,31 @@ public class ObjectServer {
     }
 
 
-    public void setCache(Cache cache){
-        this.cache = cache;
-    }
-
     /**
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
      * @return true se o processo ocorre como esperado, false caso não ocorra como esperado
      */
     private boolean verificaConfig() {
         boolean aux;
-        boolean flag = false;
-        if (ST.isEmpty() && DD.isEmpty()){
+        if (ST.isEmpty() && DD.isEmpty()){ //servidor de topo
             aux = !this.LG.isEmpty() && !this.allLG.isEmpty();
+            aux = aux && this.getCache().checkBD("ST");
         }
+        //outros servidores (campos comuns a todos os servidores exceto ST)
         else aux = !this.DD.isEmpty() &&
                    !this.ST.isEmpty() &&
                    !this.LG.isEmpty() &&
                    !this.allLG.isEmpty();
         boolean aux2;
-        if(this instanceof ObjectSP){
-            aux2 = ((ObjectSP) this).verificaSP();
+        if(this instanceof ObjectSP){ //caso seja um SP ou um ST (dominio passado como parâmetro pois podemos ter SP no dominio reverse)
+            aux2 = ((ObjectSP) this).verificaSP(this.dominio);
             return aux && aux2;
         }
-        if(this instanceof ObjectSS){
+        if(this instanceof ObjectSS){ //caso seja um SS
             aux2 = ((ObjectSS) this).verificaSS();
             return aux && aux2;
         }
-        else return aux;
+        else return aux; //Caso seja SR
     }
 
     /**
@@ -195,7 +192,7 @@ public class ObjectServer {
                                 server = sp;
                                 server.dominio = words[0];
                             }
-                            sp.getCache().createBD(words[2]);
+                            sp.getCache().createBD(words[2], server.dominio);
                             break;
                         case "SP":
                             if (ss == null){
@@ -252,7 +249,7 @@ public class ObjectServer {
             server = null;
             warnings.add("Campos em falta. Servidor não configurado.");
         }
-        System.out.println("Warnings no ficheiro de configuração'" + filename + "':");
+        System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");
         for(String warning : warnings)
         {
             System.out.println("- " + warning);
