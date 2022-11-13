@@ -137,7 +137,7 @@ public class ObjectServer {
         boolean aux;
         if (ST.isEmpty() && DD.isEmpty()){ //servidor de topo
             aux = !this.LG.isEmpty() && !this.allLG.isEmpty();
-            aux = aux && this.getCache().checkBD("ST");
+            return aux && this.getCache().checkBD("ST");
         }
         //outros servidores (campos comuns a todos os servidores exceto ST)
         else aux = !this.DD.isEmpty() &&
