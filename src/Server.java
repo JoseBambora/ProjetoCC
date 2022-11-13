@@ -5,15 +5,16 @@
  * Last update: 07/11/2022
  */
 
-import java.net.*;
-import java.util.Date;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 
 public class Server {
-    private String configFile;  /* 1º arg: config file */
-    private int timeout;        /* 2º arg: timeout */
-    private int port;           /* 3º arg: porta de funcionameto (optional) */
-    private boolean debug;      /* 4º arg: funcionar em debug (optional) */
+    private String configFile;  /* 1º arg: Configuration file */
+    private int timeout;        /* 2º arg: Timeout */
+    private int port;           /* 3º arg: Port (optional) */
+    private boolean debug;      /* 4º arg: Debug mode (optional) */
 
     public Server() {
         this.port = 53;
@@ -52,8 +53,6 @@ public class Server {
 
             }
 
-
-
             /* Zone transfer if is SS */
             if (ss) {
                 ObjectSS sec = (ObjectSS) sc;
@@ -77,17 +76,13 @@ public class Server {
                 /* Build packet */
                 DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
-                /*  Create Log and write in the output */
-                Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, "");
-                // Log no ficheiro respetivo
-                if (s.debug) System.out.println(qr);
-
                 /* Find answer */
                 Data resp = sc.getCache().findAnswer(receivePacket);
 
                 if (resp!=null) {
                     /* Build Packet */
-                    Header header = new Header(receivePacket.getHeader().getMessageID(), false, receivePacket.getHeader().isFlagA(), false);
+                    byte flags = 4;
+                    Header header = new Header(receivePacket.getHeader().getMessageID(), flags);
                     DNSPacket sendPacket = new DNSPacket(header, resp);
 
                     /* Create Datagram */
@@ -99,8 +94,6 @@ public class Server {
 
                     /* Send answer */
                     socket1.send(response);
-                    Log re = new Log(new Date(), Log.EntryType.QE, clientAddress.getHostAddress(), clientPort, "");
-                    if (s.debug) System.out.println(re);
 
                     /* Close new socket */
                     socket1.close();
@@ -109,10 +102,7 @@ public class Server {
 
 
         } catch (Exception e) {
-            if (s.debug) {
-                Log fl = new Log(new Date(), Log.EntryType.FL,"127.0.0.1",53,null);
-                System.out.println(fl);
-            }
+            e.printStackTrace();
         }
 
     }

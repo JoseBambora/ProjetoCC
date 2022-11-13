@@ -3,7 +3,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -126,17 +125,17 @@ public class Cache
         try
         {
             Map<Byte,Integer> counter = new HashMap<>();
-            counter.put(DNSPacket.typeOfValueConvert("SOASP"),0);
-            counter.put(DNSPacket.typeOfValueConvert("SOAADMIN"),0);
-            counter.put(DNSPacket.typeOfValueConvert("SOASERIAL"),0);
-            counter.put(DNSPacket.typeOfValueConvert("SOAREFRESH"),0);
-            counter.put(DNSPacket.typeOfValueConvert("SOARETRY"),0);
-            counter.put(DNSPacket.typeOfValueConvert("SOAEXPIRE"),0);
-            counter.put(DNSPacket.typeOfValueConvert("NS"),0);
-            counter.put(DNSPacket.typeOfValueConvert("CNAME"),0);
-            counter.put(DNSPacket.typeOfValueConvert("MX"),0);
-            counter.put(DNSPacket.typeOfValueConvert("A"),0);
-            counter.put(DNSPacket.typeOfValueConvert("PTR"),0);
+            counter.put(Data.typeOfValueConvert("SOASP"),0);
+            counter.put(Data.typeOfValueConvert("SOAADMIN"),0);
+            counter.put(Data.typeOfValueConvert("SOASERIAL"),0);
+            counter.put(Data.typeOfValueConvert("SOAREFRESH"),0);
+            counter.put(Data.typeOfValueConvert("SOARETRY"),0);
+            counter.put(Data.typeOfValueConvert("SOAEXPIRE"),0);
+            counter.put(Data.typeOfValueConvert("NS"),0);
+            counter.put(Data.typeOfValueConvert("CNAME"),0);
+            counter.put(Data.typeOfValueConvert("MX"),0);
+            counter.put(Data.typeOfValueConvert("A"),0);
+            counter.put(Data.typeOfValueConvert("PTR"),0);
             for(EntryCache entryCache : this.cache.values())
             {
                 if(entryCache.getOrigem() == EntryCache.Origin.FILE)
@@ -405,17 +404,17 @@ public class Cache
             valores.put("MX",new ArrayList<>());
             valores.put("A",new ArrayList<>());
             valores.put("PTR",new ArrayList<>());
-            aux.put("SOASP", DNSPacket.typeOfValueConvert("SOASP"));
-            aux.put("SOAADMIN", DNSPacket.typeOfValueConvert("SOAADMIN"));
-            aux.put("SOASERIAL", DNSPacket.typeOfValueConvert("SOASERIAL"));
-            aux.put("SOAREFRESH", DNSPacket.typeOfValueConvert("SOAREFRESH"));
-            aux.put("SOARETRY", DNSPacket.typeOfValueConvert("SOARETRY"));
-            aux.put("SOAEXPIRE", DNSPacket.typeOfValueConvert("SOAEXPIRE"));
-            aux.put("NS", DNSPacket.typeOfValueConvert("NS"));
-            aux.put("CNAME", DNSPacket.typeOfValueConvert("CNAME"));
-            aux.put("MX", DNSPacket.typeOfValueConvert("MX"));
-            aux.put("A", DNSPacket.typeOfValueConvert("A"));
-            aux.put("PTR", DNSPacket.typeOfValueConvert("PTR"));
+            aux.put("SOASP", Data.typeOfValueConvert("SOASP"));
+            aux.put("SOAADMIN", Data.typeOfValueConvert("SOAADMIN"));
+            aux.put("SOASERIAL", Data.typeOfValueConvert("SOASERIAL"));
+            aux.put("SOAREFRESH", Data.typeOfValueConvert("SOAREFRESH"));
+            aux.put("SOARETRY", Data.typeOfValueConvert("SOARETRY"));
+            aux.put("SOAEXPIRE", Data.typeOfValueConvert("SOAEXPIRE"));
+            aux.put("NS", Data.typeOfValueConvert("NS"));
+            aux.put("CNAME", Data.typeOfValueConvert("CNAME"));
+            aux.put("MX", Data.typeOfValueConvert("MX"));
+            aux.put("A", Data.typeOfValueConvert("A"));
+            aux.put("PTR", Data.typeOfValueConvert("PTR"));
         }
         catch (Exception e)
         {

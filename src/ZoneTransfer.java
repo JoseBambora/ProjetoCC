@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class ZoneTransfer implements Runnable{
+public class ZoneTransfer implements Runnable {
         String filename;
         List<InetAddress> ss;
         String domain;
@@ -35,7 +35,7 @@ public class ZoneTransfer implements Runnable{
 
                                 /* Envia versão */
                                 DNSPacket qr = DNSPacket.bytesToDnsPacket(line.getBytes());
-                                if (DNSPacket.typeOfValueConvertSring(qr.getData().getTypeOfValue()).equals("SOASERIAL")) {
+                                if (Data.typeOfValueConvertSring(qr.getData().getTypeOfValue()).equals("SOASERIAL")) {
                                         /* ler versão do filename e envia resposta*/
                                         toClient.println(qr.toString());
                                 }

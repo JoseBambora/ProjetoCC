@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class Main {
     private static void find(Cache bd, String domQ)
@@ -33,10 +31,10 @@ public class Main {
         byte b = (byte) 1;
         aux[0] = new Value("Teste",b,"valor",1);
         aux2[0] = new Value("Teste2",b,"valor",1);
-        DNSPacket query = new DNSPacket((short) 0,true,true,true,"Teste",b);
-        DNSPacket answer = new DNSPacket((short) 0,true,true,true,b,b,b,b,"Teste",b,aux,null,null);
-        DNSPacket answer2 = new DNSPacket((short) 0,true,true,true,b,b,b,b,"Teste2",b,aux2,null,null);
-        cache.addData(new DNSPacket((short) 0,true,true,true,b,b,b,b,"Teste",b,aux,null,null), EntryCache.Origin.SP);
+        DNSPacket query = new DNSPacket((short) 0, (byte) 1,"Teste",b);
+        DNSPacket answer = new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste",b,aux,null,null);
+        DNSPacket answer2 = new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste2",b,aux2,null,null);
+        cache.addData(new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste",b,aux,null,null), EntryCache.Origin.SP);
         System.out.println("Find Answer SOAADMIN:\n" + cache.findAnswer(query));
         System.out.println("Cache:\n" + cache);
         Thread.sleep(2000);

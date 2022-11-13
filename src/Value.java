@@ -67,17 +67,17 @@ public class Value {
         if (fields.length == 5) {
             prioridade = Integer.parseInt(fields[4]);
         }
-        return new Value(fields[0],(byte) DNSPacket.typeOfValueConvert(fields[1]),fields[2],Integer.parseInt(fields[3]),prioridade);
+        return new Value(fields[0],(byte) Data.typeOfValueConvert(fields[1]),fields[2],Integer.parseInt(fields[3]),prioridade);
     }
 
     @Override
     public String toString() {
         String out;
         if (this.prioridade != -1) {
-            out = this.dominio + " " + DNSPacket.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL + " " + this.prioridade;
+            out = this.dominio + " " + Data.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL + " " + this.prioridade;
         }
         else {
-            out = this.dominio + " " + DNSPacket.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL;
+            out = this.dominio + " " + Data.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL;
         }
         return out;
     }

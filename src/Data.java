@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class Data {
     private String name;
-    private byte typeOfValue; // 11 tipos
+    private byte typeOfValue;
     private Value[] responseValues;
     private Value[] authoriteValues;
     private Value[] extraValues;
@@ -23,6 +23,69 @@ public class Data {
         this.authoriteValues = authoriteValues;
         this.extraValues = extraValues;
     }
+
+    public static byte typeOfValueConvert (String type) throws TypeOfValueException {
+        byte ret;
+        switch (type) {
+            case "SOASP":
+                ret = 0; break;
+            case "SOAADMIN":
+                ret = 1; break;
+            case "SOASERIAL":
+                ret = 2; break;
+            case "SOAREFRESH":
+                ret = 3; break;
+            case "SOARETRY":
+                ret = 4; break;
+            case "SOAEXPIRE":
+                ret = 5; break;
+            case "NS":
+                ret = 6; break;
+            case "A":
+                ret = 7; break;
+            case "CNAME":
+                ret = 8; break;
+            case "MX":
+                ret = 9; break;
+            case "PTR":
+                ret = 10; break;
+            default:
+                throw new TypeOfValueException("Type not exist");
+        };
+        return ret;
+    }
+
+    public static String typeOfValueConvertSring (byte type) {
+        String ret = null;
+        switch (type) {
+            case 0:
+                ret = "SOASP"; break;
+            case 1:
+                ret = "SOAADMIN"; break;
+            case 2:
+                ret = "SOASERIAL"; break;
+            case 3:
+                ret = "SOAREFRESH"; break;
+            case 4:
+                ret = "SOARETRY"; break;
+            case 5:
+                ret = "SOAEXPIRE"; break;
+            case 6:
+                ret = "NS"; break;
+            case 7:
+                ret = "A"; break;
+            case 8:
+                ret = "CNAME"; break;
+            case 9:
+                ret = "MX"; break;
+            case 10:
+                ret = "PTR"; break;
+            default:
+                break;
+        };
+        return ret;
+    }
+
 
     public String getName() {
         return name;
@@ -81,7 +144,7 @@ public class Data {
         StringBuilder out = new StringBuilder();
         out.append(name);
         out.append(",");
-        out.append(DNSPacket.typeOfValueConvertSring(typeOfValue));
+        out.append(Data.typeOfValueConvertSring(typeOfValue));
         out.append(";\n");
         int i, tam;
         if (responseValues!=null) {

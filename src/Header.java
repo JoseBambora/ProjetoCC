@@ -1,18 +1,14 @@
 public class Header {
     private short messageID;
-    private boolean flagQ;
-    private boolean flagR;
-    private boolean flagA;
+    private byte flags;
     private byte responseCode;
     private byte numberOfValues;
     private byte numberOfAuthorites;
     private byte numberOfExtraValues;
 
-    public Header(short messageID, boolean flagQ, boolean flagR, boolean flagA, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues) {
+    public Header(short messageID, byte flags, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues) {
         this.messageID = messageID;
-        this.flagQ = flagQ;
-        this.flagR = flagR;
-        this.flagA = flagA;
+        this.flags = flags;
         this.responseCode = responseCode;
         this.numberOfValues = numberOfValues;
         this.numberOfAuthorites = numberOfAuthorites;
@@ -20,11 +16,9 @@ public class Header {
     }
 
 
-    public Header(short messageID, boolean flagQ, boolean flagR, boolean flagA) {
+    public Header(short messageID, byte flags) {
         this.messageID = messageID;
-        this.flagQ = flagQ;
-        this.flagR = flagR;
-        this.flagA = flagA;
+        this.flags = flags;
         this.responseCode = 0;
         this.numberOfValues = 0;
         this.numberOfAuthorites = 0;
@@ -39,28 +33,12 @@ public class Header {
         this.messageID = messageID;
     }
 
-    public boolean isFlagQ() {
-        return flagQ;
+    public byte getFlags() {
+        return flags;
     }
 
-    public void setFlagQ(boolean flagQ) {
-        this.flagQ = flagQ;
-    }
-
-    public boolean isFlagR() {
-        return flagR;
-    }
-
-    public void setFlagR(boolean flagR) {
-        this.flagR = flagR;
-    }
-
-    public boolean isFlagA() {
-        return flagA;
-    }
-
-    public void setFlagA(boolean flagA) {
-        this.flagA = flagA;
+    public void setFlags(byte flags) {
+        this.flags = flags;
     }
 
     public byte getResponseCode() {
@@ -101,9 +79,7 @@ public class Header {
         if (o == null || getClass() != o.getClass()) return false;
         Header header = (Header) o;
         return messageID == header.messageID &&
-                flagQ == header.flagQ &&
-                flagR == header.flagR &&
-                flagA == header.flagA &&
+                flags == header.flags &&
                 responseCode == header.responseCode &&
                 numberOfValues == header.numberOfValues &&
                 numberOfAuthorites == header.numberOfAuthorites &&
@@ -112,58 +88,59 @@ public class Header {
 
     public String flagsToString () {
         String out;
-        if (this.flagQ && this.flagR && this.flagA) out = "Q+R+A";      // 1 1 1
-        else if (this.flagQ && this.flagR) out = "Q+R";                 // 1 1 0
-        else if (this.flagQ && this.flagA) out = "Q+A";                 // 1 0 1
-        else if (this.flagQ) out = "Q";                                 // 1 0 0
-        else if (this.flagR && this.flagA) out = "R+A";                 // 0 1 1
-        else if (this.flagR) out = "R";                                 // 0 1 0
-        else if (this.flagA) out = "A";                                 // 0 0 1
-        else out = "";                                                  // 0 0 0
+        switch (this.flags) {
+            case 1: //100
+                out = "Q"; break;
+            case 2: //010
+                out = "R"; break;
+            case 3: //110
+                out = "Q+R"; break;
+            case 4: //001
+                out = "A"; break;
+            case 5: //101
+                out = "Q+A"; break;
+            case 6: //011
+                out = "R+A"; break;
+            case 7: //111
+                out = "Q+R+A"; break;
+            default: //000
+                out = ""; break;
+        }
+        return out;
+    }
+
+    public static byte flagsStrToByte (String flags) {
+        byte out;
+        switch (flags) {
+            case "Q": //100
+                out = 1; break;
+            case "R": //010
+                out = 2; break;
+            case "Q+R": //110
+                out = 3; break;
+            case "A": //001
+                out = 4; break;
+            case "Q+A": //101
+                out = 5; break;
+            case "R+A": //011
+                out = 6; break;
+            case "Q+R+A": //111
+                out = 7; break;
+            default: //000
+                out = 0; break;
+        }
         return out;
     }
 
     public static Header stringToHeader (String header) {
         String[] headerFields = header.split(",");
         short mId = (short) Integer.parseInt(headerFields[0]);
-        boolean q = false;
-        boolean r = false;
-        boolean a = false;
-        switch (headerFields[1]) {
-            case "Q+R+A":
-                q = true;
-                r = true;
-                a = true;
-                break;
-            case "Q+R":
-                q = true;
-                r = true;
-                break;
-            case "Q+A":
-                q = true;
-                a = true;
-                break;
-            case "Q":
-                q = true;
-                break;
-            case "R+A":
-                r = true;
-                a = true;
-                break;
-            case "R":
-                r = true;
-                break;
-            case "A":
-                a = true;
-                break;
-            default:
-                break;
-        }
+        byte fs = Header.flagsStrToByte(headerFields[1]);
         byte rc = (byte) Integer.parseInt(headerFields[2]);
         byte nv = (byte) Integer.parseInt(headerFields[3]);
         byte na = (byte) Integer.parseInt(headerFields[4]);
         byte ne = (byte) Integer.parseInt(headerFields[5]);
-        return new Header(mId,q,r,a,rc,nv,na,ne);
+        return new Header(mId,fs,rc,nv,na,ne);
     }
 
     @Override
@@ -183,4 +160,5 @@ public class Header {
         out.append(";");
         return out.toString();
     }
+
 }
