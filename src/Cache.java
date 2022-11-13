@@ -138,19 +138,25 @@ public class Cache
             counter.put(Data.typeOfValueConvert("PTR"),0);
             for(EntryCache entryCache : this.cache.values())
             {
-                if(entryCache.getOrigem() == EntryCache.Origin.FILE)
+                if(entryCache.getOrigem() == EntryCache.Origin.FILE && entryCache.getTypeofValue() != -1)
                 {
                     counter.put(entryCache.getTypeofValue(), counter.get(entryCache.getTypeofValue())+1);
                 }
             }
-            switch (type) {
+            boolean res = false;
+            switch (type)
+            {
                 case "SP":
-                    return counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
+                    res = counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
+                    break;
                 case "ST":
-                    return counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
+                    res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
+                    break;
                 case "REVERSE":
-                    return counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
+                    res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
+                    break;
             }
+            return res;
         }
         catch (Exception e)
         {
@@ -485,7 +491,6 @@ public class Cache
         {
             System.out.println("- " + warning);
         }
-        System.out.println("==============================");
     }
 
     /**
