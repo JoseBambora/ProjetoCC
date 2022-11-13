@@ -49,6 +49,14 @@ public class Main {
         System.out.println("Inserção repetidos:\n" + cache);
         ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPepe");
         System.out.println(SP);
+        Cache bd5 = new Cache();
+        bd5.createBD("DatabasesFiles/Braga.db");
+        Cache bd2 = new Cache();
+        bd2.createBD("DatabasesFiles/Topo.db");
+        Cache bd3 = new Cache();
+        bd2.createBD("DatabasesFiles/Cancelo.db");
+        Cache bd4 = new Cache();
+        bd2.createBD("DatabasesFiles/Reverse.db");
 
      }
 

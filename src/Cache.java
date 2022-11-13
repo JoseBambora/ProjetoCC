@@ -429,7 +429,9 @@ public class Cache
                 else if (words.length > 3) {
                     try
                     {
-                        String dom = converteDom(words[0], macro);
+                        String dom = words[0];
+                        if(!words[1].equals("PTR"))
+                            dom = converteDom(words[0], macro);
                         int TTL = converteInt(words, macro, 3, "'TTL'");
                         switch (words[1]) {
                             case "SOASP":
@@ -483,6 +485,7 @@ public class Cache
         {
             System.out.println("- " + warning);
         }
+        System.out.println("==============================");
     }
 
     /**
