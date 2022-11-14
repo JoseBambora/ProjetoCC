@@ -32,6 +32,14 @@ public class ObjectSS extends ObjectServer {
     }
 
     /**
+     * Getter do campo SP de um obeto da classe ObjectSS
+     * @return o valor do campo SP
+     */
+    public InetSocketAddress getSP() {
+        return SP;
+    }
+
+    /**
      * Método toString da classe ObjectSS
      * @return String representativa da classe ObjectSS
      */

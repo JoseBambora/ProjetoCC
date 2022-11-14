@@ -30,11 +30,18 @@ public class ObjectSP extends ObjectServer {
         this.SS.add(e);
     }
 
-
+    /**
+     * Getter do campo SS de um objeto da classe ObjectSP
+     * @return o valor co campo SS
+     */
     public List<InetSocketAddress> getSS() {
         return SS;
     }
 
+    /**
+     * Setter do campo SS de um objeto da classe ObjectSP
+     * @param e lista de endereços que pretendemos que seja o valor do campo SS
+     */
     public void setSS(List<InetSocketAddress> e){
         this.SS = e;
     }
