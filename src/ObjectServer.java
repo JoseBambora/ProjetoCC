@@ -3,10 +3,8 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.net.InetAddress;
-import java.util.Objects;
 
 /**
  * @author Miguel Cidade Silva
@@ -22,8 +20,9 @@ public class ObjectServer {
     private List<InetSocketAddress> ST;
     private List<String> LG;
 
-    private List <String> allLG;
+    private List<String> allLG;
 
+    private  Map<String,String> logs;
     private Cache cache;
 
     /**
@@ -33,9 +32,8 @@ public class ObjectServer {
         this.dominio = null;
         this.DD = new ArrayList<>();
         this.ST = new ArrayList<>();
-        this.LG = new ArrayList<>();
-        this.allLG = new ArrayList<>();
         this.cache = new Cache();
+        this.logs = new HashMap<>();
     }
 
     /**
@@ -105,19 +103,11 @@ public class ObjectServer {
     }
 
     /**
-     * Getter do campo LG de um objeto da classe ObjectServer
-     * @return O campo LG do ObjectServer
+     * Getter do campo LOGS de um objeto da classe ObjectServer
+     * @return O campo LOGS do ObjectServer
      */
-    public List<String> getLG() {
-        return LG;
-    }
-
-    /**
-     * Geter do campo allLG de um objeto da classe ObjectServer
-     * @return O campo allLG do ObjectServer
-     */
-    public List<String> getAllLG() {
-        return allLG;
+    public Map<String, String> getLogs() {
+        return logs;
     }
 
     /**
@@ -154,19 +144,11 @@ public class ObjectServer {
     }
 
     /**
-     * Setter do campo LG de um objeto da classe ObjectServer
-     * @param LG - a lista de strings que queremos atribuir ao campo LG
+     * Setter do campo LOGS de um objeto da classe ObjectServer
+     * @param logs o mapa que queremos associar ao valor co campo LOGS de um objeto da classe ObjectServer
      */
-    public void setLG(List<String> LG) {
-        this.LG = LG;
-    }
-
-    /**
-     * Setter do campo AllLG de um objeto da classe ObjectServer
-     * @param allLG a lista de string a atribuir ao campo allLG
-     */
-    public void setAllLG(List<String> allLG) {
-        this.allLG = allLG;
+    public void setLogs(Map<String, String> logs) {
+        this.logs = logs;
     }
 
     /**
@@ -184,14 +166,13 @@ public class ObjectServer {
     private boolean verificaConfig() {
         boolean aux;
         if (ST.isEmpty() && DD.isEmpty()){ //servidor de topo
-            aux = !this.LG.isEmpty() && !this.allLG.isEmpty();
+            aux = (!this.logs.isEmpty() && logs.containsKey("all"));
             return aux && this.getCache().checkBD("ST");
         }
         //outros servidores (campos comuns a todos os servidores exceto ST)
         else aux = !this.DD.isEmpty() &&
                    !this.ST.isEmpty() &&
-                   !this.LG.isEmpty() &&
-                   !this.allLG.isEmpty();
+                (!this.logs.isEmpty() && logs.containsKey("all"));
         boolean aux2;
         if(this instanceof ObjectSP){ //caso seja um SP ou um ST (dominio passado como parâmetro pois podemos ter SP no dominio reverse)
             aux2 = ((ObjectSP) this).verificaSP(this.dominio);
@@ -240,7 +221,13 @@ public class ObjectServer {
                                 server = sp;
                                 server.dominio = words[0];
                             }
-                            sp.getCache().createBD(words[2], server.dominio);
+                            if(sp.getBD().equals("")){
+                                sp.getCache().createBD(words[2], server.dominio);
+                                sp.setBD(words[2]);
+                            }
+                            else{
+                                warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que uma base de dados no ficheiro de configuração de um servidor.");
+                            }
                             break;
                         case "SP":
                             if (ss == null){
@@ -277,15 +264,17 @@ public class ObjectServer {
                                 server = new ObjectServer();
                             }
                             if (words[0].equals("all")) {
-                                server.addAllLog(words[2]);
+                                server.logs.put("all",words[2]);
                                 logcounter++;
                             }
                             if (!words[0].equals("all")) {
+                                if (server.dominio.equals("")) server.dominio = words[0];
                                 if (server.dominio.matches("(.*)"+words[0])) {
-                                    server.addLog(words[2]);
+                                    server.logs.put(words[0],words[2]);
                                 }
                             }
                             break;
+
                     }
                 }
                 else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
@@ -315,9 +304,8 @@ public class ObjectServer {
                 "   Dominio = " + dominio +" \n" +
                 "   DD = " + DD + "\n" +
                 "   ST = " + ST + "\n" +
-                "   LG = " + LG + "\n" +
-                "   all LG = " + LG + "\n" +
-                "   cache = " + cache;
+                "   LOGS = " + logs +"\n"+
+                "   CACHE = " + cache;
     }
 
 

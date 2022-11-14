@@ -47,7 +47,7 @@ public class Main {
         cache.addData(answer, EntryCache.Origin.OTHERS);
         cache.addData(answer2, EntryCache.Origin.OTHERS);
         System.out.println("Inserção repetidos:\n" + cache);
-        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPepe");
+        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configRui");
         System.out.println(SP);
         Cache bd5 = new Cache();
         bd5.createBD("DatabasesFiles/Braga.db");

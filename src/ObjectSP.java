@@ -13,6 +13,7 @@ import java.util.List;
 public class ObjectSP extends ObjectServer {
 
     private List<InetSocketAddress> SS;
+    private String BD;
 
     /**
      * Construtor de objetos da classe ObjectSP
@@ -20,6 +21,7 @@ public class ObjectSP extends ObjectServer {
     public ObjectSP() {
         super();
         this.SS = new ArrayList<>();
+        this.BD = "";
     }
 
     /**
@@ -47,6 +49,22 @@ public class ObjectSP extends ObjectServer {
     }
 
     /**
+     * Setter do campo DB de um objeto da classe ObjectSP
+     * @return o valor do campo DB
+     */
+    public String getBD() {
+        return BD;
+    }
+
+    /**
+     * Getter do campo DB de um objeto da classe ObjectSP
+     * @param BD a localização do ficheiro da base de dados a associar a um objeto da classe ObjectSP
+     */
+    public void setBD(String BD) {
+        this.BD = BD;
+    }
+
+    /**
      * Método toString da classe ObjectSP
      * @return String representativa da classe ObjectSP
      */
@@ -55,11 +73,11 @@ public class ObjectSP extends ObjectServer {
         return "ObjectSP:" + "\n" +
                 "   Dominio = " + this.getDominio() +"\n" +
                 "   SS = " + SS + "\n" +
+                "   BD = " + BD + "\n" +
                 "   DD = " + this.getDD() + "\n" +
                 "   ST = " + this.getST() + "\n" +
-                "   LG = " + this.getLG() + "\n" +
-                "   allLG = " + this.getAllLG() + "\n"+
-                "   cache = " + this.getCache();
+                "   LOGS = " + this.getLogs() +"\n"+
+                "   CACHE = " + this.getCache();
 
     }
 

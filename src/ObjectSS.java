@@ -50,9 +50,8 @@ public class ObjectSS extends ObjectServer {
                 "   SP = " + SP + "\n" +
                 "   DD = " + this.getDD() + "\n" +
                 "   ST = " + this.getST() + "\n" +
-                "   LG = " + this.getLG() + "\n" +
-                "   allLG = " + this.getAllLG() + "\n"+
-                "   cache = " + this.getCache();
+                "   LOGS = " + this.getLogs() +"\n"+
+                "   CACHE = " + this.getCache();
     }
 
     /**
