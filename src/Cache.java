@@ -26,6 +26,31 @@ public class Cache
     }
 
     /**
+     * Adiciona uma entrada à cache.
+     * @param entryCache Entrada a adicionar.
+     */
+    private void addDataCache(EntryCache entryCache)
+    {
+        if(!this.cache.containsKey(entryCache.getKey()))
+        {
+            this.cache.put(entryCache.getKey(),entryCache);
+        }
+        else if(entryCache.getOrigem() == EntryCache.Origin.OTHERS)
+            this.cache.get(entryCache.getKey()).setTempoEntrada(LocalDateTime.now());
+    }
+
+    /**
+     * Adicionar um determinado valor à cache.
+     * @param value Valor a adicionar à cache.
+     * @param origin Origem da mensagem, SP se for transferência de zona, OTHERs no resto.
+     */
+    public void addData(Value value, EntryCache.Origin origin)
+    {
+        this.removeExpireInfo();
+        EntryCache entryCache = new EntryCache(value.getDominio(),value.getType(),origin);
+        this.addDataCache(entryCache);
+    }
+    /**
      * Adicionar dados de um pacote recebido. Usado para transferência de zona e para receção
      * de respostas a queries.
      * @param resposta Resposta à query.
@@ -35,12 +60,7 @@ public class Cache
     {
         this.removeExpireInfo();
         EntryCache entryCache = new EntryCache(resposta,origin);
-        if(!this.cache.containsKey(entryCache.getKey()))
-        {
-            this.cache.put(entryCache.getKey(),entryCache);
-        }
-        else if(origin == EntryCache.Origin.OTHERS)
-            this.cache.get(entryCache.getKey()).setTempoEntrada(LocalDateTime.now());
+        this.addDataCache(entryCache);
     }
 
     /**
