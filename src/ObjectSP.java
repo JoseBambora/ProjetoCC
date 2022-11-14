@@ -1,4 +1,5 @@
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,15 +7,15 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 11/11/2022
+ * Data de edição 14/11/2022
  */
 
 public class ObjectSP extends ObjectServer {
 
-    private final List<Object> SS;
+    private List<InetSocketAddress> SS;
 
     /**
-     * Construtor de objetos da classe ServidorSP
+     * Construtor de objetos da classe ObjectSP
      */
     public ObjectSP() {
         super();
@@ -22,20 +23,29 @@ public class ObjectSP extends ObjectServer {
     }
 
     /**
-     * Método que adiciona valores ao campo SS de objetos do tipo ServidorSP
+     * Método que adiciona valores ao campo SS de objetos do tipo ObjectSP
      * @param e endereço do SS a adicionar
      */
-    public void addSS(Object e){
+    public void addSS(InetSocketAddress e){
         this.SS.add(e);
     }
 
+
+    public List<InetSocketAddress> getSS() {
+        return SS;
+    }
+
+    public void setSS(List<InetSocketAddress> e){
+        this.SS = e;
+    }
+
     /**
-     * Método toString da classe ServidorSP
-     * @return String representativa da classe ServidorSP
+     * Método toString da classe ObjectSP
+     * @return String representativa da classe ObjectSP
      */
     @Override
     public String toString() {
-        return "ServidorSP:" + "\n" +
+        return "ObjectSP:" + "\n" +
                 "   Dominio = " + this.getDominio() +"\n" +
                 "   SS = " + SS + "\n" +
                 "   DD = " + this.getDD() + "\n" +

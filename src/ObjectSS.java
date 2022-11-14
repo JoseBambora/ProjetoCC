@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
  * Data de criação 23/10/2022
- * Data de edição 11/11/2022
+ * Data de edição 14/11/2022
  */
 
 public class ObjectSS extends ObjectServer {
@@ -13,28 +13,31 @@ public class ObjectSS extends ObjectServer {
     private InetSocketAddress SP;
 
     /**
-     * Construtor de objetos da classe ServidorSS
+     * Construtor de objetos da classe ObjectSS
      */
     public ObjectSS() {
         super();
         this.SP = null;
     }
     /**
-     * Método que adiciona valores ao campo SP de objetos do tipo ServidorSS
+     * Método que adiciona valores ao campo SP de objetos do tipo ObjectSS
      * @param e endereço do SP a adicionar
      */
     public void addSP(InetSocketAddress e){
         this.SP = e;
     }
 
+    public void setSP(InetSocketAddress SP) {
+        this.SP = SP;
+    }
 
     /**
-     * Método toString da classe ServidorSS
-     * @return String representativa da classe ServidorSS
+     * Método toString da classe ObjectSS
+     * @return String representativa da classe ObjectSS
      */
     @Override
     public String toString() {
-        return "ServidorSS{" + "\n" +
+        return "ObjectSS{" + "\n" +
                 "   Dominio = " + this.getDominio() +"\n" +
                 "   SP = " + SP + "\n" +
                 "   DD = " + this.getDD() + "\n" +
@@ -45,7 +48,7 @@ public class ObjectSS extends ObjectServer {
     }
 
     /**
-     * Método que verifica se os valores dos campos de um ServidorSS estão bem preenchidos após processo de parsing
+     * Método que verifica se os valores dos campos de um ObjectSS estão bem preenchidos após processo de parsing
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSS() {

@@ -12,22 +12,22 @@ import java.util.Objects;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 11/11/2022
+ * Data de edição 14/11/2022
  */
 
 public class ObjectServer {
 
     private String dominio;
-    private final List<InetSocketAddress> DD;
-    private final List<InetSocketAddress> ST;
-    private final List<String> LG;
+    private List<InetSocketAddress> DD;
+    private List<InetSocketAddress> ST;
+    private List<String> LG;
 
-    private final List <String> allLG;
+    private List <String> allLG;
 
     private Cache cache;
 
     /**
-     * Construtor de objetos da classe ServidorConfiguracao
+     * Construtor de objetos da classe ObjectServer
      */
     public ObjectServer() {
         this.dominio = null;
@@ -81,53 +81,101 @@ public class ObjectServer {
     }
 
     /**
-     * Getter do dominio de um objeto da classe ServidorConfiguracao
-     * @return O dominio do ServidorConfiguracao
+     * Getter do dominio de um objeto da classe ObjectServer
+     * @return O dominio do ObjectServer
      */
     public String getDominio() {
         return dominio;
     }
 
     /**
-     * Getter do campo DD de um objeto da classe ServidorConfiguracao
-     * @return O campo DD do ServidorConfiguracao
+     * Getter do campo DD de um objeto da classe ObjectServer
+     * @return O campo DD do ObjectServer
      */
     public List<InetSocketAddress> getDD() {
         return DD;
     }
 
     /**
-     * Getter do campo ST de um objeto da classe ServidorConfiguracao
-     * @return O campo ST do ServidorConfiguracao
+     * Getter do campo ST de um objeto da classe ObjectServer
+     * @return O campo ST do ObjectServer
      */
     public List<InetSocketAddress> getST() {
         return ST;
     }
 
     /**
-     * Getter do campo LG de um objeto da classe ServidorConfiguracao
-     * @return O campo LG do ServidorConfiguracao
+     * Getter do campo LG de um objeto da classe ObjectServer
+     * @return O campo LG do ObjectServer
      */
     public List<String> getLG() {
         return LG;
     }
 
     /**
-     * Geter do campo allLG de um objeto da classe ServidorConfiguracao
-     * @return O campo allLG do ServidorConfiguracao
+     * Geter do campo allLG de um objeto da classe ObjectServer
+     * @return O campo allLG do ObjectServer
      */
     public List<String> getAllLG() {
         return allLG;
     }
 
     /**
-     * Getter do campo cache de um objeto da classe ServidorConfiguracao
-     * @return O campo cache do ServidorConfiguracao
+     * Getter do campo cache de um objeto da classe ObjectServer
+     * @return O campo cache do ObjectServer
      */
     public Cache getCache() {
         return cache;
     }
 
+
+    /**
+     * Setter do campo Dominio de um objeto da classe ObjectServer
+     * @param dominio o domínio que queremos atribuir
+     */
+    public void setDominio(String dominio) {
+        this.dominio = dominio;
+    }
+
+    /**
+     * Setter do campo DD de um objeto da classe ObjectServer
+     * @param DD a lista de endereços que queremos atribuir ao campo DD
+     */
+    public void setDD(List<InetSocketAddress> DD) {
+        this.DD = DD;
+    }
+
+    /**
+     * Setter do campo ST de um objeto da classe ObjectServer
+     * @param ST a lista de endereços que queremo stribuir ao campo ST
+     */
+    public void setST(List<InetSocketAddress> ST) {
+        this.ST = ST;
+    }
+
+    /**
+     * Setter do campo LG de um objeto da classe ObjectServer
+     * @param LG - a lista de strings que queremos atribuir ao campo LG
+     */
+    public void setLG(List<String> LG) {
+        this.LG = LG;
+    }
+
+    /**
+     * Setter do campo AllLG de um objeto da classe ObjectServer
+     * @param allLG a lista de string a atribuir ao campo allLG
+     */
+    public void setAllLG(List<String> allLG) {
+        this.allLG = allLG;
+    }
+
+    /**
+     * Setter do campo cache de um objeto da classe ObjectServer
+     * @param cache - a cache que pretender atribuir a um objeto da classe ObjectServer
+     */
+    public void setCache(Cache cache) {
+        this.cache = cache;
+    }
 
     /**
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
@@ -258,12 +306,12 @@ public class ObjectServer {
     }
 
     /**
-     * Método toString da classe ServidorConfiguracao
-     * @return String representativa da classe ServidorConfiguracao
+     * Método toString da classe ObjectServer
+     * @return String representativa da classe ObjectServer
      */
     @Override
     public String toString() {
-        return "ServidorConfiguracao:" + "\n" +
+        return "ObjectServer:" + "\n" +
                 "   Dominio = " + dominio +" \n" +
                 "   DD = " + DD + "\n" +
                 "   ST = " + ST + "\n" +
