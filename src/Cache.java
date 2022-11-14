@@ -18,6 +18,7 @@ public class Cache
     private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
     private final Map<String,EntryCache> cache;
     private final Map<String, Byte> aux;
+    private String dominio = ""; // SÓ PARA SP
     public Cache()
     {
         this.aux = new HashMap<>();
@@ -66,7 +67,33 @@ public class Cache
         EntryCache entryCache = new EntryCache(dom,type, EntryCache.Origin.SP);
         Data res = null;
         if(this.cache.containsKey(entryCache.getKey()))
-            res = this.cache.get(entryCache.getKey()).getData();
+        {
+            EntryCache entryCache1 = this.cache.get(entryCache.getKey());
+            res = entryCache1.getData();
+            if(entryCache1.getOrigem() == EntryCache.Origin.FILE)
+            {
+                List<Value> av = new ArrayList<>();
+                List<Value> ev = new ArrayList<>();
+                for(EntryCache entryCache2 : this.cache.values())
+                {
+                    if(entryCache2.getTypeofValue().equals(aux.get("NS")) && entryCache2.getDominio().matches("(.*)" + this.dominio))
+                    {
+                        Data data = entryCache2.getData();
+                        av.addAll(List.of(data.getResponseValues()));
+                    }
+                    else if(entryCache2.getTypeofValue().equals(aux.get("A")) && entryCache2.getDominio().matches("(.*)" + this.dominio))
+                    {
+                        Data data = entryCache2.getData();
+                        ev.addAll(List.of(data.getResponseValues()));
+                    }
+                }
+                if(!av.isEmpty())
+                    res.setAuthoriteValues(av.toArray(new Value[1]));
+                if(!ev.isEmpty())
+                    res.setExtraValues(ev.toArray(new Value[1]));
+            }
+
+        }
         return res;
     }
 
@@ -178,10 +205,20 @@ public class Cache
         String res = str;
         if(str.charAt(str.length()-1) != '.')
         {
-            if(res.contains("@"))
-                res = res.replaceAll("@",macro.get("@"));
-            else
+            boolean entrou = false;
+            for(String key : macro.keySet())
+            {
+                if(res.contains(key))
+                {
+                    res = res.replaceAll(key,macro.get(key));
+                    entrou = true;
+                    break;
+                }
+            }
+            if(!entrou)
+            {
                 res += "." + macro.get("@");
+            }
         }
         return res;
     }
@@ -389,7 +426,6 @@ public class Cache
     /**
      * Método que faz o parsing de um ficheiro para um BD.
      * @param lines Linhas de um ficheiro.
-     * @return Base de Dados.
      */
     public void createBD(String[] lines)
     {
@@ -452,6 +488,8 @@ public class Cache
                                 addValor(valores,words[1], new Value(dom,aux.get(words[1]),words[2],TTL));
                                 break;
                             case "PTR":
+                                if(!dom.contains(":"))
+                                    dom += ":5353";
                                 Value value = new Value(dom, aux.get(words[1]), words[2], TTL);
                                 addValores(valores,words[1],value);
                                 break;
@@ -467,7 +505,10 @@ public class Cache
                                 addValoresPri(valores,words,words[1],value,macro);
                                 break;
                             case "A":
-                                value = new Value(dom, aux.get(words[1]), words[2], TTL);
+                                String en = words[2];
+                                if(!en.contains(":"))
+                                    en += ":5353";
+                                value = new Value(dom, aux.get(words[1]), en, TTL);
                                 addValoresPri(valores,words,words[1],value,macro);
                                 break;
                             default:
@@ -496,21 +537,14 @@ public class Cache
     /**
      * Método que faz o parsing de um ficheiro para um BD
      * @param filename Nome do ficheiro.
-     * @return Base de Dados.
      */
-    public void createBD(String filename) throws IOException
-    {
-        List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines.toArray(new String[1]));
-        EntryCache entryCache = new EntryCacheDBF("",filename);
-        this.cache.put(entryCache.getKey(),entryCache);
-    }
     public void createBD(String filename,String dom) throws IOException
     {
-        List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines.toArray(new String[1]));
         EntryCache entryCache = new EntryCacheDBF(dom,filename);
         this.cache.put(entryCache.getKey(),entryCache);
+        this.dominio = dom;
+        List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+        this.createBD(lines.toArray(new String[1]));
     }
     @Override
     public String toString()

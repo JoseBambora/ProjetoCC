@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class Main {
     private static void find(Cache bd, String domQ)
     {
@@ -16,47 +14,28 @@ public class Main {
         System.out.println(bd.findAnswer("mail2." + domQ,(byte) 7));
         System.out.println(bd.findAnswer(domQ,(byte) 9));
     }
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         Cache bd = new Cache();
-        bd.createBD("DatabasesFiles/Braga.db");
+        bd.createBD("DatabasesFiles/Braga.db","CR7.CMS.G706.");
         Cache bd1 = new Cache();
-        bd1.createBD("DatabasesFiles/Cancelo.db");
+        bd1.createBD("DatabasesFiles/Cancelo.db","M10.JJM.G706.");
         String domQ = "CR7.CMS.G706.";
         find(bd,domQ);
         domQ = "M10.JJM.G706.";
         find(bd1,domQ);
-        Cache cache = new Cache();
-        Value []aux = new Value[1];
-        Value []aux2 = new Value[1];
-        byte b = (byte) 1;
-        aux[0] = new Value("Teste",b,"valor",1);
-        aux2[0] = new Value("Teste2",b,"valor",1);
-        DNSPacket query = new DNSPacket((short) 0, (byte) 1,"Teste",b);
-        DNSPacket answer = new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste",b,aux,null,null);
-        DNSPacket answer2 = new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste2",b,aux2,null,null);
-        cache.addData(new DNSPacket((short) 0, (byte) 1,b,b,b,b,"Teste",b,aux,null,null), EntryCache.Origin.SP);
-        System.out.println("Find Answer SOAADMIN:\n" + cache.findAnswer(query));
-        System.out.println("Cache:\n" + cache);
-        Thread.sleep(2000);
-        cache.removeExpireInfo();
-        System.out.println("Pós-remoção:\n" + cache);
-        cache.addData(answer, EntryCache.Origin.SP);
-        cache.removeByName("Teste");
-        System.out.println("Pós-remoção by name:\n" + cache);
-        cache.addData(answer, EntryCache.Origin.OTHERS);
-        cache.addData(answer, EntryCache.Origin.OTHERS);
-        cache.addData(answer2, EntryCache.Origin.OTHERS);
-        System.out.println("Inserção repetidos:\n" + cache);
-        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configRui");
+        ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPepe");
         System.out.println(SP);
         Cache bd5 = new Cache();
-        bd5.createBD("DatabasesFiles/Braga.db");
+        bd5.createBD("DatabasesFiles/Braga.db", "CR7.CMS.G706.");
+        System.out.println(bd5.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP")));
         Cache bd2 = new Cache();
-        bd2.createBD("DatabasesFiles/Topo.db");
+        bd2.createBD("DatabasesFiles/Topo.db","G706.");
+        System.out.println(bd2.findAnswer("G706.",Data.typeOfValueConvert("NS")));
         Cache bd3 = new Cache();
-        bd2.createBD("DatabasesFiles/Cancelo.db");
+        bd3.createBD("DatabasesFiles/Cancelo.db", "M10.JJM.G706.");
+        System.out.println(bd3.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX")));
         Cache bd4 = new Cache();
-        bd2.createBD("DatabasesFiles/Reverse.db");
+        bd4.createBD("DatabasesFiles/Rui.db","KB9.REVERSE.G706.");
 
      }
 
