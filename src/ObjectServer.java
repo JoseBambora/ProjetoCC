@@ -75,7 +75,7 @@ public class ObjectServer {
                 if(STEnderecoPorta.length>1){
                     ST.add(new InetSocketAddress(InetAddress.getByName(STEnderecoPorta[0]), Integer.parseInt(STEnderecoPorta[1])));
                 }
-                else ST.add(new InetSocketAddress(InetAddress.getByName(str),53));
+                else ST.add(new InetSocketAddress(InetAddress.getByName(str),5353));
             }
         }
     }
@@ -232,7 +232,7 @@ public class ObjectServer {
                             if(enderecoPortaSS.length>1){
                                 sp.addSS(new InetSocketAddress(InetAddress.getByName(enderecoPortaSS[0]), Integer.parseInt(enderecoPortaSS[1])));
                             }
-                            else sp.addSS(new InetSocketAddress(InetAddress.getByName(words[2]),53));
+                            else sp.addSS(new InetSocketAddress(InetAddress.getByName(words[2]),5353));
                             break;
                         case "DB":
                             if (sp == null) {
@@ -251,7 +251,7 @@ public class ObjectServer {
                                 if(enderecoPortaSP.length>1){
                                     ss.addSP(new InetSocketAddress(InetAddress.getByName(enderecoPortaSP[0]), Integer.parseInt(enderecoPortaSP[1])));
                                 }
-                                else ss.addSP(new InetSocketAddress(InetAddress.getByName(words[2]),53));
+                                else ss.addSP(new InetSocketAddress(InetAddress.getByName(words[2]),5353));
                             }
                             else warnings.add("Linha "  + line + " ignorada, pois levaria  a termos mais do que um SP no ficheiro de configuração de um SS."); // apenas adiciona o primeiro
                             break;
@@ -264,7 +264,7 @@ public class ObjectServer {
                             if(enderecoPortaDD.length>1){
                                 server.addEnderecoDD(new InetSocketAddress(InetAddress.getByName(enderecoPortaDD[0]), Integer.parseInt(enderecoPortaDD[1])));
                             }
-                            else server.addEnderecoDD(new InetSocketAddress(InetAddress.getByName(words[2]),53));
+                            else server.addEnderecoDD(new InetSocketAddress(InetAddress.getByName(words[2]),5353));
                             break;
                         case "ST":
                             if(server==null){
