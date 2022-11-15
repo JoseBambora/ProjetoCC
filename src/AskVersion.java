@@ -25,9 +25,8 @@ public class AskVersion implements Runnable{
                 BufferedReader fromClient = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
                 DNSPacket qe = new DNSPacket((short) (new Random().nextInt(1,65535)), (byte) 1, objss.getDominio(),Data.typeOfValueConvert("SOASERIAL"));
-
-                toClient.println(qe.toString());
-                toClient.flush();
+                String aux = qe.toString();
+                toClient.println(aux.substring(0,aux.length()-1));
 
                 String rr = fromClient.readLine();
                 // verificar versao

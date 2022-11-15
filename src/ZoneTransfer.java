@@ -18,7 +18,7 @@ public class ZoneTransfer implements Runnable {
         public int countEntrys (List<String> lines) {
                 int i = 0;
                 for (String l : lines) {
-                        if (l.charAt(0) != '#' && !l.equals("\n")) {
+                        if (l.length()>0 && l.charAt(0) != '#' && !l.equals("\n")) {
                                 i++;
                         }
                 }
@@ -53,7 +53,8 @@ public class ZoneTransfer implements Runnable {
                                 DNSPacket qr = DNSPacket.bytesToDnsPacket(line.getBytes());
                                 if (Data.typeOfValueConvertSring(qr.getData().getTypeOfValue()).equals("SOASERIAL")) {
                                         /* procurar versão na cache fase posterior por enquanto envio a mesma querie*/
-                                        toClient.println(qr.toString());
+                                        String aux = qr.toString();
+                                        toClient.println(aux.substring(0,aux.length()-1));
 
                                         /* Recebe dominio e valida */
                                         String domain = fromClient.readLine();
@@ -70,10 +71,11 @@ public class ZoneTransfer implements Runnable {
                                                 int ne = Integer.parseInt(fromClient.readLine());
                                                 if (ne == ce) {
                                                         /* Envia entradas do file */
-                                                        int i = 0;
+                                                        int i = 1;
                                                         for (String l : lines) {
-                                                                if (l.charAt(0) != '#' && !l.equals("\n")) {
+                                                                if (l.length()>0 && l.charAt(0) != '#' && !l.equals("\n")) {
                                                                         toClient.println(i + "-" + l);
+                                                                        i++;
                                                                 }
                                                         }
                                                 }
