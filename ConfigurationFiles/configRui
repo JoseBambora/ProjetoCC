@@ -1,11 +1,11 @@
 # Configuration file for SP Rui
-.reverse.G706. DB DatabasesFiles/Rui.db
-.reverse.G706. SS 10.0.16.13
-.reverse.G706. SS 10.0.8.12
-.reverse.G706. SS 10.0.16.13
-.reverse.G706. DD 10.0.10.10
-.reverse.G706. DD 10.0.16.13
-.reverse.G706. DD 10.0.8.12
-.reverse.G706. LG LogsFiles/rui.log
+KB9.REVERSE.G706. DB DatabasesFiles/Rui.db
+KB9.REVERSE.G706. SS 10.0.16.13
+KB9.REVERSE.G706. SS 10.0.8.12
+KB9.REVERSE.G706. SS 10.0.16.13
+KB9.REVERSE.G706. DD 10.0.10.10
+KB9.REVERSE.G706. DD 10.0.16.13
+KB9.REVERSE.G706. DD 10.0.8.12
+KB9.REVERSE.G706. LG LogsFiles/rui.log
 all LG all.log
 root ST ConfigurationFiles/rootservers.db
