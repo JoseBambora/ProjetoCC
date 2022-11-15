@@ -61,22 +61,31 @@ public class DNSPacket {
         byte tv = Data.typeOfValueConvert(qi[1]);
 
         int i = 0;
-        Value[] rv = new Value[h.getNumberOfValues()];
-        String[] rvAux = fields[2].split(",");
-        for (String str : rvAux) {
-            rv[i++] = Value.stringToValue(str.substring(1));
+        Value[] rv = null;
+        if (h.getNumberOfValues()>0) {
+            rv = new Value[h.getNumberOfValues()];
+            String[] rvAux = fields[2].split(",");
+            for (String str : rvAux) {
+                rv[i++] = Value.stringToValue(str.substring(1));
+            }
         }
         i = 0;
-        Value[] av = new Value[h.getNumberOfAuthorites()];
-        String[] avAux = fields[3].split(",");
-        for (String str : avAux) {
-            av[i++] = Value.stringToValue(str.substring(1));
+        Value[] av = null;
+        if (h.getNumberOfAuthorites()>0) {
+            av = new Value[h.getNumberOfAuthorites()];
+            String[] avAux = fields[3].split(",");
+            for (String str : avAux) {
+                av[i++] = Value.stringToValue(str.substring(1));
+            }
         }
         i = 0;
-        Value[] ev = new Value[h.getNumberOfExtraValues()];
-        String[] evAux = fields[4].split(",");
-        for (String str : evAux) {
-            ev[i++] = Value.stringToValue(str.substring(1));
+        Value[] ev = null;
+        if (h.getNumberOfExtraValues()>0) {
+            ev = new Value[h.getNumberOfExtraValues()];
+            String[] evAux = fields[4].split(",");
+            for (String str : evAux) {
+                ev[i++] = Value.stringToValue(str.substring(1));
+            }
         }
         return new DNSPacket(h,new Data(name,tv,rv,av,ev));
     }

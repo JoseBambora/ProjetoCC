@@ -5,9 +5,8 @@
  * Last update: 07/11/2022
  */
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.io.IOException;
+import java.net.*;
 import java.util.Random;
 
 public class Client {
@@ -20,7 +19,7 @@ public class Client {
     boolean debug;                      /* 6º arg: Debug mode (optional) */
 
     public Client() {
-        this.serverPort = 53;
+        this.serverPort = 5353;
         this.recursive = false;
         this.debug = false;
     }
@@ -36,13 +35,19 @@ public class Client {
             cl.timeout = Integer.parseInt(args[1]);
             cl.name = args[2];
             cl.type = Data.typeOfValueConvert(args[3]);
-            cl.recursive = args.length == 5 && args[4].compareTo("R") == 0;
-            cl.debug = (args.length == 5 && args[4].compareTo("D") == 0) || (args.length == 6 && args[4].compareTo("R") == 0 && args[5].compareTo("D") == 0);
+            if (args.length == 5) {
+                cl.recursive = args[4].compareTo("R") == 0;
+                cl.debug = args[4].compareTo("D") == 0;
+            } else if (args.length == 6) {
+                cl.recursive = args[4].compareTo("R") == 0;
+                cl.debug = args[5].compareTo("D") == 0;
+            }
 
             /* Create the packet */
             byte flags = 1;
             if (cl.recursive) flags = 3;
-            DNSPacket sendPacket = new DNSPacket((short) (new Random()).nextInt(0,65534), flags, cl.name, cl.type);
+            int mid = (new Random()).nextInt(1,65535);
+            DNSPacket sendPacket = new DNSPacket((short) mid, flags, cl.name, cl.type);
 
             /* Create the client udp socket with the preset timeout */
             DatagramSocket socket = new DatagramSocket();
@@ -67,6 +72,26 @@ public class Client {
             /* Print the response */
             System.out.println(resPacket);
 
+        } catch (UnknownHostException e) {
+            if (cl.debug) {
+                // host não existe,log fl
+            }
+        } catch (TypeOfValueException e) {
+            if (cl.debug) {
+                // tipo para query não existe, log fl
+            }
+        } catch (SocketException e) {
+            if (cl.debug) {
+                // erro na criação do socket, log fl
+            }
+        } catch (SocketTimeoutException e) {
+            if (cl.debug) {
+                // timeout à espera da query, TO
+            }
+        } catch (IOException e) {
+            if (cl.debug) {
+                // log erro no envio/receção do datagrama, log fl
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

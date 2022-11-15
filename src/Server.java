@@ -17,7 +17,7 @@ public class Server {
     private boolean debug;      /* 4º arg: Debug mode (optional) */
 
     public Server() {
-        this.port = 53;
+        this.port = 5353;
         this.debug = false;
     }
 
@@ -26,14 +26,13 @@ public class Server {
 
         try {
             /* Arguments Parsing */
-            int i = 0;
-            s.configFile = args[i++];
-            s.timeout = Integer.parseInt(args[i++]);
-            if (args.length == 3 && args[i].compareTo("D")==0) { s.debug = true; }
-            else if (args.length == 3) { s.port = Integer.parseInt(args[i]); }
+            s.configFile = args[0];
+            s.timeout = Integer.parseInt(args[1]);
+            if (args.length == 3 && args[2].compareTo("D")==0) { s.debug = true; }
+            else if (args.length == 3) { s.port = Integer.parseInt(args[2]); }
             else if (args.length == 4) {
-                s.port = Integer.parseInt(args[i++]);
-                s.debug = args[i].compareTo("D")==0;
+                s.port = Integer.parseInt(args[2]);
+                s.debug = args[3].compareTo("D")==0;
             }
 
             /* Configurate server */
@@ -43,26 +42,25 @@ public class Server {
             boolean sp = sc instanceof ObjectSP;
             boolean ss = sc instanceof ObjectSS;
 
-            Thread transfer;
+            Thread transfersp;
             /* Create thread for tcp socket */
             if (sp) {
                 ObjectSP pri = (ObjectSP) sc;
-                ZoneTransfer zt = new ZoneTransfer("",null, pri.getDominio(), 0);
-                transfer = new Thread(zt);
-                transfer.start();
-
+                transfersp = new Thread(new ZoneTransfer(pri));
+                transfersp.start();
             }
 
             /* Zone transfer if is SS */
+            Thread transferss;
             if (ss) {
                 ObjectSS sec = (ObjectSS) sc;
-
-
-
+                transferss = new Thread(new AskVersion(sec));
+                transferss.start();
             }
 
             /* Create server socket */
             DatagramSocket socket = new DatagramSocket(s.port);
+
             while (true) {
                 /* Receive packet */
                 byte[] receiveBytes = new byte[1000];
@@ -73,7 +71,7 @@ public class Server {
                 InetAddress clientAddress = request.getAddress();
                 int clientPort = request.getPort();
 
-                /* Build packet */
+                /* Build received packet */
                 DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
                 /* Find answer */
