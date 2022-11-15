@@ -24,7 +24,7 @@ public class Main {
         domQ = "M10.JJM.G706.";
         find(bd1,domQ);
         ObjectServer SP= ObjectServer.parseServer("ConfigurationFiles/configPepe");
-        System.out.println(SP);
+        System.out.println(SP.getCache());
         Cache bd5 = new Cache();
         bd5.createBD("DatabasesFiles/Braga.db", "CR7.CMS.G706.");
         System.out.println(bd5.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP")));

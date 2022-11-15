@@ -8,4 +8,9 @@ public class EntryCacheDBF extends EntryCache
         this.dom = dom;
         this.nameFile = nameFile;
     }
+
+    @Override
+    public String toString() {
+        return dom + " " + nameFile;
+    }
 }

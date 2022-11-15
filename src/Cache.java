@@ -18,9 +18,11 @@ public class Cache
     private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
     private final Map<String,EntryCache> cache;
     private final Map<String, Byte> aux;
+    private final Map<String, String> macro;
     private String dominio = ""; // SÓ PARA SP
     public Cache()
     {
+        this.macro = new HashMap<>();
         this.aux = new HashMap<>();
         this.cache = new HashMap<>();
     }
@@ -63,6 +65,17 @@ public class Cache
         this.addDataCache(entryCache);
     }
 
+    /**
+     * Adiciona uma entrada de uma linha há cache. Usado para a transferência de zona
+     * @param line Linha a adicionar
+     * @throws Exception A linha não estiver certa.
+     */
+    public void addDataDB(String line) throws Exception
+    {
+        Value value = this.converteLinha(line);
+        if(value != null)
+            this.addData(value, EntryCache.Origin.SP);
+    }
     /**
      * Remove informação que já está expirada da cache.
      */
@@ -217,27 +230,26 @@ public class Cache
      * Método auxiliar ao parsing, de forma a retornar o valor correto do endereço URL.
      * Quando o endereço já termina com o '.' este método não faz nada.
      * @param str Endereço a converter.
-     * @param macro Mapeamento que contém as macros guardados. É util para ir buscar a marco "@".
      * @return Endereço URL final.
      */
-    private String converteDom(String str, Map<String,String> macro)
+    private String converteDom(String str)
     {
         String res = str;
         if(str.charAt(str.length()-1) != '.')
         {
             boolean entrou = false;
-            for(String key : macro.keySet())
+            for(String key : this.macro.keySet())
             {
                 if(res.contains(key))
                 {
-                    res = res.replaceAll(key,macro.get(key));
+                    res = res.replaceAll(key,this.macro.get(key));
                     entrou = true;
                     break;
                 }
             }
             if(!entrou)
             {
-                res += "." + macro.get("@");
+                res += "." + this.macro.get("@");
             }
         }
         return res;
@@ -247,12 +259,11 @@ public class Cache
      * Método que converte uma string em inteiro tendo recurso à macro em caso
      * de a string não ser um número
      * @param words Palavras para converter
-     * @param macro Macro em caso de a palavra correspondente não ser um número
      * @param index Indice da string no array words que pretendemos converter para inteiro.
      * @param campo Campo que queremos ir buscar o inteiro. Esta string serve para saber quais os limites.
      * @return Inteiro Convertido
      */
-    private int converteInt(String[] words, Map<String,String> macro, int index, String campo) throws Exception {
+    private int converteInt(String[] words, int index, String campo) throws Exception {
         Tuple<Integer,Integer> tuple;
         if(campo.equals("'Prioridade'"))
             tuple = pri;
@@ -270,7 +281,7 @@ public class Cache
             }
             catch (NumberFormatException e)
             {
-                String str = macro.get(word);
+                String str = this.macro.get(word);
                 if(str != null)
                 {
                     try {
@@ -427,29 +438,82 @@ public class Cache
      * @param valores Todos os valores lidos até ao momento.
      * @param words lista de palavras de uma linha.
      * @param value Valor lido sem a prioridade.
-     * @param macro Macros de valores default.
      * @throws Exception método addValores.
      */
-    private void addValoresPri(Map<String,List<Value>> valores,String[] words, String type, Value value, Map<String,String> macro) throws Exception
+    private void addValoresPri(Map<String,List<Value>> valores,String[] words, String type, Value value) throws Exception
     {
         if(words.length > 4)
         {
             String dom = value.getDominio();
             String val = value.getValue();
             int TTL = value.getTTL();
-            int prioridade = converteInt(words, macro, 4, "'Prioridade'");
+            int prioridade = converteInt(words, 4, "'Prioridade'");
             value = new Value(dom, aux.get(type), val, TTL, prioridade);
         }
         addValores(valores, type,value);
     }
 
     /**
+     * Converte uma linha num Value
+     * @param line linha a converter
+     * @return Valor convertido.
+     * @throws Exception Se a linha estiver errada.
+     */
+    private Value converteLinha(String line) throws Exception
+    {
+        Value res = null;
+        String[] words = line.split(" ");
+        if (line.length() > 0 && line.charAt(0) != '#' && words.length > 2)
+        {
+            if (words[1].equals("DEFAULT"))
+                this.macro.put(words[0], words[2]);
+            else if (words.length > 3) {
+                String dom = words[0];
+                if (!words[1].equals("PTR"))
+                    dom = converteDom(words[0]);
+                int TTL = converteInt(words, 3, "'TTL'");
+                switch (words[1]) {
+                    case "SOASP":
+                    case "SOAADMIN":
+                        String name = converteDom(words[2]);
+                        res = new Value(dom, aux.get(words[1]), name, TTL);
+                        break;
+                    case "SOASERIAL":
+                    case "SOAREFRESH":
+                    case "SOARETRY":
+                    case "SOAEXPIRE":
+                        res = new Value(dom, aux.get(words[1]), words[2], TTL);
+                        break;
+                    case "PTR":
+                        if (!dom.contains(":"))
+                            dom += ":5353";
+                        res = new Value(dom, aux.get(words[1]), words[2], TTL);
+                        break;
+                    case "CNAME":
+                    case "NS":
+                    case "MX":
+                        name = converteDom(words[2]);
+                        res = new Value(dom, aux.get(words[1]), name, TTL);
+                        break;
+                    case "A":
+                        String en = words[2];
+                        if (!en.contains(":"))
+                            en += ":5353";
+                        res = new Value(dom, aux.get(words[1]), en, TTL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return res;
+    }
+    /**
      * Método que faz o parsing de um ficheiro para um BD.
      * @param lines Linhas de um ficheiro.
      */
     public void createBD(String[] lines)
     {
-        Map<String, String> macro = new HashMap<>();
         Map<String, List<Value>> valores = new HashMap<>();
         List<String> warnings = new ArrayList<>();
         int l = 1;
@@ -484,67 +548,43 @@ public class Cache
         }
         for (String str : lines)
         {
-            String[] words = str.split(" ");
-            if (str.length() > 0 && str.charAt(0) != '#' && words.length > 2) {
-                if (words[1].equals("DEFAULT"))
-                    macro.put(words[0], words[2]);
-                else if (words.length > 3) {
-                    try
+            try
+            {
+                Value valor = this.converteLinha(str);
+                if(valor != null)
+                {
+                    String []words = str.split(" ");
+                    switch (words[1])
                     {
-                        String dom = words[0];
-                        if(!words[1].equals("PTR"))
-                            dom = converteDom(words[0], macro);
-                        int TTL = converteInt(words, macro, 3, "'TTL'");
-                        switch (words[1]) {
-                            case "SOASP":
-                            case "SOAADMIN":
-                                String name = converteDom(words[2], macro);
-                                addValor(valores,words[1], new Value(dom,aux.get(words[1]),name,TTL));
-                                break;
-                            case "SOASERIAL":
-                            case "SOAREFRESH":
-                            case "SOARETRY":
-                            case "SOAEXPIRE":
-                                addValor(valores,words[1], new Value(dom,aux.get(words[1]),words[2],TTL));
-                                break;
-                            case "PTR":
-                                if(!dom.contains(":"))
-                                    dom += ":5353";
-                                Value value = new Value(dom, aux.get(words[1]), words[2], TTL);
-                                addValores(valores,words[1],value);
-                                break;
-                            case "CNAME":
-                                name = converteDom(words[2], macro);
-                                value = new Value(dom, aux.get(words[1]), name, TTL);
-                                addValoresCNAME(valores,value);
-                                break;
-                            case "NS":
-                            case "MX":
-                                name = converteDom(words[2], macro);
-                                value = new Value(dom, aux.get(words[1]), name, TTL);
-                                addValoresPri(valores,words,words[1],value,macro);
-                                break;
-                            case "A":
-                                String en = words[2];
-                                if(!en.contains(":"))
-                                    en += ":5353";
-                                value = new Value(dom, aux.get(words[1]), en, TTL);
-                                addValoresPri(valores,words,words[1],value,macro);
-                                break;
-                            default:
-                                warnings.add("Erro linha " + l + ": Tipo de valor não identificado.");
-                                break;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        warnings.add("Erro linha " + l + ": " + e.getMessage());
+                        case "SOASP":
+                        case "SOAADMIN":
+                        case "SOASERIAL":
+                        case "SOAREFRESH":
+                        case "SOARETRY":
+                        case "SOAEXPIRE":
+                            addValor(valores, words[1], valor);
+                            break;
+                        case "PTR":
+                            addValores(valores, words[1], valor);
+                            break;
+                        case "CNAME":
+                            addValoresCNAME(valores, valor);
+                            break;
+                        case "NS":
+                        case "MX":
+                        case "A":
+                             addValoresPri(valores, words, words[1], valor);
+                             break;
+                        default:
+                            warnings.add("Erro linha " + l + ": Tipo de valor não identificado.");
+                            break;
                     }
                 }
-                else
-                    warnings.add("Erro linha " + l + ": Não respeita a sintaxe.");
             }
-            l++;
+            catch (Exception e)
+            {
+                warnings.add("Erro linha " + l + ": " + e.getMessage());
+            }
         }
         converteBD(valores,warnings);
         System.out.println("Warnings criação BD");

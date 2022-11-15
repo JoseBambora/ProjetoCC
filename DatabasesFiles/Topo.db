@@ -16,10 +16,10 @@ kb9 NS rui.KB9 TTL
 # ST
 pepe A 10.0.14.11 TTL
 palhinha A 10.0.13.11 TTL
-braga A 10.0.15.10 TTL
-cancelo A 10.0.9.11 TTL
+braga.cr7 A 10.0.15.10 TTL
+cancelo.m10 A 10.0.9.11 TTL
 
 st1 CNAME pepe TTL
 st2 CNAME palhinha TTL
-sd1 CNAME braga TTL
-sd2 CNAME cancelo TTL
+sd1 CNAME braga.cr7 TTL
+sd2 CNAME cancelo.m10 TTL
