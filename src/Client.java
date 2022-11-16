@@ -2,7 +2,7 @@
  * @Author João Martins
  * @Class Client
  * Created date: 03/11/2022
- * Last update: 07/11/2022
+ * Last update: 15/11/2022
  */
 
 import java.io.IOException;
@@ -73,27 +73,17 @@ public class Client {
             System.out.println(resPacket);
 
         } catch (UnknownHostException e) {
-            if (cl.debug) {
-                // host não existe,log fl
-            }
+            System.out.println("Address of the destination server does not exist.");
         } catch (TypeOfValueException e) {
-            if (cl.debug) {
-                // tipo para query não existe, log fl
-            }
+            System.out.println("Incorret type of value.");
         } catch (SocketException e) {
-            if (cl.debug) {
-                // erro na criação do socket, log fl
-            }
+            System.out.println("Error opening the socket.");
         } catch (SocketTimeoutException e) {
-            if (cl.debug) {
-                // timeout à espera da query, TO
-            }
+            System.out.println("Timeout");
         } catch (IOException e) {
-            if (cl.debug) {
-                // log erro no envio/receção do datagrama, log fl
-            }
+            System.out.println("Error sending/receving the datagram.");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Invalid arguments.");
         }
 
     }

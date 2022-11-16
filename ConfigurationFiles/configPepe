@@ -1,4 +1,4 @@
 # Configuration file for ST Pepe
-.G706. DB DatabasesFiles/Topo.db
-.G706. LG LogsFiles/Pepe.log
+G706. DB DatabasesFiles/Topo.db
+G706. LG LogsFiles/Pepe.log
 all LG all.log

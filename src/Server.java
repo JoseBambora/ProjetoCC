@@ -29,7 +29,9 @@ public class Server {
             s.configFile = args[0];
             s.timeout = Integer.parseInt(args[1]);
             if (args.length == 3 && args[2].compareTo("D")==0) { s.debug = true; }
-            else if (args.length == 3) { s.port = Integer.parseInt(args[2]); }
+            else if (args.length == 3) {
+                s.port = Integer.parseInt(args[2]);
+            }
             else if (args.length == 4) {
                 s.port = Integer.parseInt(args[2]);
                 s.debug = args[3].compareTo("D")==0;
@@ -97,8 +99,6 @@ public class Server {
                     socket1.close();
                 }
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
