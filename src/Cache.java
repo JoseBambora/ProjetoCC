@@ -88,7 +88,34 @@ public class Cache
                 this.cache.remove(entryCache.getKey());
         }
     }
+    private List<Value> getAVBD()
+    {
+        List<Value> values = new ArrayList<>();
+        for(EntryCache entryCache2 : this.cache.values())
+        {
+            if (entryCache2.getTypeofValue().equals(aux.get("NS")) && entryCache2.getDominio().matches("(.*)" + this.dominio)) {
+                Data data = entryCache2.getData();
+                values.addAll(List.of(data.getResponseValues()));
+            }
+        }
+        return values;
+    }
 
+    private List<Value> getEVBD(List<Value> RV, List<Value> AV)
+    {
+        List<Value> values = new ArrayList<>();
+        for(EntryCache entryCache2 : this.cache.values())
+        {
+            if(entryCache2.getTypeofValue().equals(aux.get("A")) &&
+               (RV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))||
+                AV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))))
+            {
+                Data data = entryCache2.getData();
+                values.addAll(List.of(data.getResponseValues()));
+            }
+        }
+        return values;
+    }
     /**
      * Procura resposta a uma dada query, dando o domínio da query e o tipo.
      * @param dom Domínio da pergunta.
@@ -105,21 +132,8 @@ public class Cache
             res = entryCache1.getData();
             if(entryCache1.getOrigem() == EntryCache.Origin.FILE)
             {
-                List<Value> av = new ArrayList<>();
-                List<Value> ev = new ArrayList<>();
-                for(EntryCache entryCache2 : this.cache.values())
-                {
-                    if(entryCache2.getTypeofValue().equals(aux.get("NS")) && entryCache2.getDominio().matches("(.*)" + this.dominio))
-                    {
-                        Data data = entryCache2.getData();
-                        av.addAll(List.of(data.getResponseValues()));
-                    }
-                    else if(entryCache2.getTypeofValue().equals(aux.get("A")) && entryCache2.getDominio().matches("(.*)" + this.dominio))
-                    {
-                        Data data = entryCache2.getData();
-                        ev.addAll(List.of(data.getResponseValues()));
-                    }
-                }
+                List<Value> av = this.getAVBD();
+                List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues()), av);
                 if(!av.isEmpty())
                     res.setAuthoriteValues(av.toArray(new Value[1]));
                 if(!ev.isEmpty())
