@@ -14,7 +14,7 @@ TTL DEFAULT 90000
 @ NS braga.@ TTL
 # SS
 @ NS renato.@ TTL
-@ NS vitinha.@ TTL
+@ NS mendes.@ TTL
 
 # Email
 @ MX fernando1.@ TTL 10
@@ -24,18 +24,18 @@ TTL DEFAULT 90000
 braga A 10.0.15.10 TTL
 # SS
 renato A 10.0.16.10 TTL
-vitinha A 10.0.16.11 TTL
+mendes A 10.0.13.10 TTL
 # Email
 fernando1 A 10.0.8.11 TTL
 fernando2 A 10.0.10.12 TTL
 # Web
-mendes A 10.0.13.10 TTL
+vitinha A 10.0.16.11 TTL
 silva A 10.0.8.10 TTL
 
 sp CNAME braga TTL
 ss1 CNAME renato TTL
-ss2 CNAME vitinha TTL
+ss2 CNAME mendes TTL
 mail1 CNAME fernando1 TTL
 mail2 CNAME fernando2 TTL
-www1 CNAME mendes TTL
+www1 CNAME vitinha TTL
 www2 CNAME silva TTL
