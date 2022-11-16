@@ -2,12 +2,13 @@
  * @Author João Martins
  * @Class Server
  * Created date: 03/11/2022
- * Last update: 07/11/2022
+ * Last update: 15/11/2022
  */
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.util.Date;
 
 
 public class Server {
@@ -28,7 +29,9 @@ public class Server {
             /* Arguments Parsing */
             s.configFile = args[0];
             s.timeout = Integer.parseInt(args[1]);
-            if (args.length == 3 && args[2].compareTo("D")==0) { s.debug = true; }
+            if (args.length == 3 && args[2].compareTo("D")==0) {
+                s.debug = true;
+            }
             else if (args.length == 3) {
                 s.port = Integer.parseInt(args[2]);
             }
@@ -44,15 +47,15 @@ public class Server {
             boolean sp = sc instanceof ObjectSP;
             boolean ss = sc instanceof ObjectSS;
 
+            /* Create thread for tcp server socket if is primary server */
             Thread transfersp;
-            /* Create thread for tcp socket */
             if (sp) {
                 ObjectSP pri = (ObjectSP) sc;
                 transfersp = new Thread(new ZoneTransfer(pri));
                 transfersp.start();
             }
 
-            /* Zone transfer if is SS */
+            /* Create thread for SS ask the database version */
             Thread transferss;
             if (ss) {
                 ObjectSS sec = (ObjectSS) sc;
@@ -60,7 +63,7 @@ public class Server {
                 transferss.start();
             }
 
-            /* Create server socket */
+            /* Create the udp socket for receving queries */
             DatagramSocket socket = new DatagramSocket(s.port);
 
             while (true) {
@@ -76,13 +79,22 @@ public class Server {
                 /* Build received packet */
                 DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
+                if (s.debug) {
+                    Log qr = new Log(new Date(), Log.EntryType.QR,clientAddress.getHostAddress(),clientPort,receivePacket.toString());
+                    System.out.println(qr);
+                }
+
                 /* Find answer */
                 Data resp = sc.getCache().findAnswer(receivePacket);
 
                 if (resp!=null) {
                     /* Build Packet */
                     byte flags = 4;
-                    Header header = new Header(receivePacket.getHeader().getMessageID(), flags);
+                    int nrv = resp.getResponseValues().length;
+                    int nav = resp.getAuthoriteValues().length;
+                    int nev = resp.getExtraValues().length;
+
+                    Header header = new Header(receivePacket.getHeader().getMessageID(), flags, (byte) 0, (byte) nrv, (byte)  nav, (byte)  nev);
                     DNSPacket sendPacket = new DNSPacket(header, resp);
 
                     /* Create Datagram */
@@ -94,11 +106,17 @@ public class Server {
 
                     /* Send answer */
                     socket1.send(response);
+                    if (s.debug) {
+                        Log re = new Log(new Date(), Log.EntryType.RP,clientAddress.getHostAddress(),clientPort,sendPacket.toString());
+                        System.out.println(re);
+                    }
 
                     /* Close new socket */
                     socket1.close();
                 }
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

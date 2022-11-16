@@ -16,55 +16,54 @@ public class AskVersion implements Runnable{
     @Override
     public void run() {
         try {
-            int soarefresh = 1000;
 
             while (true) {
 
+                InetAddress sp = objss.getSP().getAddress();
                 Socket s = new Socket(InetAddress.getByName("127.0.0.1"),6363);
-                PrintWriter toClient = new PrintWriter(s.getOutputStream(),true);
+                PrintWriter toClient = new PrintWriter(s.getOutputStream());
                 BufferedReader fromClient = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
                 DNSPacket qe = new DNSPacket((short) (new Random().nextInt(1,65535)), (byte) 1, objss.getDominio(),Data.typeOfValueConvert("SOASERIAL"));
                 String aux = qe.toString();
                 toClient.println(aux.substring(0,aux.length()-1));
+                toClient.flush();
 
                 String rr = fromClient.readLine();
-                // verificar versao
-                System.out.println(rr);
 
-                // envia dominio
-                toClient.println(objss.getDominio());
+                /* Verify version */
+                if (rr != null) {
+                    /* Send domain */
+                    toClient.println(objss.getDominio());
+                    toClient.flush();
 
-                // recebe entradas
-                int ne = Integer.parseInt(fromClient.readLine());
-                boolean accept = true;
-                if (accept) {
-                    toClient.println(ne);
+                    /* Receive number of entrys */
+                    int ne = Integer.parseInt(fromClient.readLine());
+                    boolean accept = true; /* Accept the number of entrys */
+                    if (accept) {
+                        toClient.println(ne);
+                        toClient.flush();
 
-                    boolean lst = false;
-                    String str;
-                    while (!lst) {
-                        str = fromClient.readLine();
-                        String[] w = str.split("-");
-                        if (Integer.parseInt(w[0])==ne) lst = true;
-                        // adiciona à cache
-                        System.out.println(w[1]);
+                        String line;
+                        int nerec = 0;
+                        while ((line = fromClient.readLine()) != null) {
+                            String[] w = line.split("-");
+                            nerec++;
+                            System.out.println(w[1]);
+                        }
+
                     }
-
                 }
-                else {
-                    toClient.println("end");
-                }
-
 
                 s.close();
 
-                Thread.sleep(soarefresh);
+                //String soar = objss.getCache().findAnswer(objss.getDominio(),(byte) 3).getResponseValues()[0].getValue();
+
+                Thread.sleep(5000);
+
             }
 
-        } catch (TypeOfValueException | InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (TypeOfValueException | InterruptedException | IOException e) {
             throw new RuntimeException(e);
         }
 

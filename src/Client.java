@@ -7,6 +7,7 @@
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Date;
 import java.util.Random;
 
 public class Client {
@@ -29,12 +30,6 @@ public class Client {
 
         try {
             /* Arguments parsing */
-            String[] words = args[0].split(":");
-            cl.serverAddress = InetAddress.getByName(words[0]);
-            if (words.length == 2) { cl.serverPort = Integer.parseInt(words[1]); }
-            cl.timeout = Integer.parseInt(args[1]);
-            cl.name = args[2];
-            cl.type = Data.typeOfValueConvert(args[3]);
             if (args.length == 5) {
                 cl.recursive = args[4].compareTo("R") == 0;
                 cl.debug = args[4].compareTo("D") == 0;
@@ -42,6 +37,13 @@ public class Client {
                 cl.recursive = args[4].compareTo("R") == 0;
                 cl.debug = args[5].compareTo("D") == 0;
             }
+            String[] words = args[0].split(":");
+            cl.serverAddress = InetAddress.getByName(words[0]);
+            if (words.length == 2) { cl.serverPort = Integer.parseInt(words[1]); }
+            cl.timeout = Integer.parseInt(args[1]);
+            cl.name = args[2];
+            cl.type = Data.typeOfValueConvert(args[3]);
+
 
             /* Create the packet */
             byte flags = 1;
@@ -57,33 +59,60 @@ public class Client {
             byte[] sendBytes = sendPacket.dnsPacketToBytes();
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
             socket.send(request);
+            if (cl.debug) {
+                Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.toString());
+                System.out.println(qe);
+            }
 
             /* Get the query response */
             byte[] receiveBytes = new byte[1000];
             DatagramPacket response = new DatagramPacket(receiveBytes, receiveBytes.length);
             socket.receive(response);
 
+            /* Build the response message */
+            DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
+            if (cl.debug) {
+                Log rr = new Log(new Date(), Log.EntryType.RR,cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
+                System.out.println(rr);
+            }
+
             /* Close the socket */
             socket.close();
 
-            /* Build the response message */
-            DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
 
             /* Print the response */
             System.out.println(resPacket);
 
         } catch (UnknownHostException e) {
-            System.out.println("Address of the destination server does not exist.");
+            if (cl.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL,"127.0.0.1","Unknown server address");
+                System.out.println(fl);
+            }
         } catch (TypeOfValueException e) {
-            System.out.println("Incorret type of value.");
+            if (cl.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Unknown type of value");
+                System.out.println(fl);
+            }
         } catch (SocketException e) {
-            System.out.println("Error opening the socket.");
+            if (cl.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error opening the socket");
+                System.out.println(fl);
+            }
         } catch (SocketTimeoutException e) {
-            System.out.println("Timeout");
+            if (cl.debug) {
+                Log to = new Log(new Date(), Log.EntryType.TO, "127.0.0.1", "Query response");
+                System.out.println(to);
+            }
         } catch (IOException e) {
-            System.out.println("Error sending/receving the datagram.");
+            if (cl.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error sending/receiving the datagram");
+                System.out.println(fl);
+            }
         } catch (Exception e) {
-            System.out.println("Invalid arguments.");
+            if (cl.debug) {
+                Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Invalid Arguments");
+                System.out.println(fl);
+            }
         }
 
     }

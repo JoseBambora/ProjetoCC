@@ -44,50 +44,48 @@ public class ZoneTransfer implements Runnable {
 
                         while (true) {
                                 Socket c = socketTcp.accept();
-                                /* Recebe query */
-                                PrintWriter toClient = new PrintWriter(c.getOutputStream(),true);
+                                PrintWriter toClient = new PrintWriter(c.getOutputStream());
                                 BufferedReader fromClient = new BufferedReader(new InputStreamReader(c.getInputStream()));
+
+                                /* Receive query */
                                 String line = fromClient.readLine();
 
                                 /* Envia versão */
                                 DNSPacket qr = DNSPacket.bytesToDnsPacket(line.getBytes());
                                 if (Data.typeOfValueConvertSring(qr.getData().getTypeOfValue()).equals("SOASERIAL")) {
-                                        /* procurar versão na cache fase posterior por enquanto envio a mesma querie*/
+                                        /* procurar versão na cache fase posterior e envia resposta, por enquanto envio a mesma querie*/
                                         String aux = qr.toString();
                                         toClient.println(aux.substring(0,aux.length()-1));
+                                        toClient.flush();
 
                                         /* Recebe dominio e valida */
                                         String domain = fromClient.readLine();
-                                        System.out.println(domain);
                                         boolean autoriza = true; // allowSS(c.getInetAddress())
 
                                         if (this.objsp.getDominio().equals(domain) && autoriza) {
-                                                /* Envia número de entradas (obter a partir do file?) */
+                                                /* Envia número de entradas */
                                                 List<String> lines = Files.readAllLines(Paths.get(this.objsp.getBD()));
                                                 int ce = countEntrys(lines);
                                                 toClient.println(ce);
+                                                toClient.flush();
 
                                                 /* Recebe número de entradas */
                                                 int ne = Integer.parseInt(fromClient.readLine());
                                                 if (ne == ce) {
-                                                        /* Envia entradas do file */
+                                                        /* Envia entradas do ficheiro de base de dados */
                                                         int i = 1;
                                                         for (String l : lines) {
                                                                 if (l.length()>0 && l.charAt(0) != '#' && !l.equals("\n")) {
                                                                         toClient.println(i + "-" + l);
+                                                                        toClient.flush();
                                                                         i++;
                                                                 }
                                                         }
                                                 }
                                         }
-                                        else {
-                                                toClient.println("end");
-                                        }
                                 }
-                                toClient.close();
-                                fromClient.close();
+
                                 c.close();
-                                System.out.println("Fechei ligação");
                         }
 
                 } catch (IOException | TypeOfValueException e) {
