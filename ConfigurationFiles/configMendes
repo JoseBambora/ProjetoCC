@@ -1,4 +1,4 @@
-#Configuration file for SS Renato
+#Configuration file for SS Mendes
 CR7.CMS.G706. SP 10.0.15.10
 CR7.CMS.G706. DD 10.0.15.10
 CR7.CMS.G706. DD 10.0.16.10
@@ -7,6 +7,6 @@ CR7.CMS.G706. DD 10.0.8.11
 CR7.CMS.G706. DD 10.0.10.12
 CR7.CMS.G706. DD 10.0.13.10
 CR7.CMS.G706. DD 10.0.8.10
-CR7.CMS.G706. LG LogsFiles/Renato.log
+CR7.CMS.G706. LG LogsFiles/Mendes.log
 all LG /var/dns/all.log
 root ST DatabasesFiles/Rootservers.db
