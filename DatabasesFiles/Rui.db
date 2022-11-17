@@ -7,9 +7,6 @@ TTL DEFAULT 90000
 
 # SP
 @ NS rui.@ TTL
-# SS 
-@ NS mario.@ TTL
-@ NS dalot.@ TTL
 
 # PTR
 10.0.14.11 PTR pepe.G706. TTL
