@@ -3,7 +3,7 @@
 @ DEFAULT G706.
 cr7 DEFAULT CR7.CMS.G706.
 m10 DEFAULT M10.JJM.G706.
-kb9 DEFAULT KB9.REVERSE.G706.
+rev DEFAULT REVERSE.G706.
 TTL DEFAULT 90000
 
 # SP + SS
@@ -11,16 +11,17 @@ TTL DEFAULT 90000
 @ NS palhinha.G706. TTL
 cr7 NS braga.cr7 TTL
 m10 NS cancelo.m10 TTL
-kb9 NS rui.kb9 TTL
+rev NS rui.rev TTL
 
 # ST
 pepe A 10.0.14.11 TTL
 palhinha A 10.0.13.11 TTL
 braga.cr7 A 10.0.15.10 TTL
 cancelo.m10 A 10.0.9.11 TTL
-rui.kb9 A 10.0.10.10 TTL
+rui.rev A 10.0.10.10 TTL
 
 st1 CNAME pepe TTL
 st2 CNAME palhinha TTL
 sd1 CNAME braga.cr7 TTL
 sd2 CNAME cancelo.m10 TTL
+sd3 CNAME rui.rev TTL

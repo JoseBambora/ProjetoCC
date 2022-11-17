@@ -146,17 +146,17 @@ public class Header {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append(messageID);
+        out.append(Short.toUnsignedInt(messageID));
         out.append(",");
         out.append(flagsToString());
         out.append(",");
         out.append(responseCode);
         out.append(",");
-        out.append(numberOfValues);
+        out.append(Byte.toUnsignedInt(numberOfValues));
         out.append(",");
-        out.append(numberOfAuthorites);
+        out.append(Byte.toUnsignedInt(numberOfAuthorites));
         out.append(",");
-        out.append(numberOfExtraValues);
+        out.append(Byte.toUnsignedInt(numberOfExtraValues));
         out.append(";");
         return out.toString();
     }

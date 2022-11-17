@@ -30,6 +30,14 @@ public class Log {
         this.data = data;
     }
 
+    public Log(Date date, EntryType type, String addr, String data) {
+        this.date = date;
+        this.type = type;
+        this.addr = addr;
+        this.port = 5353;
+        this.data = data;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -38,13 +46,12 @@ public class Log {
         sb.append(type);
         sb.append(" ");
         sb.append(addr);
-        if (port!=53) {
+        if (port!=5353) {
             sb.append(":");
             sb.append(port);
         }
         sb.append(" ");
         sb.append(data);
-        sb.append("\n");
         return sb.toString();
     }
 
