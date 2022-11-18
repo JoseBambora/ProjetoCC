@@ -4,6 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * @author José Carvalho
@@ -19,12 +21,26 @@ public class Cache
     private final Map<String,EntryCache> cache;
     private final Map<String, Byte> aux;
     private final Map<String, String> macro;
+    private final List<String> tipos;
     private String dominio = ""; // SÓ PARA SP
     public Cache()
     {
         this.macro = new HashMap<>();
         this.aux = new HashMap<>();
         this.cache = new HashMap<>();
+        this.tipos = new ArrayList<>();
+        tipos.add("SOASP");
+        tipos.add("SOAADMIN");
+        tipos.add("SOASERIAL");
+        tipos.add("SOAREFRESH");
+        tipos.add("SOARETRY");
+        tipos.add("SOAEXPIRE");
+        tipos.add("NS");
+        tipos.add("CNAME");
+        tipos.add("MX");
+        tipos.add("A");
+        tipos.add("PTR");
+        tipos.forEach(str -> {try {aux.put(str,Data.typeOfValueConvert(str));} catch (Exception e){}});
     }
 
     /**
@@ -50,6 +66,7 @@ public class Cache
     {
         this.removeExpireInfo();
         EntryCache entryCache = new EntryCache(value.getDominio(),value.getType(),origin);
+        entryCache.addValue(value);
         this.addDataCache(entryCache);
     }
     /**
@@ -88,12 +105,18 @@ public class Cache
                 this.cache.remove(entryCache.getKey());
         }
     }
+
+    /**
+     * Método que devolve os Authority Values
+     * @return Lista com os Authority Values
+     */
     private List<Value> getAVBD()
     {
         List<Value> values = new ArrayList<>();
+        byte ns = aux.get("NS");
         for(EntryCache entryCache2 : this.cache.values())
         {
-            if (entryCache2.getTypeofValue().equals(aux.get("NS")) && entryCache2.getDominio().matches("(.*)" + this.dominio)) {
+            if (entryCache2.getTypeofValue().equals(ns) && entryCache2.getDominio().matches("(.*)" + this.dominio)) {
                 Data data = entryCache2.getData();
                 values.addAll(List.of(data.getResponseValues()));
             }
@@ -101,14 +124,22 @@ public class Cache
         return values;
     }
 
+    /**
+     * Método que devolve os Extra Values
+     * @param RV Response Values
+     * @param AV Authority Values
+     * @return Lista com os Extra Values
+     */
     private List<Value> getEVBD(List<Value> RV, List<Value> AV)
     {
         List<Value> values = new ArrayList<>();
+        byte a = aux.get("A");
         for(EntryCache entryCache2 : this.cache.values())
         {
-            if(entryCache2.getTypeofValue().equals(aux.get("A")) &&
+            if(entryCache2.getTypeofValue().equals(a) &&
                (RV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))||
-                AV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))))
+                AV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))) &&
+                RV.stream().noneMatch(value -> value.getDominio().equals(entryCache2.getDominio()) && value.getType() == a))
             {
                 Data data = entryCache2.getData();
                 values.addAll(List.of(data.getResponseValues()));
@@ -152,18 +183,17 @@ public class Cache
      */
     public Data findAnswer(String dom, byte type)
     {
-        Data res = getAnswer(dom,type);
-        if(res == null)
+        byte cname = aux.get("CNAME");
+        if(type != cname)
         {
-            // Caso de ser SP -> vai ve correspondência no CNAME.
             for(EntryCache entryCache1 : this.cache.values())
             {
-                String str = entryCache1.getNameCNAME(dom,aux.get("CNAME"));
+                String str = entryCache1.getNameCNAME(dom,cname);
                 if(str.length() > 0)
-                    res = getAnswer(str,type);
+                    dom = str;
             }
         }
-        return res;
+        return getAnswer(dom,type);
     }
 
     /**
@@ -199,17 +229,7 @@ public class Cache
         try
         {
             Map<Byte,Integer> counter = new HashMap<>();
-            counter.put(Data.typeOfValueConvert("SOASP"),0);
-            counter.put(Data.typeOfValueConvert("SOAADMIN"),0);
-            counter.put(Data.typeOfValueConvert("SOASERIAL"),0);
-            counter.put(Data.typeOfValueConvert("SOAREFRESH"),0);
-            counter.put(Data.typeOfValueConvert("SOARETRY"),0);
-            counter.put(Data.typeOfValueConvert("SOAEXPIRE"),0);
-            counter.put(Data.typeOfValueConvert("NS"),0);
-            counter.put(Data.typeOfValueConvert("CNAME"),0);
-            counter.put(Data.typeOfValueConvert("MX"),0);
-            counter.put(Data.typeOfValueConvert("A"),0);
-            counter.put(Data.typeOfValueConvert("PTR"),0);
+            tipos.forEach(str -> {try {counter.put(Data.typeOfValueConvert(str),0);} catch (Exception e){}});
             for(EntryCache entryCache : this.cache.values())
             {
                 if(entryCache.getOrigem() == EntryCache.Origin.FILE && entryCache.getTypeofValue() != -1)
@@ -531,35 +551,7 @@ public class Cache
         Map<String, List<Value>> valores = new HashMap<>();
         List<String> warnings = new ArrayList<>();
         int l = 1;
-        try
-        {
-            valores.put("SOASP",new ArrayList<>());
-            valores.put("SOAADMIN",new ArrayList<>());
-            valores.put("SOASERIAL",new ArrayList<>());
-            valores.put("SOAREFRESH",new ArrayList<>());
-            valores.put("SOARETRY",new ArrayList<>());
-            valores.put("SOAEXPIRE",new ArrayList<>());
-            valores.put("NS",new ArrayList<>());
-            valores.put("CNAME",new ArrayList<>());
-            valores.put("MX",new ArrayList<>());
-            valores.put("A",new ArrayList<>());
-            valores.put("PTR",new ArrayList<>());
-            aux.put("SOASP", Data.typeOfValueConvert("SOASP"));
-            aux.put("SOAADMIN", Data.typeOfValueConvert("SOAADMIN"));
-            aux.put("SOASERIAL", Data.typeOfValueConvert("SOASERIAL"));
-            aux.put("SOAREFRESH", Data.typeOfValueConvert("SOAREFRESH"));
-            aux.put("SOARETRY", Data.typeOfValueConvert("SOARETRY"));
-            aux.put("SOAEXPIRE", Data.typeOfValueConvert("SOAEXPIRE"));
-            aux.put("NS", Data.typeOfValueConvert("NS"));
-            aux.put("CNAME", Data.typeOfValueConvert("CNAME"));
-            aux.put("MX", Data.typeOfValueConvert("MX"));
-            aux.put("A", Data.typeOfValueConvert("A"));
-            aux.put("PTR", Data.typeOfValueConvert("PTR"));
-        }
-        catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
+        tipos.forEach(str -> valores.put(str,new ArrayList<>()));
         for (String str : lines)
         {
             try

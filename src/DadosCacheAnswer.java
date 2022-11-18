@@ -52,6 +52,16 @@ public class DadosCacheAnswer implements DadosCache
         return res;
     }
 
+    public String getNameCNAME(String dominio)
+    {
+        for(Value value : this.responseValues)
+        {
+            if(value.getDominio().equals(dominio))
+                return value.getValue();
+        }
+        return "";
+    }
+
     @Override
     public void addData(Value value) {
         this.responseValues.add(value);

@@ -103,13 +103,9 @@ public class EntryCache
      */
     public String getNameCNAME(String can, byte cname)
     {
-        if(this.getOrigem() == EntryCache.Origin.FILE)
+        if(this.getTypeofValue() == cname && this.getDominio().equals(can))
         {
-            if(this.getTypeofValue() == cname && this.getDominio().equals(can))
-            {
-                DadosCacheDB dadosCacheAnswer = (DadosCacheDB) this.dadosCache;
-                return dadosCacheAnswer.getNameCNAME(can);
-            }
+            return this.dadosCache.getNameCNAME(can);
         }
         return "";
     }

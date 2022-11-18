@@ -28,6 +28,8 @@ public class Main {
         Cache bd5 = new Cache();
         bd5.createBD("DatabasesFiles/Braga.db", "CR7.CMS.G706.");
         System.out.println(bd5.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP")));
+        System.out.println(bd5.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A")));
+        System.out.println(bd5.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A")));
         Cache bd2 = new Cache();
         bd2.createBD("DatabasesFiles/Topo.db","G706.");
         System.out.println(bd2.findAnswer("G706.",Data.typeOfValueConvert("NS")));
@@ -36,7 +38,11 @@ public class Main {
         System.out.println(bd3.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX")));
         Cache bd4 = new Cache();
         bd4.createBD("DatabasesFiles/Rui.db","KB9.REVERSE.G706.");
-
+        Cache bd6 = new Cache();
+        bd6.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
+        bd6.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
+        System.out.println(bd6.findAnswer("braga", (byte) 9));
+        System.out.println(bd6.findAnswer("braga", (byte) 8));
      }
 
 }

@@ -9,4 +9,5 @@ public interface DadosCache
     public Data getData(String name, byte type);
     public void addData(Value value);
     public boolean isEmpty();
+    public String getNameCNAME(String dominio);
 }
