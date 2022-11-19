@@ -606,8 +606,6 @@ public class Cache
      */
     public void createBD(String filename,String dom) throws IOException
     {
-        EntryCache entryCache = new EntryCacheDBF(dom,filename);
-        this.cache.put(entryCache.getKey(),entryCache);
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         this.createBD(lines.toArray(new String[1]));
