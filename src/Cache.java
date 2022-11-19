@@ -4,15 +4,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * Data criação: 29/10/2022
- * Data última atualização: 12/11/2022
+ * Data última atualização: 19/11/2022
  */
 public class Cache
 {
@@ -23,8 +22,10 @@ public class Cache
     private final Map<String, String> macro;
     private final List<String> tipos;
     private String dominio = ""; // SÓ PARA SP
+    private final ReentrantReadWriteLock readWriteLock;
     public Cache()
     {
+        this.readWriteLock = new ReentrantReadWriteLock();
         this.macro = new HashMap<>();
         this.aux = new HashMap<>();
         this.cache = new HashMap<>();
@@ -49,14 +50,31 @@ public class Cache
      */
     private void addDataCache(EntryCache entryCache)
     {
+        this.readWriteLock.writeLock().lock();
+        this.removeExpireInfo();
         if(!this.cache.containsKey(entryCache.getKey()))
         {
             this.cache.put(entryCache.getKey(),entryCache);
         }
         else if(entryCache.getOrigem() == EntryCache.Origin.OTHERS)
             this.cache.get(entryCache.getKey()).setTempoEntrada(LocalDateTime.now());
+        this.readWriteLock.writeLock().unlock();
     }
 
+    /**
+     * Remove informação que já está expirada da cache.
+     */
+    public void removeExpireInfo()
+    {
+        this.cache.values().forEach(EntryCache::removeExpireInfo);
+        for(EntryCache entryCache : this.cache.values())
+        {
+            if(entryCache.isEmpty())
+            {
+                this.cache.remove(entryCache.getKey());
+            }
+        }
+    }
     /**
      * Adicionar um determinado valor à cache.
      * @param value Valor a adicionar à cache.
@@ -64,7 +82,6 @@ public class Cache
      */
     public void addData(Value value, EntryCache.Origin origin)
     {
-        this.removeExpireInfo();
         EntryCache entryCache = new EntryCache(value.getDominio(),value.getType(),origin);
         entryCache.addValue(value);
         this.addDataCache(entryCache);
@@ -93,18 +110,6 @@ public class Cache
         if(value != null)
             this.addData(value, EntryCache.Origin.SP);
     }
-    /**
-     * Remove informação que já está expirada da cache.
-     */
-    public void removeExpireInfo()
-    {
-        this.cache.values().forEach(EntryCache::removeExpireInfo);
-        for(EntryCache entryCache : this.cache.values())
-        {
-            if(entryCache.isEmpty())
-                this.cache.remove(entryCache.getKey());
-        }
-    }
 
     /**
      * Método que devolve os Authority Values
@@ -112,6 +117,7 @@ public class Cache
      */
     private List<Value> getAVBD()
     {
+        this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
         for(EntryCache entryCache2 : this.cache.values())
@@ -121,6 +127,7 @@ public class Cache
                 values.addAll(List.of(data.getResponseValues()));
             }
         }
+        this.readWriteLock.readLock().unlock();
         return values;
     }
 
@@ -132,6 +139,7 @@ public class Cache
      */
     private List<Value> getEVBD(List<Value> RV, List<Value> AV)
     {
+        this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte a = aux.get("A");
         for(EntryCache entryCache2 : this.cache.values())
@@ -145,6 +153,7 @@ public class Cache
                 values.addAll(List.of(data.getResponseValues()));
             }
         }
+        this.readWriteLock.readLock().unlock();
         return values;
     }
     /**
@@ -155,6 +164,7 @@ public class Cache
      */
     private Data getAnswer(String dom, byte type)
     {
+        this.readWriteLock.readLock().lock();
         EntryCache entryCache = new EntryCache(dom,type, EntryCache.Origin.SP);
         Data res = null;
         if(this.cache.containsKey(entryCache.getKey()))
@@ -172,6 +182,7 @@ public class Cache
             }
 
         }
+        this.readWriteLock.readLock().unlock();
         return res;
     }
 
@@ -186,12 +197,14 @@ public class Cache
         byte cname = aux.get("CNAME");
         if(type != cname)
         {
+            this.readWriteLock.readLock().lock();
             for(EntryCache entryCache1 : this.cache.values())
             {
                 String str = entryCache1.getNameCNAME(dom,cname);
                 if(str.length() > 0)
                     dom = str;
             }
+            this.readWriteLock.readLock().unlock();
         }
         return getAnswer(dom,type);
     }
@@ -214,9 +227,11 @@ public class Cache
      */
     public void removeByName(String name)
     {
+        this.readWriteLock.writeLock().lock();
         for(EntryCache val : this.cache.values())
-            if(val.getDominio().equals(name))
+            if(val.getOrigem() == EntryCache.Origin.SP)
                 this.cache.remove(val.getKey());
+        this.readWriteLock.writeLock().unlock();
     }
 
     /**
@@ -226,6 +241,7 @@ public class Cache
      */
     public boolean checkBD(String type)
     {
+        this.readWriteLock.readLock().lock();
         try
         {
             Map<Byte,Integer> counter = new HashMap<>();
@@ -255,6 +271,9 @@ public class Cache
         catch (Exception e)
         {
             System.out.println(e.getMessage());
+        }
+        finally {
+            this.readWriteLock.readLock().unlock();
         }
         return true;
     }
@@ -619,5 +638,9 @@ public class Cache
             res.append(entryCache.toString()).append("\n");
         }
         return res.toString();
+    }
+    public int size()
+    {
+        return this.cache.size();
     }
 }
