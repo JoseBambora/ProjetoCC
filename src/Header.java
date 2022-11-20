@@ -161,4 +161,23 @@ public class Header {
         return out.toString();
     }
 
+    public String showHeader() {
+        StringBuilder out = new StringBuilder();
+        out.append("# Header\n");
+        out.append("MESSAGE-ID = ");
+        out.append(Short.toUnsignedInt(messageID));
+        out.append(", FLAGS = ");
+        out.append(flagsToString());
+        out.append(", RESPONSE CODE = ");
+        out.append(responseCode);
+        out.append(",\nN-VALUES = ");
+        out.append(Byte.toUnsignedInt(numberOfValues));
+        out.append(", N-AUTHORITIES = ");
+        out.append(Byte.toUnsignedInt(numberOfAuthorites));
+        out.append(", N-EXTRA-VALUES = ");
+        out.append(Byte.toUnsignedInt(numberOfExtraValues));
+        out.append(";\n");
+        return out.toString();
+    }
+
 }

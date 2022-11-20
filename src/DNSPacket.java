@@ -38,6 +38,9 @@ public class DNSPacket {
         return header.toString() + data.toString();
     }
 
+    public String showDNSPacket() {
+        return header.showHeader() + data.showData();
+    }
 
     @Override
     public boolean equals(Object o) {

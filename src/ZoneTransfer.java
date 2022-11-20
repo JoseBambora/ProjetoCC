@@ -40,7 +40,7 @@ public class ZoneTransfer implements Runnable {
         @Override
         public void run() {
                 try {
-                        ServerSocket socketTcp = new ServerSocket(6363);
+                        ServerSocket socketTcp = new ServerSocket(5353);
 
                         while (true) {
                                 Socket c = socketTcp.accept();

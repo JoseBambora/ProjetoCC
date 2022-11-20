@@ -50,7 +50,7 @@ public class Data {
             case "PTR":
                 ret = 10; break;
             default:
-                throw new TypeOfValueException("Type not exist");
+                throw new TypeOfValueException("The type of value passed as argument does not exist.");
         };
         return ret;
     }
@@ -170,5 +170,46 @@ public class Data {
         }
         return out.toString();
     }
+
+    public String showData() {
+        StringBuilder out = new StringBuilder();
+        out.append("# Data: Query-info\nQUERY-INFO.NAME = ");
+        out.append(name);
+        out.append(", QUERY-INFO.TYPE = ");
+        out.append(Data.typeOfValueConvertSring(typeOfValue));
+        out.append(";\n# Data: List of Response, Authorities and Extra Values\n");
+        int i, tam;
+        if (responseValues!=null) {
+            for (i = 0, tam = responseValues.length; i < tam; i++) {
+                out.append("RESPONSE-VALUES = ");
+                out.append(responseValues[i]);
+                if (i == tam - 1) out.append(";\n");
+                else out.append(",\n");
+            }
+        }
+        else out.append("RESPONSE-VALUES = (Null)\n");
+
+        if (authoriteValues!=null) {
+            for (i = 0, tam = authoriteValues.length; i < tam; i++) {
+                out.append("AUTHORITIES-VALUES = ");
+                out.append(authoriteValues[i]);
+                if (i == tam - 1) out.append(";\n");
+                else out.append(",\n");
+            }
+        }
+        else out.append("AUTHORITIES-VALUES = (Null)\n");
+
+        if (extraValues!=null) {
+            for (i = 0, tam = extraValues.length; i < tam; i++) {
+                out.append("EXTRA-VALUES = ");
+                out.append(extraValues[i]);
+                if (i == tam - 1) out.append(";\n");
+                else out.append(",\n");
+            }
+        }
+        else out.append("EXTRA-VALUES = (Null)\n");
+        return out.toString();
+    }
+
 }
 
