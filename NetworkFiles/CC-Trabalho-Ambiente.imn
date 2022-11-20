@@ -160,8 +160,16 @@ node n22 {
     canvas c1
     iconcoords {330.0 358.0}
     labelcoords {291.0 371.0}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n30}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', 'mkdir ProjetoCC/out', )
+	starttime=
+	}
+    }
 }
 
 node n23 {
@@ -196,8 +204,15 @@ node n24 {
     canvas c1
     iconcoords {1414.0 283.0}
     labelcoords {1413.0 321.0}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n29}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', 'mkdir ProjetoCC/out', )
+	}
+    }
 }
 
 node n8 {
