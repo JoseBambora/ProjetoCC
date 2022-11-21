@@ -160,7 +160,6 @@ public class Main {
         //    threads[i].join();
         //System.out.println("ACABOU");
         //System.out.println(cacheTestThreads.size() == num * num);
-
     }
 
 }

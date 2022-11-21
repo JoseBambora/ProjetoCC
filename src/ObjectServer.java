@@ -3,6 +3,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.*;
 import java.net.InetAddress;
 
@@ -18,10 +19,6 @@ public class ObjectServer {
     private String dominio;
     private List<InetSocketAddress> DD;
     private List<InetSocketAddress> ST;
-    private List<String> LG;
-
-    private List<String> allLG;
-
     private  Map<String,String> logs;
     private Cache cache;
 
@@ -42,22 +39,6 @@ public class ObjectServer {
      */
     public void addEnderecoDD(InetSocketAddress e) {
         DD.add(e);
-    }
-
-    /**
-     * Método que adiciona elementos ao campo LG de um servidor
-     * @param path localização do ficheiro de log
-     */
-    public void addLog(String path){
-        LG.add(path);
-    }
-
-    /**
-     * Método que adiciona elementos ao campo allLG de um servidor, ou seja, acrescenta logs para toda a atividade
-     * @param path localização do ficheiro de log
-     */
-    public void addAllLog(String path){
-        allLG.add(path);
     }
 
     /**
@@ -222,7 +203,6 @@ public class ObjectServer {
                                 server.dominio = words[0];
                             }
                             if(sp.getBD().equals("")){
-                                sp.getCache().createBD(words[2], server.dominio,new ArrayList<>());
                                 sp.setBD(words[2]);
                             }
                             else{
@@ -267,7 +247,7 @@ public class ObjectServer {
                                 server.logs.put("all",words[2]);
                                 logcounter++;
                             }
-                            if (!words[0].equals("all")) {
+                            else {
                                 if (server.dominio.equals("")) server.dominio = words[0];
                                 if (server.dominio.matches("(.*)"+words[0])) {
                                     server.logs.put(words[0],words[2]);
@@ -277,21 +257,48 @@ public class ObjectServer {
 
                     }
                 }
-                else warnings.add("Linha "  + line + " com informação incompleta para o campo" + words[1]);
+                else warnings.add("Linha "  + line + " com informação incompleta para o campo " + words[1]);
             }
         }
-        if (logcounter == 0) server = null;
-        if(server != null && !server.verificaConfig())
-        {
-            server = null;
-            warnings.add("Campos em falta. Servidor não configurado.");
+
+        //SEPARAR POR MÉTODOS
+
+        if(server!=null) {
+            boolean makeNullServer = false;
+            if (logcounter == 0) {
+                makeNullServer = true;
+                warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
+            }
+
+            if (!server.verificaConfig()) {
+                makeNullServer = true;
+                warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
+            }
+
+            //Contruir objeto da classe Log para mandar a formatação correta da entrada nos ficheiros de configuração
+            List<String> writeLogs = new ArrayList<>();
+            for (String warning : warnings) {
+                Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1", warning);
+                writeLogs.add(log.toString());
+            }
+            for (String ficheiro : server.logs.values()) {
+                LogFileWriter.writeInLogFile(ficheiro, writeLogs);
+            }
+
+            if (server instanceof ObjectSP auxserver){
+                auxserver.getCache().createBD(auxserver.getBD(), server.dominio,server.logs.values().stream().toList());
+            }
+
+            if (makeNullServer) server = null;
         }
+        //
         System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");
         for(String warning : warnings)
         {
             System.out.println("- " + warning);
         }
         return server;
+
     }
 
     /**
