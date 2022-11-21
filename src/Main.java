@@ -133,13 +133,7 @@ public class Main {
         System.out.println(data10.getValue2().toString().equals("alan,MX;\nalan MX alan.email.com. 1000;\n"));
         System.out.println(data11.getValue2().toString().equals("braga,CNAME;\nbraga CNAME alan 1000;\n"));
         System.out.println(data12.getValue1() == 1);
-        System.out.println(data12.getValue2().toString().equals("fernando1.CR7.CMS.G706.,NS;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n"));
+        System.out.println(data12.getValue2().toString().equals("fernando1.CR7.CMS.G706.,NS;\n"));
         System.out.println(data13.getValue1() == 2);
         System.out.println(data13.getValue2().toString().equals("mail3.CR7.CMS.G706.,MX;\n" +
                 "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
@@ -152,13 +146,13 @@ public class Main {
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");
         Cache cacheTestThreads = new Cache();
         Thread[] threads = new Thread[num];
-        //for(int i = 0; i < num; i++)
-        //    threads[i] = new Thread(new TesteCacheThreads(Integer.toString(i),cacheTestThreads,(byte) 0,num));
-        //for(int i = 0; i < num; i++)
-        //    threads[i].start();
-        //for(int i = 0; i < num; i++)
-        //    threads[i].join();
-        //System.out.println("ACABOU");
-        //System.out.println(cacheTestThreads.size() == num * num);
+        for(int i = 0; i < num; i++)
+            threads[i] = new Thread(new TesteCacheThreads(Integer.toString(i),cacheTestThreads,(byte) 0,num));
+        for(int i = 0; i < num; i++)
+            threads[i].start();
+        for(int i = 0; i < num; i++)
+            threads[i].join();
+        System.out.println("ACABOU");
+        System.out.println(cacheTestThreads.size() == num * num);
     }
 }

@@ -53,7 +53,7 @@ public class Cache
     {
         this.readWriteLock.writeLock().lock();
         this.removeExpireInfo();
-        if(!this.cache.containsKey(entryCache.getKey()))
+        if(!this.cache.containsKey(entryCache.getKey()) || !this.cache.get(entryCache.getKey()).equals(entryCache))
         {
             this.cache.put(entryCache.getKey(),entryCache);
         }
@@ -68,13 +68,7 @@ public class Cache
     public void removeExpireInfo()
     {
         this.cache.values().forEach(EntryCache::removeExpireInfo);
-        for(EntryCache entryCache : this.cache.values())
-        {
-            if(entryCache.isEmpty())
-            {
-                this.cache.remove(entryCache.getKey());
-            }
-        }
+        this.cache.values().stream().filter(EntryCache::isEmpty).forEach(e -> this.cache.remove(e.getKey()));
     }
     /**
      * Adicionar um determinado valor à cache.
@@ -121,13 +115,9 @@ public class Cache
         this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
-        for(EntryCache entryCache2 : this.cache.values())
-        {
-            if (entryCache2.getTypeofValue().equals(ns) && entryCache2.getDominio().matches("(.*)" + this.dominio)) {
-                Data data = entryCache2.getData();
-                values.addAll(List.of(data.getResponseValues()));
-            }
-        }
+        this.cache.values().stream().filter(e -> e.getTypeofValue().equals(ns))
+                                    .filter(e -> e.getDominio().matches("(.*)" + this.dominio))
+                                    .forEach(e -> values.addAll(List.of(e.getData().getResponseValues())));
         this.readWriteLock.readLock().unlock();
         return values;
     }
@@ -143,17 +133,12 @@ public class Cache
         this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte a = aux.get("A");
-        for(EntryCache entryCache2 : this.cache.values())
-        {
-            if(entryCache2.getTypeofValue().equals(a) &&
-               (RV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))||
-                AV.stream().anyMatch(value -> value.getValue().equals(entryCache2.getDominio()))) &&
-                RV.stream().noneMatch(value -> value.getDominio().equals(entryCache2.getDominio()) && value.getType() == a))
-            {
-                Data data = entryCache2.getData();
-                values.addAll(List.of(data.getResponseValues()));
-            }
-        }
+        this.cache.values().stream().filter(e -> e.getTypeofValue().equals(a))
+                                    .filter(e -> RV.stream().noneMatch(value -> value.getType() == a && value.getDominio().equals(e.getDominio())))
+                                    .filter(e -> RV.stream().anyMatch(value -> value.getValue().equals(e.getDominio())) ||
+                                                 AV.stream().anyMatch(value -> value.getValue().equals(e.getDominio())))
+                                    .forEach(e -> values.addAll(List.of(e.getData().getResponseValues())));
+
         this.readWriteLock.readLock().unlock();
         return values;
     }
@@ -183,6 +168,11 @@ public class Cache
         }
         List<Value> av = this.getAVBD();
         List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
+        if(cod == 1)
+        {
+            av = av.stream().filter(v -> v.getDominio().equals(dom)).toList();
+            ev = ev.stream().filter(v -> v.getDominio().equals(dom)).toList();
+        }
         if(!av.isEmpty())
             res.setAuthoriteValues(av.toArray(new Value[1]));
         if(!ev.isEmpty())
@@ -203,12 +193,12 @@ public class Cache
         if(type != cname)
         {
             this.readWriteLock.readLock().lock();
-            for(EntryCache entryCache1 : this.cache.values())
-            {
-                String str = entryCache1.getNameCNAME(dom,cname);
-                if(str.length() > 0)
-                    dom = str;
-            }
+            String finalDom = dom;
+            List<String> aux = this.cache.values().stream().map(e -> e.getNameCNAME(finalDom,cname))
+                                                           .filter(s -> s.length() > 0)
+                                                           .toList();
+            if(!aux.isEmpty())
+                dom = aux.get(0);
             this.readWriteLock.readLock().unlock();
         }
         return getAnswer(dom,type);
@@ -233,9 +223,9 @@ public class Cache
     public void removeByName(String name)
     {
         this.readWriteLock.writeLock().lock();
-        for(EntryCache val : this.cache.values())
-            if(val.getOrigem() == EntryCache.Origin.SP)
-                this.cache.remove(val.getKey());
+        this.cache.values().stream().filter(e -> e.getOrigem() == EntryCache.Origin.SP)
+                                    .filter(e -> e.getDominio().equals(name))
+                                    .forEach(e -> this.cache.remove(e.getKey()));
         this.readWriteLock.writeLock().unlock();
     }
 
@@ -251,13 +241,8 @@ public class Cache
         {
             Map<Byte,Integer> counter = new HashMap<>();
             tipos.forEach(str -> {try {counter.put(Data.typeOfValueConvert(str),0);} catch (Exception e){}});
-            for(EntryCache entryCache : this.cache.values())
-            {
-                if(entryCache.getOrigem() == EntryCache.Origin.FILE && entryCache.getTypeofValue() != -1)
-                {
-                    counter.put(entryCache.getTypeofValue(), counter.get(entryCache.getTypeofValue())+1);
-                }
-            }
+            this.cache.values().stream().filter(e -> e.getOrigem() == EntryCache.Origin.FILE)
+                                        .forEach(e -> counter.put(e.getTypeofValue(),counter.get(e.getTypeofValue())+1));
             boolean res = false;
             switch (type)
             {
@@ -277,7 +262,8 @@ public class Cache
         {
             System.out.println(e.getMessage());
         }
-        finally {
+        finally
+        {
             this.readWriteLock.readLock().unlock();
         }
         return true;
@@ -295,20 +281,12 @@ public class Cache
         String res = str;
         if(str.charAt(str.length()-1) != '.')
         {
-            boolean entrou = false;
-            for(String key : this.macro.keySet())
-            {
-                if(res.contains(key))
-                {
-                    res = res.replaceAll(key,this.macro.get(key));
-                    entrou = true;
-                    break;
-                }
-            }
-            if(!entrou)
-            {
+            String finalRes = res;
+            Optional<String> op = this.macro.keySet().stream().filter(finalRes::contains).findFirst();
+            if(op.isPresent())
+                res = res.replaceAll(op.get(),this.macro.get(op.get()));
+            else
                 res += "." + this.macro.get("@");
-            }
         }
         return res;
     }
@@ -341,19 +319,16 @@ public class Cache
             {
                 String str = this.macro.get(word);
                 if(str != null)
-                {
-                    try {
+                    try
+                    {
                         num = Integer.parseInt(str);
                     }
                     catch (NumberFormatException exp)
                     {
                         throw new Exception("Valor não inteiro para a macro " + word);
                     }
-                }
                 else
-                {
                     throw new Exception("Valor não é inteiro e não está definido nas macros");
-                }
             }
             if(num < min || num > max)
                 throw new Exception("Número que excede o intervalo estabelecidos para o campo " + campo + ". O intervalo é [" + min + "," + max + "]");
@@ -388,17 +363,6 @@ public class Cache
     }
 
     /**
-     * Adiciona valor de um tipo há cache. Só é usado para tipos multiplos, isto é, A, NS (...).
-     * @param valores Map de todos os valores lidos do ficheiro.
-     * @param type Tipo a acrescentar na cache
-     */
-    private void addAllValueBD(Map<String,List<Value>> valores, String type)
-    {
-        for(Value value : valores.get(type))
-            this.addValueDB(value);
-    }
-
-    /**
      * Adiciona um CNAME há cache.
      * @param valores Map de todos os valores lidos do ficheiro.
      * @param warnings Lista de avisos, para verificar se os cnames não são canónicos de um servidor
@@ -428,10 +392,10 @@ public class Cache
         addFSTValueBD(valores,"SOAREFRESH");
         addFSTValueBD(valores,"SOARETRY");
         addFSTValueBD(valores,"SOAEXPIRE");
-        addAllValueBD(valores,"NS");
-        addAllValueBD(valores,"MX");
-        addAllValueBD(valores,"A");
-        addAllValueBD(valores,"PTR");
+        valores.get("NS").forEach(this::addValueDB);
+        valores.get("MX").forEach(this::addValueDB);
+        valores.get("A").forEach(this::addValueDB);
+        valores.get("PTR").forEach(this::addValueDB);
         addCnameBD(valores,warnings);
     }
 
@@ -448,9 +412,7 @@ public class Cache
         if(valores.get(type).size() > 0)
             throw new Exception("Valor de " + type + " repetido.");
         else
-        {
             valores.get(type).add(value);
-        }
     }
 
     /**
@@ -525,12 +487,14 @@ public class Cache
         {
             if (words[1].equals("DEFAULT"))
                 this.macro.put(words[0], words[2]);
-            else if (words.length > 3) {
+            else if (words.length > 3)
+            {
                 String dom = words[0];
                 if (!words[1].equals("PTR"))
                     dom = converteDom(words[0]);
                 int TTL = converteInt(words, 3, "'TTL'");
-                switch (words[1]) {
+                switch (words[1])
+                {
                     case "SOASP":
                     case "SOAADMIN":
                         String name = converteDom(words[2]);
@@ -570,7 +534,7 @@ public class Cache
      * Método que faz o parsing de um ficheiro para um BD.
      * @param lines Linhas de um ficheiro.
      */
-    public void createBD(String[] lines, List<String> logFiles) throws IOException
+    public void createBD(String[] lines, Collection<String> logFiles) throws IOException
     {
         Map<String, List<Value>> valores = new HashMap<>();
         List<String> warnings = new ArrayList<>();
@@ -622,6 +586,7 @@ public class Cache
         {
             Log log = new Log(Date.from(Instant.now()), Log.EntryType.SP,"",warning);
             writeLogs.add(log.toString());
+            System.out.println(log);
         }
         for(String file : logFiles)
             LogFileWriter.writeInLogFile(file,writeLogs);
@@ -631,7 +596,7 @@ public class Cache
      * Método que faz o parsing de um ficheiro para um BD
      * @param filename Nome do ficheiro.
      */
-    public void createBD(String filename,String dom, List<String> logFiles) throws IOException
+    public void createBD(String filename,String dom, Collection<String> logFiles) throws IOException
     {
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
@@ -641,10 +606,7 @@ public class Cache
     public String toString()
     {
         StringBuilder res = new StringBuilder();
-        for(EntryCache entryCache : this.cache.values())
-        {
-            res.append(entryCache.toString()).append("\n");
-        }
+        this.cache.values().forEach(e -> res.append(e.toString()).append('\n'));
         return res.toString();
     }
     public int size()

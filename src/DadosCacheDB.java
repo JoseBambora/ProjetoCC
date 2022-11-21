@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Dados de uma posição da cache que corresponde a base de dados.
@@ -28,16 +29,22 @@ public class DadosCacheDB implements DadosCache
 
     public String getNameCNAME(String dominio)
     {
-        for(Value value : this.campo)
-        {
-            if(value.getDominio().equals(dominio))
-                return value.getValue();
-        }
-        return "";
+        List<Value> val = this.campo.stream().filter(v -> v.getDominio().equals(dominio)).toList();
+        return val.isEmpty() ? "" : val.get(0).getValue();
+
     }
 
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DadosCacheDB that = (DadosCacheDB) o;
+        return this.campo.size() == that.campo.size() &&
+               this.campo.stream().allMatch(v -> that.campo.stream().anyMatch(va -> va.equals(v)));
     }
 }

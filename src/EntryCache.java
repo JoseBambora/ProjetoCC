@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author José Carvalho
@@ -117,5 +118,14 @@ public class EntryCache
     public boolean isEmpty()
     {
         return this.dadosCache.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EntryCache that = (EntryCache) o;
+        return  origem == that.origem && typeofValue.equals(that.typeofValue) &&
+                dominio.equals(that.dominio) && Objects.equals(dadosCache, that.dadosCache);
     }
 }

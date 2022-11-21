@@ -54,12 +54,8 @@ public class DadosCacheAnswer implements DadosCache
 
     public String getNameCNAME(String dominio)
     {
-        for(Value value : this.responseValues)
-        {
-            if(value.getDominio().equals(dominio))
-                return value.getValue();
-        }
-        return "";
+        List<Value> val = this.responseValues.stream().filter(v -> v.getDominio().equals(dominio)).toList();
+        return val.isEmpty() ? "" : val.get(0).getValue();
     }
 
     @Override
@@ -70,5 +66,19 @@ public class DadosCacheAnswer implements DadosCache
     @Override
     public boolean isEmpty() {
         return this.responseValues.isEmpty();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DadosCacheAnswer that = (DadosCacheAnswer) o;
+        return this.responseValues.size() == that.responseValues.size() &&
+                this.authorityValues.size() == that.authorityValues.size() &&
+                this.extraValues.size() == that.extraValues.size() &&
+                this.responseValues.stream().allMatch(v -> that.responseValues.stream().anyMatch(va -> va.equals(v)))&&
+                this.authorityValues.stream().allMatch(v -> that.authorityValues.stream().anyMatch(va -> va.equals(v)))&&
+                this.extraValues.stream().allMatch(v -> that.extraValues.stream().anyMatch(va -> va.equals(v)));
     }
 }
