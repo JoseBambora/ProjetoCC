@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -162,28 +163,32 @@ public class Cache
      * @param type Tipo da pergunta.
      * @return Null se resposta não for encontrada, ou Data se for encontrada.
      */
-    private Data getAnswer(String dom, byte type)
+    private Tuple<Integer,Data> getAnswer(String dom, byte type)
     {
+        int cod = 0;
         this.readWriteLock.readLock().lock();
         EntryCache entryCache = new EntryCache(dom,type, EntryCache.Origin.SP);
-        Data res = null;
+        Data res = new Data(dom,type);
         if(this.cache.containsKey(entryCache.getKey()))
         {
             EntryCache entryCache1 = this.cache.get(entryCache.getKey());
             res = entryCache1.getData();
-            if(entryCache1.getOrigem() == EntryCache.Origin.FILE)
-            {
-                List<Value> av = this.getAVBD();
-                List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues()), av);
-                if(!av.isEmpty())
-                    res.setAuthoriteValues(av.toArray(new Value[1]));
-                if(!ev.isEmpty())
-                    res.setExtraValues(ev.toArray(new Value[1]));
-            }
-
         }
+        else
+        {
+            if(this.cache.values().stream().anyMatch(e -> e.getDominio().equals(dom)))
+                cod = 1;
+            else
+                cod = 2;
+        }
+        List<Value> av = this.getAVBD();
+        List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
+        if(!av.isEmpty())
+            res.setAuthoriteValues(av.toArray(new Value[1]));
+        if(!ev.isEmpty())
+            res.setExtraValues(ev.toArray(new Value[1]));
         this.readWriteLock.readLock().unlock();
-        return res;
+        return new Tuple<>(cod,res);
     }
 
     /**
@@ -192,7 +197,7 @@ public class Cache
      * @param type Tipo da pergunta.
      * @return Null se resposta não for encontrada, ou Data se for encontrada.
      */
-    public Data findAnswer(String dom, byte type)
+    public Tuple<Integer,Data> findAnswer(String dom, byte type)
     {
         byte cname = aux.get("CNAME");
         if(type != cname)
@@ -214,7 +219,7 @@ public class Cache
      * @param mensagem Query dns.
      * @return Null se resposta não for encontrada, ou Data se for encontrada.
      */
-    public Data findAnswer(DNSPacket mensagem)
+    public Tuple<Integer,Data> findAnswer(DNSPacket mensagem)
     {
         String name = mensagem.getData().getName();
         byte b = mensagem.getData().getTypeOfValue();
@@ -565,7 +570,7 @@ public class Cache
      * Método que faz o parsing de um ficheiro para um BD.
      * @param lines Linhas de um ficheiro.
      */
-    public void createBD(String[] lines)
+    public void createBD(String[] lines, List<String> logFiles) throws IOException
     {
         Map<String, List<Value>> valores = new HashMap<>();
         List<String> warnings = new ArrayList<>();
@@ -612,22 +617,25 @@ public class Cache
             }
         }
         converteBD(valores,warnings);
-        System.out.println("Warnings criação BD");
+        List<String> writeLogs = new ArrayList<>();
         for (String warning : warnings)
         {
-            System.out.println("- " + warning);
+            Log log = new Log(Date.from(Instant.now()), Log.EntryType.SP,"",warning);
+            writeLogs.add(log.toString());
         }
+        for(String file : logFiles)
+            LogFileWriter.writeInLogFile(file,writeLogs);
     }
 
     /**
      * Método que faz o parsing de um ficheiro para um BD
      * @param filename Nome do ficheiro.
      */
-    public void createBD(String filename,String dom) throws IOException
+    public void createBD(String filename,String dom, List<String> logFiles) throws IOException
     {
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines.toArray(new String[1]));
+        this.createBD(lines.toArray(new String[1]),logFiles);
     }
     @Override
     public String toString()

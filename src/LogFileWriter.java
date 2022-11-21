@@ -42,7 +42,7 @@ public class LogFileWriter {
      * @param line A linha a escrever
      * @throws IOException Exceção para caso o ficheiro não exista
      */
-    public void writeLineInLogFile(String ficheiro, String line) throws IOException {
+    public static void writeLineInLogFile(String ficheiro, String line) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro));
         Lock l = getLockMap(ficheiro);
         l.lock();
@@ -61,7 +61,7 @@ public class LogFileWriter {
      * @param lines As linhas a escrever sobre a forma de lista
      * @throws IOException Exceção para caso o ficheiro não exista
      */
-    public void writeInLogFile(String ficheiro, List<String> lines) throws IOException {
+    public static void writeInLogFile(String ficheiro, List<String> lines) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro));
         Lock l = getLockMap(ficheiro);
         l.lock();

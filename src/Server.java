@@ -85,7 +85,7 @@ public class Server {
                 }
 
                 /* Find answer */
-                Data resp = sc.getCache().findAnswer(receivePacket);
+                Data resp = sc.getCache().findAnswer(receivePacket).getValue2();
 
                 if (resp!=null) {
                     /* Build Packet */

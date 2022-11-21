@@ -222,7 +222,7 @@ public class ObjectServer {
                                 server.dominio = words[0];
                             }
                             if(sp.getBD().equals("")){
-                                sp.getCache().createBD(words[2], server.dominio);
+                                sp.getCache().createBD(words[2], server.dominio,new ArrayList<>());
                                 sp.setBD(words[2]);
                             }
                             else{

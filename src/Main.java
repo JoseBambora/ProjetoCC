@@ -1,4 +1,5 @@
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     private static void find(Cache bd, String domQ)
@@ -18,13 +19,15 @@ public class Main {
     }
     public static void main(String[] args) throws Exception {
         Cache bd1 = new Cache();
-        bd1.createBD("DatabasesFiles/Braga.db", "CR7.CMS.G706.");
+        List<String> seila = new ArrayList<>();
+        seila.add("LogsFiles/Braga.log");
+        bd1.createBD("DatabasesFiles/Braga.db", "CR7.CMS.G706.",seila);
         Cache bd2 = new Cache();
-        bd2.createBD("DatabasesFiles/Topo.db","G706.");
+        bd2.createBD("DatabasesFiles/Topo.db","G706.",new ArrayList<>());
         Cache bd3 = new Cache();
-        bd3.createBD("DatabasesFiles/Cancelo.db", "M10.JJM.G706.");
+        bd3.createBD("DatabasesFiles/Cancelo.db", "M10.JJM.G706.",new ArrayList<>());
         Cache bd4 = new Cache();
-        bd4.createBD("DatabasesFiles/Rui.db","KB9.REVERSE.G706.");
+        bd4.createBD("DatabasesFiles/Rui.db","KB9.REVERSE.G706.",new ArrayList<>());
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
@@ -71,14 +74,16 @@ public class Main {
                 "G706.,NS;\n" +
                 "G706. NS pepe.G706. 90000,\n" +
                 "G706. NS palhinha.G706. 90000;\n\n"));
-        Data data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
-        Data data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
-        Data data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
-        Data data8 = bd2.findAnswer("G706.",Data.typeOfValueConvert("NS"));
-        Data data9 = bd3.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX"));
-        Data data10 =  bd5.findAnswer("braga", (byte) 9);
-        Data data11 = bd5.findAnswer("braga", (byte) 8);
-        System.out.println(data5.toString().equals("CR7.CMS.G706.,SOASP;\n" +
+        Tuple<Integer,Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
+        Tuple<Integer,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
+        Tuple<Integer,Data> data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
+        Tuple<Integer,Data> data8 = bd2.findAnswer("G706.",Data.typeOfValueConvert("NS"));
+        Tuple<Integer,Data> data9 = bd3.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX"));
+        Tuple<Integer,Data> data10 = bd5.findAnswer("braga", (byte) 9);
+        Tuple<Integer,Data> data11 = bd5.findAnswer("braga", (byte) 8);
+        Tuple<Integer,Data> data12 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("NS"));
+        Tuple<Integer,Data> data13 = bd1.findAnswer("mail3.CR7.CMS.G706.",Data.typeOfValueConvert("MX"));
+        System.out.println(data5.getValue2().toString().equals("CR7.CMS.G706.,SOASP;\n" +
                 "CR7.CMS.G706. SOASP braga.CR7.CMS.G706. 90000;\n" +
                 "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
                 "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
@@ -86,14 +91,14 @@ public class Main {
                 "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
                 "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
                 "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n"));
-        System.out.println(data6.toString().equals("renato.CR7.CMS.G706.,A;\n" +
+        System.out.println(data6.getValue2().toString().equals("renato.CR7.CMS.G706.,A;\n" +
                 "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n" +
                 "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
                 "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
                 "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
                 "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
                 "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000;\n"));
-        System.out.println(data7.toString().equals("fernando1.CR7.CMS.G706.,A;\n" +
+        System.out.println(data7.getValue2().toString().equals("fernando1.CR7.CMS.G706.,A;\n" +
                 "fernando1.CR7.CMS.G706. A 10.0.8.11:5353 90000;\n" +
                 "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
                 "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
@@ -101,7 +106,7 @@ public class Main {
                 "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
                 "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
                 "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n"));
-        System.out.println(data8.toString().equals("G706.,NS;\n" +
+        System.out.println(data8.getValue2().toString().equals("G706.,NS;\n" +
                 "G706. NS pepe.G706. 90000,\n" +
                 "G706. NS palhinha.G706. 90000;\n" +
                 "REVERSE.G706. NS rui.REVERSE.G706. 90000,\n" +
@@ -114,7 +119,7 @@ public class Main {
                 "pepe.G706. A 10.0.14.11:5353 90000,\n" +
                 "palhinha.G706. A 10.0.13.11:5353 90000,\n" +
                 "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000;\n"));
-        System.out.println(data9.toString().equals("M10.JJM.G706.,MX;\n" +
+        System.out.println(data9.getValue2().toString().equals("M10.JJM.G706.,MX;\n" +
                 "M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000 10,\n" +
                 "M10.JJM.G706. MX scaloni2.M10.JJM.G706. 90000 20;\n" +
                 "M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,\n" +
@@ -125,20 +130,36 @@ public class Main {
                 "scaloni1.M10.JJM.G706. A 10.0.10.11:5353 90000,\n" +
                 "scaloni2.M10.JJM.G706. A 10.0.16.12:5353 90000,\n" +
                 "rafael.M10.JJM.G706. A 10.0.15.11:5353 90000;\n"));
-        System.out.println(data10.toString().equals("alan,MX;\nalan MX alan.email.com. 1000;\n"));
-        System.out.println(data11.toString().equals("braga,CNAME;\nbraga CNAME alan 1000;\n"));
+        System.out.println(data10.getValue2().toString().equals("alan,MX;\nalan MX alan.email.com. 1000;\n"));
+        System.out.println(data11.getValue2().toString().equals("braga,CNAME;\nbraga CNAME alan 1000;\n"));
+        System.out.println(data12.getValue1() == 1);
+        System.out.println(data12.getValue2().toString().equals("fernando1.CR7.CMS.G706.,NS;\n" +
+                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
+                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
+                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
+                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n"));
+        System.out.println(data13.getValue1() == 2);
+        System.out.println(data13.getValue2().toString().equals("mail3.CR7.CMS.G706.,MX;\n" +
+                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
+                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000,\n" +
+                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
+                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n"));
         int num = 75;
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");
         Cache cacheTestThreads = new Cache();
         Thread[] threads = new Thread[num];
-        for(int i = 0; i < num; i++)
-            threads[i] = new Thread(new TesteCacheThreads(Integer.toString(i),cacheTestThreads,(byte) 0,num));
-        for(int i = 0; i < num; i++)
-            threads[i].start();
-        for(int i = 0; i < num; i++)
-            threads[i].join();
-        System.out.println("ACABOU");
-        System.out.println(cacheTestThreads.size() == num * num);
+        //for(int i = 0; i < num; i++)
+        //    threads[i] = new Thread(new TesteCacheThreads(Integer.toString(i),cacheTestThreads,(byte) 0,num));
+        //for(int i = 0; i < num; i++)
+        //    threads[i].start();
+        //for(int i = 0; i < num; i++)
+        //    threads[i].join();
+        //System.out.println("ACABOU");
+        //System.out.println(cacheTestThreads.size() == num * num);
 
     }
 
