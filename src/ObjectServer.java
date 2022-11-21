@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -152,7 +153,7 @@ public class ObjectServer {
         }
         //outros servidores (campos comuns a todos os servidores exceto ST)
         else aux = !this.DD.isEmpty() &&
-                   !this.ST.isEmpty() &&
+                !this.ST.isEmpty() &&
                 (!this.logs.isEmpty() && logs.containsKey("all"));
         boolean aux2;
         if(this instanceof ObjectSP){ //caso seja um SP ou um ST (dominio passado como parâmetro pois podemos ter SP no dominio reverse)
@@ -167,6 +168,75 @@ public class ObjectServer {
     }
 
     /**
+     * Método auxiliar que permite a escrita de uma lista de warnings gerados no processo de parsing dos ficheiros de configuração de um servidor
+     * @param warnings lista de warnings a escrever como linhas nos logs do servidor configurado
+     * @param logs coleção de logs nos quais iremos escrever
+     * @throws IOException exceção para caso o ficheiro de configuração não exista
+     */
+    public static void writeInLogs(List<String> warnings,Collection<String>logs) throws IOException {
+        List<String> writeLogs = new ArrayList<>();
+        for (String warning : warnings) {
+            Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1", warning);
+            writeLogs.add(log.toString());
+        }
+        for (String ficheiro : logs) {
+            LogFileWriter.writeInLogFile(ficheiro, writeLogs);
+        }
+    }
+
+    /**
+     * Método auxiliar que permite a escrita de uma linha, neste caso de um warning, para os ficheiros de log de um servidor gerado no processo de parsing dos ficheiros de configuração
+     * @param warning warning a escrever nos ficheiro de logs
+     * @param logs coleção de logs nos quais iremos escrever
+     * @throws IOException exceção para caso o ficheiro de configuração não exista
+     */
+    private static void writeLineinLogs(String warning,Collection<String>logs) throws IOException {
+        Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1",warning);
+        for (String ficheiro : logs) {
+            LogFileWriter.writeLineInLogFile(ficheiro,log.toString());
+        }
+    }
+
+    /**
+     * Método auxiliar que escreve no terminal a lista de warnings do processo de parsing dos ficheiros de configuração de um servidor
+     * @param filename caminho para o ficheiro de configuração
+     * @param warnings lista de warnings a escrever como linhas no terminal
+     */
+    public static void writeInTerminal(String filename, List<String> warnings) {
+        System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");
+        for (String warning : warnings) {
+            System.out.println("- " + warning);
+        }
+    }
+
+    /**
+     * Método auxiliar que ajuda na validação após o processo de parsing
+     * @param filename caminho para o ficheiro de configuração
+     * @param logcounter contador do numero de logs de topo
+     * @param warnings lista de warnings a escrever como entradas nos ficheiros de logs e como linhas no terminal
+     * @return true caso o servidor esteja bem formulado, false caso contrário
+     * @throws IOException exceção para caso o ficheiro de configuração não exista
+     */
+    public boolean postParsing(String filename,int logcounter, List<String> warnings) throws IOException {
+        boolean res = false;
+        if (logcounter == 0) {
+            res = true;
+            warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
+        }
+        System.out.println(this.logs.values());
+        writeInLogs(warnings,this.logs.values());
+        if (this instanceof ObjectSP auxserver){
+            auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.values().stream().toList());
+        }
+        if (!this.verificaConfig()) {
+            res = true;
+            warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
+            writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.",this.logs.values());
+        }
+        return res;
+    }
+
+    /**
      * Método que realiza o parsing de um ficheiro de configuração de um servidor DNS
      * @param filename localização do ficheiro de configuração
      * @return O servidor configurado
@@ -177,13 +247,13 @@ public class ObjectServer {
         ObjectServer server = null;
         ObjectSP sp = null;
         ObjectSS ss = null;
-        List<String> warnings = new ArrayList<>();
         int logcounter = 0;
-        for(String line : lines){
+        List<String> warnings = new ArrayList<>();
+        for(String line : lines) {
             if (line.length() > 0 && line.charAt(0) != '#') {
                 String[] words = line.split(" ");
-                if(words.length>2){
-                    switch(words[1]){
+                if (words.length > 2) {
+                    switch (words[1]) {
                         case "SS":
                             if (sp == null) {
                                 sp = new ObjectSP();
@@ -254,53 +324,18 @@ public class ObjectServer {
                                 }
                             }
                             break;
-
                     }
-                }
-                else warnings.add("Linha "  + line + " com informação incompleta para o campo " + words[1]);
+                } else warnings.add("Linha " + line + " com informação incompleta para o campo " + words[1]);
             }
         }
-
-        //SEPARAR POR MÉTODOS
-
         if(server!=null) {
-            boolean makeNullServer = false;
-            if (logcounter == 0) {
-                makeNullServer = true;
-                warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
-            }
-
-            //Contruir objeto da classe Log para mandar a formatação correta da entrada nos ficheiros de configuração
-            List<String> writeLogs = new ArrayList<>();
-            for (String warning : warnings) {
-                Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1", warning);
-                writeLogs.add(log.toString());
-            }
-            for (String ficheiro : server.logs.values()) {
-                LogFileWriter.writeInLogFile(ficheiro, writeLogs);
-            }
-
-            if (server instanceof ObjectSP auxserver){
-                auxserver.getCache().createBD(auxserver.getBD(), server.dominio,server.logs.values().stream().toList());
-            }
-
-            if (!server.verificaConfig()) {
-                makeNullServer = true;
-                warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
-            }
-
+            boolean makeNullServer = server.postParsing(filename,logcounter,warnings);
             if (makeNullServer)  {
                 server = null;
             }
         }
-        //
-        System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");
-        for(String warning : warnings)
-        {
-            System.out.println("- " + warning);
-        }
+        writeInTerminal(filename,warnings);
         return server;
-
     }
 
     /**
@@ -316,7 +351,4 @@ public class ObjectServer {
                 "   LOGS = " + logs +"\n"+
                 "   CACHE = " + cache;
     }
-
-
 }
-
