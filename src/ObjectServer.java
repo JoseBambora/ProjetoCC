@@ -148,7 +148,7 @@ public class ObjectServer {
         boolean aux;
         if (ST.isEmpty() && DD.isEmpty()){ //servidor de topo
             aux = (!this.logs.isEmpty() && logs.containsKey("all"));
-            return aux && this.getCache().checkBD("ST");
+            return aux;
         }
         //outros servidores (campos comuns a todos os servidores exceto ST)
         else aux = !this.DD.isEmpty() &&
@@ -270,11 +270,6 @@ public class ObjectServer {
                 warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
             }
 
-            if (!server.verificaConfig()) {
-                makeNullServer = true;
-                warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
-            }
-
             //Contruir objeto da classe Log para mandar a formatação correta da entrada nos ficheiros de configuração
             List<String> writeLogs = new ArrayList<>();
             for (String warning : warnings) {
@@ -289,7 +284,14 @@ public class ObjectServer {
                 auxserver.getCache().createBD(auxserver.getBD(), server.dominio,server.logs.values().stream().toList());
             }
 
-            if (makeNullServer) server = null;
+            if (!server.verificaConfig()) {
+                makeNullServer = true;
+                warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
+            }
+
+            if (makeNullServer)  {
+                server = null;
+            }
         }
         //
         System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");

@@ -18,6 +18,7 @@ public class Main {
         System.out.println(bd.findAnswer(domQ,(byte) 9));
     }
     public static void main(String[] args) throws Exception {
+        /**
         Cache bd1 = new Cache();
         List<String> seila = new ArrayList<>();
         seila.add("LogsFiles/Braga.log");
@@ -161,5 +162,7 @@ public class Main {
         //System.out.println("ACABOU");
         //System.out.println(cacheTestThreads.size() == num * num);
     }
-
+**/ ObjectServer S = ObjectServer.parseServer("ConfigurationFiles/configBraga");
+    System.out.println(S);
+}
 }
