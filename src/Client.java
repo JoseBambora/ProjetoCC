@@ -17,7 +17,7 @@ public class Client {
     private String name;                /* 3º arg: Name */
     private byte type;                  /* 4º arg: Type of value */
     boolean recursive;                  /* 5º arg: Try recursive mode (optional) */
-    boolean debug;                      /* 6º arg: Debug mode (optional) */
+    boolean debug;                      /* 6º arg: Operation mode (optional) */
 
     public Client(String serverAddr, String timeout, String name, String type) throws UnknownHostException, TypeOfValueException {
         String[] words = serverAddr.split(":");
@@ -42,7 +42,7 @@ public class Client {
         switch (option) {
             case "N" -> this.debug = false;
             case "R" -> this.recursive = true;
-            default -> throw new InvalidArgumentException("Invalid optional argument.");
+            default -> throw new InvalidArgumentException("Invalid optional argument");
         }
     }
 
@@ -55,21 +55,20 @@ public class Client {
         this.name = name;
         this.type = Data.typeOfValueConvert(type);
         if (recursive.equals("R")) this.recursive = true;
-        else throw new InvalidArgumentException("Invalid optional recursive argument.");
+        else throw new InvalidArgumentException("Invalid optional recursive argument");
         if (debug.equals("N")) this.debug = false;
-        else throw new InvalidArgumentException("Invalid optional debug argument.");
+        else throw new InvalidArgumentException("Invalid optional debug argument");
     }
-
 
     public static void main(String[] args) {
         Client cl = null;
         try {
             /* Arguments parsing */
-            cl = switch (args.length) {
-                case 4 -> new Client(args[0], args[1], args[2], args[3]);
-                case 5 -> new Client(args[0], args[1], args[2], args[3], args[4]);
-                case 6 -> new Client(args[0], args[1], args[2], args[3], args[4], args[5]);
-                default -> throw new InvalidArgumentException("Invalid number of arguments.");
+            switch (args.length) {
+                case 4 -> cl = new Client(args[0], args[1], args[2], args[3]);
+                case 5 -> cl = new Client(args[0], args[1], args[2], args[3], args[4]);
+                case 6 -> cl = new Client(args[0], args[1], args[2], args[3], args[4], args[5]);
+                default -> throw new InvalidArgumentException("Invalid number of arguments");
             };
 
             /* Create the packet */
@@ -86,10 +85,9 @@ public class Client {
             byte[] sendBytes = sendPacket.dnsPacketToBytes();
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
             socket.send(request);
-            if (cl.debug) {
-                Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.showDNSPacket());
-                System.out.println(qe);
-            }
+            Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.showDNSPacket());
+            System.out.println(qe);
+
 
             /* Get the query response */
             byte[] receiveBytes = new byte[1000];
@@ -98,10 +96,8 @@ public class Client {
 
             /* Build the response message */
             DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
-            if (cl.debug) {
-                Log rr = new Log(new Date(), Log.EntryType.RR, cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
-                System.out.println(rr);
-            }
+            Log rr = new Log(new Date(), Log.EntryType.RR, cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
+            System.out.println(rr);
 
             /* Close the socket */
             socket.close();
@@ -113,16 +109,16 @@ public class Client {
             Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.toString());
             System.out.println(fl);
         } catch (UnknownHostException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Address passed as argument does not exist.");
+            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Address passed as argument does not exist");
             System.out.println(fl);
         } catch (SocketException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error opening the socket.");
+            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error opening the socket");
             System.out.println(fl);
         } catch (SocketTimeoutException e) {
-            Log to = new Log(new Date(), Log.EntryType.TO, cl.serverAddress.getHostAddress(), cl.serverPort, "Query response.");
+            Log to = new Log(new Date(), Log.EntryType.TO, cl.serverAddress.getHostAddress(), cl.serverPort, "Query response");
             System.out.println(to);
         } catch (IOException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, cl.serverAddress.getHostAddress(), cl.serverPort, "Error sending/receiving the query.");
+            Log fl = new Log(new Date(), Log.EntryType.FL, cl.serverAddress.getHostAddress(), cl.serverPort, "Error sending/receiving the query");
             System.out.println(fl);
         }
     }
