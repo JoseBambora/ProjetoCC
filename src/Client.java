@@ -2,8 +2,13 @@
  * @Author João Martins
  * @Class Client
  * Created date: 03/11/2022
- * Last update: 20/11/2022
+ * Last update: 22/11/2022
  */
+
+import DNSPacket.*;
+import Exceptions.InvalidArgumentException;
+import Exceptions.TypeOfValueException;
+import Log.Log;
 
 import java.io.IOException;
 import java.net.*;
@@ -19,6 +24,10 @@ public class Client {
     boolean recursive;                  /* 5º arg: Try recursive mode (optional) */
     boolean debug;                      /* 6º arg: Operation mode (optional) */
 
+
+    /**
+     * Constructors of client.
+     */
     public Client(String serverAddr, String timeout, String name, String type) throws UnknownHostException, TypeOfValueException {
         String[] words = serverAddr.split(":");
         this.serverAddress = InetAddress.getByName(words[0]);
@@ -40,8 +49,14 @@ public class Client {
         this.name = name;
         this.type = Data.typeOfValueConvert(type);
         switch (option) {
-            case "N" -> this.debug = false;
-            case "R" -> this.recursive = true;
+            case "N" -> {
+                this.debug = false;
+                this.recursive = false;
+            }
+            case "R" -> {
+                this.debug = true;
+                this.recursive = true;
+            }
             default -> throw new InvalidArgumentException("Invalid optional argument");
         }
     }
@@ -60,8 +75,18 @@ public class Client {
         else throw new InvalidArgumentException("Invalid optional debug argument");
     }
 
+    /**
+     * Create the DNSPacket for client query.
+     */
+    public DNSPacket createDNSPacket() {
+        byte flags = 1;
+        if (this.recursive) flags = 3;
+        return new DNSPacket((short) (new Random()).nextInt(1,65535), flags, this.name, this.type);
+    }
+
     public static void main(String[] args) {
         Client cl = null;
+
         try {
             /* Arguments parsing */
             switch (args.length) {
@@ -72,10 +97,7 @@ public class Client {
             };
 
             /* Create the packet */
-            byte flags = 1;
-            if (cl.recursive) flags = 3;
-            int mid = (new Random()).nextInt(1,65535);
-            DNSPacket sendPacket = new DNSPacket((short) mid, flags, cl.name, cl.type);
+            DNSPacket sendPacket = cl.createDNSPacket();
 
             /* Create the client udp socket with the preset timeout */
             DatagramSocket socket = new DatagramSocket();
@@ -85,22 +107,21 @@ public class Client {
             byte[] sendBytes = sendPacket.dnsPacketToBytes();
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
             socket.send(request);
-            Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.showDNSPacket());
+            Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.toString());
             System.out.println(qe);
-
 
             /* Get the query response */
             byte[] receiveBytes = new byte[1000];
             DatagramPacket response = new DatagramPacket(receiveBytes, receiveBytes.length);
             socket.receive(response);
 
+            /* Close the socket */
+            socket.close();
+
             /* Build the response message */
             DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
             Log rr = new Log(new Date(), Log.EntryType.RR, cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
             System.out.println(rr);
-
-            /* Close the socket */
-            socket.close();
 
             /* Print the response */
             System.out.println(resPacket.showDNSPacket());
@@ -118,7 +139,7 @@ public class Client {
             Log to = new Log(new Date(), Log.EntryType.TO, cl.serverAddress.getHostAddress(), cl.serverPort, "Query response");
             System.out.println(to);
         } catch (IOException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, cl.serverAddress.getHostAddress(), cl.serverPort, "Error sending/receiving the query");
+            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error sending/receiving the query/response");
             System.out.println(fl);
         }
     }

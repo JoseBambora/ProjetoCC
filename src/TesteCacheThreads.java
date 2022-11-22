@@ -1,3 +1,6 @@
+import Cache.*;
+import DNSPacket.Value;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,3 +1,8 @@
+import Cache.*;
+import DNSPacket.Data;
+import DNSPacket.Value;
+import ObjectServer.ObjectServer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +52,7 @@ public class Main {
                 "sd1.CR7.CMS.G706. CNAME braga.CR7.CMS.G706. 90000\n" +
                 "sd2.M10.JJM.G706. CNAME cancelo.M10.JJM.G706. 90000\n" +
                 "sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000\n"));
-        Tuple<Integer,Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
+        Tuple<Integer, Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
         Tuple<Integer,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         Tuple<Integer,Data> data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         Tuple<Integer,Data> data8 = bd2.findAnswer("G706.",Data.typeOfValueConvert("NS"));
