@@ -99,13 +99,15 @@ public class Client {
             /* Create the packet */
             DNSPacket sendPacket = cl.createDNSPacket();
 
+            /* Create udp datagram */
+            byte[] sendBytes = sendPacket.dnsPacketToBytes();
+            DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
+
             /* Create the client udp socket with the preset timeout */
             DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(cl.timeout);
 
             /* Send the packet */
-            byte[] sendBytes = sendPacket.dnsPacketToBytes();
-            DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
             socket.send(request);
             Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.toString());
             System.out.println(qe);
