@@ -1,3 +1,7 @@
+import DNSPacket.*;
+import Exceptions.TypeOfValueException;
+import ObjectServer.ObjectSS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,7 +28,7 @@ public class AskVersion implements Runnable{
                 PrintWriter toClient = new PrintWriter(s.getOutputStream());
                 BufferedReader fromClient = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
-                DNSPacket qe = new DNSPacket((short) (new Random().nextInt(1,65535)), (byte) 1, objss.getDominio(),Data.typeOfValueConvert("SOASERIAL"));
+                DNSPacket qe = new DNSPacket((short) (new Random().nextInt(1,65535)), (byte) 1, objss.getDominio(), Data.typeOfValueConvert("SOASERIAL"));
                 String aux = qe.toString();
                 toClient.println(aux.substring(0,aux.length()-1));
                 toClient.flush();
