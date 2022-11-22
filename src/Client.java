@@ -40,9 +40,9 @@ public class Client {
         this.name = name;
         this.type = Data.typeOfValueConvert(type);
         switch (option) {
-            case "N": this.debug = false; break;
-            case "R": this.recursive = true; break;
-            default: throw new InvalidArgumentException("Invalid optional argument.");
+            case "N" -> this.debug = false;
+            case "R" -> this.recursive = true;
+            default -> throw new InvalidArgumentException("Invalid optional argument.");
         }
     }
 
@@ -65,12 +65,12 @@ public class Client {
         Client cl = null;
         try {
             /* Arguments parsing */
-            switch (args.length) {
-                case 4: cl = new Client(args[0], args[1], args[2], args[3]); break;
-                case 5: cl = new Client(args[0], args[1], args[2], args[3], args[4]); break;
-                case 6: cl = new Client(args[0], args[1], args[2], args[3], args[4], args[5]); break;
-                default: throw new InvalidArgumentException("Invalid number of arguments.");
-            }
+            cl = switch (args.length) {
+                case 4 -> new Client(args[0], args[1], args[2], args[3]);
+                case 5 -> new Client(args[0], args[1], args[2], args[3], args[4]);
+                case 6 -> new Client(args[0], args[1], args[2], args[3], args[4], args[5]);
+                default -> throw new InvalidArgumentException("Invalid number of arguments.");
+            };
 
             /* Create the packet */
             byte flags = 1;

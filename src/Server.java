@@ -17,28 +17,45 @@ public class Server {
     private int port;           /* 3º arg: Port (optional) */
     private boolean debug;      /* 4º arg: Debug mode (optional) */
 
-    public Server() {
+    public Server(String configFile, String timeout, String port, String debug) throws InvalidArgumentException {
+        this.configFile = configFile;
+        this.timeout = Integer.parseInt(timeout);
+        this.port = Integer.parseInt(port);
+        if (debug.compareTo("N")==0) this.debug = false;
+        else throw new InvalidArgumentException("Invalid last argument.");
+    }
+
+    public Server(String configFile, String timeout, String optional) throws InvalidArgumentException {
+        this.configFile = configFile;
+        this.timeout = Integer.parseInt(timeout);
+        if (optional.compareTo("N")==0) {
+            this.debug = false;
+            this.port = 5353;
+        } else {
+            this.debug = true;
+            this.port = Integer.parseInt(optional);
+        }
+    }
+
+    public Server(String configFile, String timeout) throws InvalidArgumentException {
+        this.configFile = configFile;
+        this.timeout = Integer.parseInt(timeout);
+        this.debug = true;
         this.port = 5353;
-        this.debug = false;
     }
 
     public static void main(String[] args) {
-        Server s = new Server();
+        Server s = null;
 
         try {
             /* Arguments Parsing */
-            s.configFile = args[0];
-            s.timeout = Integer.parseInt(args[1]);
-            if (args.length == 3 && args[2].compareTo("D")==0) {
-                s.debug = true;
-            }
-            else if (args.length == 3) {
-                s.port = Integer.parseInt(args[2]);
-            }
-            else if (args.length == 4) {
-                s.port = Integer.parseInt(args[2]);
-                s.debug = args[3].compareTo("D")==0;
-            }
+            s = switch (args.length) {
+                case 2 -> s = new Server(args[0],args[1]);
+                case 3 -> s = new Server(args[0],args[1],args[2]);
+                case 4 -> s = new Server(args[0],args[1],args[2],args[3]);
+                default -> throw new InvalidArgumentException("Invalid number of arguments.");
+
+            };
 
             /* Configurate server */
             ObjectServer sc = ObjectServer.parseServer(s.configFile);
