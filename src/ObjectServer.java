@@ -238,7 +238,7 @@ public class ObjectServer {
         }
         writeInLogs(warnings,this.logs.get(domainName));
         if (this instanceof ObjectSP auxserver){
-            auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.values().stream().toList());
+            auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.get(domainName));
         }
         if (!this.verificaConfig(domainName)) {
             res = true;

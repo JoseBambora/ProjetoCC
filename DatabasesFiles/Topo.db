@@ -22,6 +22,6 @@ rui.rev A 10.0.10.10 TTL
 
 st1 CNAME pepe TTL
 st2 CNAME palhinha TTL
-sd1 CNAME braga.cr7 TTL
-sd2 CNAME cancelo.m10 TTL
-sd3 CNAME rui.rev TTL
+sd1.cr7 CNAME braga.cr7 TTL
+sd2.m10 CNAME cancelo.m10 TTL
+sd3.rev CNAME rui.rev TTL

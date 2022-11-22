@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Value {
     private String dominio;
     private byte type;
@@ -80,5 +82,13 @@ public class Value {
             out = this.dominio + " " + Data.typeOfValueConvertSring(this.type) + " " + this.value + " " + this.TTL;
         }
         return out;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Value value1 = (Value) o;
+        return type == value1.type && TTL == value1.TTL && prioridade == value1.prioridade && Objects.equals(dominio, value1.dominio) && Objects.equals(value, value1.value);
     }
 }
