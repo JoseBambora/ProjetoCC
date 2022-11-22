@@ -12,7 +12,7 @@ import java.net.InetAddress;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 14/11/2022
+ * Data de edição 22/11/2022
  */
 
 public class ObjectServer {
@@ -149,7 +149,7 @@ public class ObjectServer {
      * Método auxiliar ao parsing que verifica se o processo ocorre como pretendido, ou seja, se os campos do servidor ficam preenchidos após o processo
      * @return true se o processo ocorre como esperado, false caso não ocorra como esperado
      */
-    private boolean verificaConfig() {
+    private boolean verificaConfig(String domainName) {
         boolean aux;
         if (ST.isEmpty() && DD.isEmpty()){ //servidor de topo
             aux = (!this.logs.isEmpty() && logs.containsKey("all"));
@@ -161,7 +161,7 @@ public class ObjectServer {
                 (!this.logs.isEmpty() && logs.containsKey("all"));
         boolean aux2;
         if(this instanceof ObjectSP){ //caso seja um SP ou um ST (dominio passado como parâmetro pois podemos ter SP no dominio reverse)
-            aux2 = ((ObjectSP) this).verificaSP(this.dominio);
+            aux2 = ((ObjectSP) this).verificaSP(domainName);
             return aux && aux2;
         }
         if(this instanceof ObjectSS){ //caso seja um SS
@@ -225,21 +225,22 @@ public class ObjectServer {
      * Método auxiliar que ajuda na validação após o processo de parsing
      * @param filename caminho para o ficheiro de configuração
      * @param logcounter contador do numero de logs de topo
+     * @param domainName dominio do log onde queremos escrever
      * @param warnings lista de warnings a escrever como entradas nos ficheiros de logs e como linhas no terminal
      * @return true caso o servidor esteja bem formulado, false caso contrário
      * @throws IOException exceção para caso o ficheiro de configuração não exista
      */
-    public boolean postParsing(String filename,int logcounter, List<String> warnings) throws IOException {
+    public boolean postParsing(String filename,int logcounter, String domainName, List<String> warnings) throws IOException {
         boolean res = false;
         if (logcounter == 0) {
             res = true;
             warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
         }
-        writeInLogs(warnings,this.logs.get(this.dominio));
+        writeInLogs(warnings,this.logs.get(domainName));
         if (this instanceof ObjectSP auxserver){
             auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.values().stream().toList());
         }
-        if (!this.verificaConfig()) {
+        if (!this.verificaConfig(domainName)) {
             res = true;
             writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.",this.logs.get(this.dominio));
         }
@@ -258,6 +259,7 @@ public class ObjectServer {
         ObjectSP sp = null;
         ObjectSS ss = null;
         int logcounter = 0;
+        String logDomain = null;
         List<String> warnings = new ArrayList<>();
         for(String line : lines) {
             if (line.length() > 0 && line.charAt(0) != '#') {
@@ -329,6 +331,7 @@ public class ObjectServer {
                             }
                             else {
                                 if (server.dominio.equals("")) server.dominio = words[0];
+                                logDomain = words[0];
                                 if (server.dominio.matches("(.*)"+words[0])) {
                                     server.logs.put(words[0],words[2]);
                                 }
@@ -339,7 +342,7 @@ public class ObjectServer {
             }
         }
         if(server!=null) {
-            boolean makeNullServer = server.postParsing(filename,logcounter,warnings);
+            boolean makeNullServer = server.postParsing(filename,logcounter,logDomain,warnings);
             if (makeNullServer)  {
                 server = null;
             }

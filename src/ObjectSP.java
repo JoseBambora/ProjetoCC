@@ -7,7 +7,7 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 14/11/2022
+ * Data de edição 22/11/2022
  */
 
 public class ObjectSP extends ObjectServer {
@@ -71,7 +71,6 @@ public class ObjectSP extends ObjectServer {
     @Override
     public String toString() {
         return "ObjectSP:" + "\n" +
-                "   Dominio = " + this.getDominio() +"\n" +
                 "   SS = " + SS + "\n" +
                 "   BD = " + BD + "\n" +
                 "   DD = " + this.getDD() + "\n" +
@@ -91,7 +90,7 @@ public class ObjectSP extends ObjectServer {
         if (this.SS.isEmpty() && this.getDD().isEmpty()&& this.getST().isEmpty()) emptyfields = true; //caso seja um ST deve ter estes campos vazios
         else emptyfields= !this.SS.isEmpty(); //se for um SP está mal configurado caso não tenha nenhum SS
         boolean dbchecker;
-        if (dominio.equals(".reverse.G706.")) dbchecker = this.getCache().checkBD("REVERSE");
+        if (dominio.equals("REVERSE.G706.")) dbchecker = this.getCache().checkBD("REVERSE");
         else dbchecker = this.getCache().checkBD("SP");
         return emptyfields && dbchecker;
     }
