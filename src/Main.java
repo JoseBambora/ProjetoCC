@@ -1,9 +1,9 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    private static void find(Cache bd, String domQ)
-    {
+    private static void find(Cache bd, String domQ) throws IOException {
         System.out.println("==========================================================");
         System.out.println(bd.findAnswer(domQ,(byte) 0));
         System.out.println(bd.findAnswer(domQ,(byte) 1));

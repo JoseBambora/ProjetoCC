@@ -18,7 +18,7 @@ import java.net.InetAddress;
 public class ObjectServer {
 
     private String dominio;
-    private List<InetSocketAddress> DD;
+    private Map<String,List<InetSocketAddress>> DD;
     private List<InetSocketAddress> ST;
     private  Map<String,String> logs;
     private Cache cache;
@@ -28,7 +28,7 @@ public class ObjectServer {
      */
     public ObjectServer() {
         this.dominio = null;
-        this.DD = new ArrayList<>();
+        this.DD = new HashMap<>();
         this.ST = new ArrayList<>();
         this.cache = new Cache();
         this.logs = new HashMap<>();
@@ -38,8 +38,13 @@ public class ObjectServer {
      * Método que adiciona elementos ao campo DD de um servidor
      * @param e endereço a adicionar
      */
-    public void addEnderecoDD(InetSocketAddress e) {
-        DD.add(e);
+    public void addEnderecoDD(String domain, InetSocketAddress e) {
+        if (DD.containsKey(domain)) DD.get(domain).add(e);
+        else {
+            ArrayList<InetSocketAddress> aux = new ArrayList<>();
+            aux.add(e);
+            DD.put(domain,aux);
+        }
     }
 
     /**
@@ -72,7 +77,7 @@ public class ObjectServer {
      * Getter do campo DD de um objeto da classe ObjectServer
      * @return O campo DD do ObjectServer
      */
-    public List<InetSocketAddress> getDD() {
+    public Map<String,List<InetSocketAddress>> getDD() {
         return DD;
     }
 
@@ -100,7 +105,6 @@ public class ObjectServer {
         return cache;
     }
 
-
     /**
      * Setter do campo Dominio de um objeto da classe ObjectServer
      * @param dominio o domínio que queremos atribuir
@@ -113,7 +117,7 @@ public class ObjectServer {
      * Setter do campo DD de um objeto da classe ObjectServer
      * @param DD a lista de endereços que queremos atribuir ao campo DD
      */
-    public void setDD(List<InetSocketAddress> DD) {
+    public void setDD(Map<String,List<InetSocketAddress>> DD) {
         this.DD = DD;
     }
 
@@ -168,33 +172,29 @@ public class ObjectServer {
     }
 
     /**
-     * Método auxiliar que permite a escrita de uma lista de warnings gerados no processo de parsing dos ficheiros de configuração de um servidor
+     * Método auxiliar que permite a escrita num ficheiro de log de uma lista de warnings gerados no processo de parsing dos ficheiros de configuração de um servidor
      * @param warnings lista de warnings a escrever como linhas nos logs do servidor configurado
-     * @param logs coleção de logs nos quais iremos escrever
+     * @param ficheiroLog ficheiro de log no qual iremos escrever
      * @throws IOException exceção para caso o ficheiro de configuração não exista
      */
-    public static void writeInLogs(List<String> warnings,Collection<String>logs) throws IOException {
+    public static void writeInLogs(List<String> warnings,String ficheiroLog) throws IOException {
         List<String> writeLogs = new ArrayList<>();
         for (String warning : warnings) {
             Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1", warning);
             writeLogs.add(log.toString());
         }
-        for (String ficheiro : logs) {
-            LogFileWriter.writeInLogFile(ficheiro, writeLogs);
-        }
+            LogFileWriter.writeInLogFile(ficheiroLog, writeLogs);
     }
 
     /**
-     * Método auxiliar que permite a escrita de uma linha, neste caso de um warning, para os ficheiros de log de um servidor gerado no processo de parsing dos ficheiros de configuração
+     * Método auxiliar que permite a escrita de uma linha, neste caso de um warning, para um ficheiro de log de um servidor gerado no processo de parsing dos ficheiros de configuração
      * @param warning warning a escrever nos ficheiro de logs
-     * @param logs coleção de logs nos quais iremos escrever
+     * @param ficheiroLog log no qual iremos escrever
      * @throws IOException exceção para caso o ficheiro de configuração não exista
      */
-    private static void writeLineinLogs(String warning,Collection<String>logs) throws IOException {
+    private static void writeLineinLogs(String warning,String ficheiroLog) throws IOException {
         Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1",warning);
-        for (String ficheiro : logs) {
-            LogFileWriter.writeLineInLogFile(ficheiro,log.toString());
-        }
+        LogFileWriter.writeLineInLogFile(ficheiroLog,log.toString());
     }
 
     /**
@@ -207,6 +207,18 @@ public class ObjectServer {
         for (String warning : warnings) {
             System.out.println("- " + warning);
         }
+    }
+
+    /**
+     * Método que escreve a resposta a uma query nos logs
+     * @param domain dominio sobre o qual é feito a resposta
+     * @param IP IP a apresentar na resposta
+     * @param answer String da linha não formatada, a formatar e colocar na resposta.
+     * @throws IOException - exceção para caso o ficheiro de logs não exista
+     */
+    public void writeAnswerInLog(String domain, String IP, String answer) throws IOException {
+        Log formatedAnswer = new Log(Date.from(Instant.now()), Log.EntryType.QR,IP,answer);
+        LogFileWriter.writeLineInLogFile(this.logs.get(domain),formatedAnswer.toString());
     }
 
     /**
@@ -223,15 +235,13 @@ public class ObjectServer {
             res = true;
             warnings.add("Não existe log de topo no ficheiro de configuracão " + filename + " não configurado.");
         }
-        System.out.println(this.logs.values());
-        writeInLogs(warnings,this.logs.values());
+        writeInLogs(warnings,this.logs.get(this.dominio));
         if (this instanceof ObjectSP auxserver){
             auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.values().stream().toList());
         }
         if (!this.verificaConfig()) {
             res = true;
-            warnings.add("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.");
-            writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.",this.logs.values());
+            writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.",this.logs.get(this.dominio));
         }
         return res;
     }
@@ -299,9 +309,9 @@ public class ObjectServer {
                             }
                             String[] enderecoPortaDD = words[2].split(":");
                             if(enderecoPortaDD.length>1){
-                                server.addEnderecoDD(new InetSocketAddress(InetAddress.getByName(enderecoPortaDD[0]), Integer.parseInt(enderecoPortaDD[1])));
+                                server.addEnderecoDD(words[0],new InetSocketAddress(InetAddress.getByName(enderecoPortaDD[0]), Integer.parseInt(enderecoPortaDD[1])));
                             }
-                            else server.addEnderecoDD(new InetSocketAddress(InetAddress.getByName(words[2]),5353));
+                            else server.addEnderecoDD(words[0],new InetSocketAddress(InetAddress.getByName(words[2]),5353));
                             break;
                         case "ST":
                             if(server==null){

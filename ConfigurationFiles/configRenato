@@ -1,12 +1,6 @@
 #Configuration file for SS Renato
 CR7.CMS.G706. SP 10.0.15.10
-CR7.CMS.G706. DD 10.0.15.10
 CR7.CMS.G706. DD 10.0.16.10
-CR7.CMS.G706. DD 10.0.16.11
-CR7.CMS.G706. DD 10.0.8.11
-CR7.CMS.G706. DD 10.0.10.12
-CR7.CMS.G706. DD 10.0.13.10
-CR7.CMS.G706. DD 10.0.8.10
-CR7.CMS.G706. LG ../LogsFiles/Renato.log
+CR7.CMS.G706. LG ../LogsFiles/CR7.CMS.G706.log
 all LG ../LogsFiles/all.log
 root ST ../DatabasesFiles/Rootservers.db

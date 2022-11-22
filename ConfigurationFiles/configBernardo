@@ -1,11 +1,7 @@
 #Configuration file for SR Bernardo
 M10.JJM.G706. DD 10.0.9.11
 M10.JJM.G706. DD 10.0.15.11
-M10.JJM.G706. DD 10.0.15.12
-M10.JJM.G706. DD 10.0.10.11
-M10.JJM.G706. DD 10.0.16.12
 M10.JJM.G706. DD 10.0.14.10
-M10.JJM.G706. DD 10.0.9.10
-M10.JJM.G706. LG ../LogsFiles/Bernardo.log
+M10.JJM.G706. LG ../LogsFiles/M10.JJM.G706.log
 all LG ../LogsFiles/all.log
 root ST ../DatabasesFiles/Rootservers.db

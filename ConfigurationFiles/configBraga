@@ -3,12 +3,6 @@ CR7.CMS.G706. DB ../DatabasesFiles/Braga.db
 CR7.CMS.G706. SS 10.0.16.10
 CR7.CMS.G706. SS 10.0.13.10
 CR7.CMS.G706. DD 10.0.15.10
-CR7.CMS.G706. DD 10.0.16.10
-CR7.CMS.G706. DD 10.0.16.11
-CR7.CMS.G706. DD 10.0.8.11
-CR7.CMS.G706. DD 10.0.10.12
-CR7.CMS.G706. DD 10.0.13.10
-CR7.CMS.G706. DD 10.0.8.10
-CR7.CMS.G706. LG ../LogsFiles/Braga.log
+CR7.CMS.G706. LG ../LogsFiles/CR7.CMS.G706.log
 all LG ../LogsFiles/all.log
-root ST ../DatabasesFiles/Rootservers.db
+root ST DatabasesFiles/Rootservers.db
