@@ -5,6 +5,7 @@ import Log.*;
 import ObjectServer.*;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -439,7 +440,7 @@ public class Cache
      * @param lines Linhas de um ficheiro.
      * @param logFile Ficheiro para escrever os warnigns do ficheiro de configuração da base de dados.
      */
-    public void createBD(List<String> lines, String logFile) throws IOException
+    public void createBD(List<String> lines, String logFile, InetSocketAddress ip) throws IOException
     {
         List<String> warnings = new ArrayList<>();
         AtomicInteger l = new AtomicInteger(1);
@@ -449,7 +450,7 @@ public class Cache
                                   warnings.add("Erro ficheiro BD, linha " + l + " não adicionada");}
                             );
         List<String> writeLogs = new ArrayList<>();
-        warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,"",w).toString()); System.out.println(w);});
+        warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,ip.toString(),w).toString()); System.out.println(w);});
         LogFileWriter.writeInLogFile(logFile,writeLogs);
     }
 
@@ -459,11 +460,11 @@ public class Cache
      * @param dom Domínio do servidor.
      * @param logFile Ficheiro para escrever os warnings.
      */
-    public void createBD(String filename,String dom, String logFile) throws IOException
+    public void createBD(String filename,String dom, String logFile, InetSocketAddress ip) throws IOException
     {
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines,logFile);
+        this.createBD(lines,logFile,ip);
     }
     @Override
     public String toString()

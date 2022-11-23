@@ -4,6 +4,7 @@ import DNSPacket.Value;
 import ObjectServer.ObjectServer;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,41 +25,43 @@ public class Main {
     }
     public static void main(String[] args) throws Exception {
         Cache bd1 = new Cache();
-        bd1.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log");
+        bd1.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log", new InetSocketAddress(5353));
         Cache bd2 = new Cache();
-        bd2.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log");
+        bd2.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
         Cache bd3 = new Cache();
-        bd3.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log");
+        bd3.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
         Cache bd4 = new Cache();
-        bd4.createBD("../DatabasesFiles/Rui.db","KB9.REVERSE.G706.","../LogsFiles/all.log");
+        bd4.createBD("../DatabasesFiles/Rui.db","KB9.REVERSE.G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
         ObjectServer SP= ObjectServer.parseServer("../ConfigurationFiles/configPepe");
-        System.out.println(SP.getCache().toString().equals("G706. NS pepe.G706. 90000\n" +
-                "G706. NS palhinha.G706. 90000\n" +
-                "CMS.G706. NS william.CMS.G706. 90000\n" +
-                "CMS.G706. NS mario.CMS.G706. 90000\n" +
-                "CMS.G706. NS dalot.CMS.G706. 90000\n" +
-                "JJM.G706. NS felix.JJM.G706. 90000\n" +
-                "JJM.G706. NS otavio.JJM.G706. 90000\n" +
-                "JJM.G706. NS ramos.JJM.G706. 90000\n" +
-                "pepe.G706. A 10.0.14.11:5353 90000\n" +
-                "palhinha.G706. A 10.0.13.11:5353 90000\n" +
-                "william.CMS.G706. A 10.0.8.12:5353 90000\n" +
-                "mario.CMS.G706. A 10.0.16.13:5353 90000\n" +
-                "dalot.CMS.G706. A 10.0.14.12:5353 90000\n" +
-                "felix.JJM.G706. A 10.0.13.12:5353 90000\n" +
-                "otavio.JJM.G706. A 10.0.15.13:5353 90000\n" +
-                "ramos.JJM.G706. A 10.0.10.13:5353 90000\n" +
-                "st1.G706. CNAME pepe.G706. 90000\n" +
-                "st2.G706. CNAME palhinha.G706. 90000\n" +
-                "ss1sd1.JJM.G706. CNAME otavio.JJM.G706. 90000\n" +
-                "ss2sd1.JJM.G706. CNAME ramos.JJM.G706. 90000\n" +
-                "spsd2.CMS.G706. CNAME william.CMS.G706. 90000\n" +
-                "ss1sd2.CMS.G706. CNAME mario.CMS.G706. 90000\n" +
-                "ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000\n" +
-                "sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000\n"));
+        System.out.println(SP.getCache().toString().equals("""
+                G706. NS pepe.G706. 90000
+                G706. NS palhinha.G706. 90000
+                CMS.G706. NS william.CMS.G706. 90000
+                CMS.G706. NS mario.CMS.G706. 90000
+                CMS.G706. NS dalot.CMS.G706. 90000
+                JJM.G706. NS felix.JJM.G706. 90000
+                JJM.G706. NS otavio.JJM.G706. 90000
+                JJM.G706. NS ramos.JJM.G706. 90000
+                pepe.G706. A 10.0.14.11:5353 90000
+                palhinha.G706. A 10.0.13.11:5353 90000
+                william.CMS.G706. A 10.0.8.12:5353 90000
+                mario.CMS.G706. A 10.0.16.13:5353 90000
+                dalot.CMS.G706. A 10.0.14.12:5353 90000
+                felix.JJM.G706. A 10.0.13.12:5353 90000
+                otavio.JJM.G706. A 10.0.15.13:5353 90000
+                ramos.JJM.G706. A 10.0.10.13:5353 90000
+                st1.G706. CNAME pepe.G706. 90000
+                st2.G706. CNAME palhinha.G706. 90000
+                ss1sd1.JJM.G706. CNAME otavio.JJM.G706. 90000
+                ss2sd1.JJM.G706. CNAME ramos.JJM.G706. 90000
+                spsd2.CMS.G706. CNAME william.CMS.G706. 90000
+                ss1sd2.CMS.G706. CNAME mario.CMS.G706. 90000
+                ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000
+                sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000
+                """));
         Tuple<Integer, Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
         Tuple<Integer,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         Tuple<Integer,Data> data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
@@ -69,79 +72,85 @@ public class Main {
         Tuple<Integer,Data> data12 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("NS"));
         Tuple<Integer,Data> data13 = bd1.findAnswer("mail3.CR7.CMS.G706.",Data.typeOfValueConvert("MX"));
         Tuple<Integer,Data> data14 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("A"));
-        System.out.println(data5.getValue2().toString().equals("CR7.CMS.G706.,SOASP;\n" +
-                "CR7.CMS.G706. SOASP braga.CR7.CMS.G706. 90000;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n"  +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n"+
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
-        System.out.println(data6.getValue2().toString().equals("renato.CR7.CMS.G706.,A;\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n"+
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;" ));
-        System.out.println(data7.getValue2().toString().equals("fernando1.CR7.CMS.G706.,A;\n" +
-                "fernando1.CR7.CMS.G706. A 10.0.8.11:5353 90000;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n"  +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n"+
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
-        System.out.println(data8.getValue2().toString().equals("G706.,NS;\n" +
-                "G706. NS pepe.G706. 90000,\n" +
-                "G706. NS palhinha.G706. 90000;\n" +
-                "G706. NS pepe.G706. 90000,\n" +
-                "G706. NS palhinha.G706. 90000,\n" +
-                "CMS.G706. NS william.CMS.G706. 90000,\n" +
-                "CMS.G706. NS mario.CMS.G706. 90000,\n" +
-                "CMS.G706. NS dalot.CMS.G706. 90000,\n" +
-                "JJM.G706. NS felix.JJM.G706. 90000,\n" +
-                "JJM.G706. NS otavio.JJM.G706. 90000,\n" +
-                "JJM.G706. NS ramos.JJM.G706. 90000;\n" +
-                "pepe.G706. A 10.0.14.11:5353 90000,\n" +
-                "palhinha.G706. A 10.0.13.11:5353 90000,\n" +
-                "william.CMS.G706. A 10.0.8.12:5353 90000,\n" +
-                "mario.CMS.G706. A 10.0.16.13:5353 90000,\n" +
-                "dalot.CMS.G706. A 10.0.14.12:5353 90000,\n" +
-                "felix.JJM.G706. A 10.0.13.12:5353 90000,\n" +
-                "otavio.JJM.G706. A 10.0.15.13:5353 90000,\n" +
-                "ramos.JJM.G706. A 10.0.10.13:5353 90000;"));
-        System.out.println(data9.getValue2().toString().equals(
-                "M10.JJM.G706.,MX;\n" +
-                "M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000 10,\n" +
-                "M10.JJM.G706. MX scaloni2.M10.JJM.G706. 90000 20;\n" +
-                "M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,\n" +
-                "M10.JJM.G706. NS rafael.M10.JJM.G706. 90000,\n" +
-                "M10.JJM.G706. NS bruno.M10.JJM.G706. 90000;\n" +
-                "cancelo.M10.JJM.G706. A 10.0.9.11:5353 90000,\n" +
-                "rafael.M10.JJM.G706. A 10.0.15.11:5353 90000,\n" +
-                "bruno.M10.JJM.G706. A 10.0.14.10:5353 90000,\n" +
-                "scaloni1.M10.JJM.G706. A 10.0.10.11:5353 90000,\n" +
-                "scaloni2.M10.JJM.G706. A 10.0.16.12:5353 90000;"));
+        System.out.println(data5.getValue2().toString().equals("""
+                CR7.CMS.G706.,SOASP;
+                CR7.CMS.G706. SOASP braga.CR7.CMS.G706. 90000;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
+        System.out.println(data6.getValue2().toString().equals("""
+                renato.CR7.CMS.G706.,A;
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
+        System.out.println(data7.getValue2().toString().equals("""
+                fernando1.CR7.CMS.G706.,A;
+                fernando1.CR7.CMS.G706. A 10.0.8.11:5353 90000;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
+        System.out.println(data8.getValue2().toString().equals("""
+                G706.,NS;
+                G706. NS pepe.G706. 90000,
+                G706. NS palhinha.G706. 90000;
+                G706. NS pepe.G706. 90000,
+                G706. NS palhinha.G706. 90000,
+                CMS.G706. NS william.CMS.G706. 90000,
+                CMS.G706. NS mario.CMS.G706. 90000,
+                CMS.G706. NS dalot.CMS.G706. 90000,
+                JJM.G706. NS felix.JJM.G706. 90000,
+                JJM.G706. NS otavio.JJM.G706. 90000,
+                JJM.G706. NS ramos.JJM.G706. 90000;
+                pepe.G706. A 10.0.14.11:5353 90000,
+                palhinha.G706. A 10.0.13.11:5353 90000,
+                william.CMS.G706. A 10.0.8.12:5353 90000,
+                mario.CMS.G706. A 10.0.16.13:5353 90000,
+                dalot.CMS.G706. A 10.0.14.12:5353 90000,
+                felix.JJM.G706. A 10.0.13.12:5353 90000,
+                otavio.JJM.G706. A 10.0.15.13:5353 90000,
+                ramos.JJM.G706. A 10.0.10.13:5353 90000;"""));
+        System.out.println(data9.getValue2().toString().equals("""
+                M10.JJM.G706.,MX;
+                M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000 10,
+                M10.JJM.G706. MX scaloni2.M10.JJM.G706. 90000 20;
+                M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,
+                M10.JJM.G706. NS rafael.M10.JJM.G706. 90000,
+                M10.JJM.G706. NS bruno.M10.JJM.G706. 90000;
+                cancelo.M10.JJM.G706. A 10.0.9.11:5353 90000,
+                rafael.M10.JJM.G706. A 10.0.15.11:5353 90000,
+                bruno.M10.JJM.G706. A 10.0.14.10:5353 90000,
+                scaloni1.M10.JJM.G706. A 10.0.10.11:5353 90000,
+                scaloni2.M10.JJM.G706. A 10.0.16.12:5353 90000;"""));
         System.out.println(data10.getValue2().toString().equals("alan,MX;\nalan MX alan.email.com. 1000;"));
         System.out.println(data11.getValue2().toString().equals("braga,CNAME;\nbraga CNAME alan 1000;"));
         System.out.println(data12.getValue1() == 1);
         System.out.println(data12.getValue2().toString().equals("fernando1.CR7.CMS.G706.,NS;"));
         System.out.println(data13.getValue1() == 2);
-        System.out.println(data13.getValue2().toString().equals("mail3.CR7.CMS.G706.,MX;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n"  +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n"+
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
-        System.out.println(data14.getValue2().toString().equals("CR7.CMS.G706.,A;\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
-                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n" +
-                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
+        System.out.println(data13.getValue2().toString().equals("""
+                mail3.CR7.CMS.G706.,MX;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
+        System.out.println(data14.getValue2().toString().equals("""
+                CR7.CMS.G706.,A;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
         int num = 75;
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");
         Cache cacheTestThreads = new Cache();
