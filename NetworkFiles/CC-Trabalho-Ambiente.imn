@@ -10,10 +10,17 @@ node n1 {
 	!
     }
     canvas c1
-    iconcoords {658.0 85.0}
-    labelcoords {655.0 68.0}
-    services {DefaultRoute SSH}
+    iconcoords {661.0 86.0}
+    labelcoords {658.0 69.0}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n33}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n2 {
@@ -30,8 +37,15 @@ node n2 {
     canvas c1
     iconcoords {1026.0 81.0}
     labelcoords {1023.0 63.0}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n34}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n6 {
@@ -49,8 +63,15 @@ node n6 {
     canvas c1
     iconcoords {1342.0 694.0}
     labelcoords {1342.0 734.0}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n13}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n7 {
@@ -89,6 +110,13 @@ node n17 {
     labelcoords {153.33333333333334 663.6666666666666}
     services {DefaultRoute SSH}
     interface-peer {eth0 n15}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n19 {
@@ -104,10 +132,17 @@ node n19 {
 	!
     }
     canvas c1
-    iconcoords {1432.0 615.0}
-    labelcoords {1428.0 659.0}
-    services {DefaultRoute SSH}
+    iconcoords {1436.0 618.0}
+    labelcoords {1432.0 662.0}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n13}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n20 {
@@ -126,6 +161,13 @@ node n20 {
     labelcoords {55.0 400.0}
     services {DefaultRoute SSH}
     interface-peer {eth0 n30}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n21 {
@@ -142,7 +184,7 @@ node n21 {
     canvas c1
     iconcoords {51.0 495.0}
     labelcoords {53.0 532.0}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n30}
 }
 
@@ -166,7 +208,7 @@ node n22 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', 'mkdir ProjetoCC/out', )
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
 	starttime=
 	}
     }
@@ -202,15 +244,15 @@ node n24 {
 	!
     }
     canvas c1
-    iconcoords {1414.0 283.0}
-    labelcoords {1413.0 321.0}
+    iconcoords {1414.0 284.0}
+    labelcoords {1413.0 322.0}
     services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n29}
     custom-config {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', 'mkdir ProjetoCC/out', )
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
 	}
     }
 }
@@ -541,6 +583,14 @@ node n3 {
     iconcoords {773.0 81.0}
     labelcoords {772.0 62.0}
     interface-peer {eth0 n34}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n4 {
@@ -660,6 +710,14 @@ node n27 {
     iconcoords {437.0 85.0}
     labelcoords {438.0 67.0}
     interface-peer {eth0 n33}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n28 {
@@ -725,6 +783,14 @@ node n14 {
     iconcoords {348.0 721.0}
     labelcoords {348.0 753.0}
     interface-peer {eth0 n15}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n35 {
@@ -742,6 +808,14 @@ node n35 {
     iconcoords {838.0 728.0}
     labelcoords {838.0 760.0}
     interface-peer {eth0 n28}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n36 {
@@ -759,6 +833,13 @@ node n36 {
     iconcoords {207.0 351.0}
     labelcoords {177.0 360.0}
     interface-peer {eth0 n30}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
 }
 
 node n37 {
@@ -776,6 +857,14 @@ node n37 {
     iconcoords {408.0 171.0}
     labelcoords {408.0 203.0}
     interface-peer {eth0 n33}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n38 {
@@ -793,6 +882,14 @@ node n38 {
     iconcoords {1047.0 153.0}
     labelcoords {1047.0 185.0}
     interface-peer {eth0 n34}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n39 {
@@ -810,6 +907,14 @@ node n39 {
     iconcoords {1302.0 183.0}
     labelcoords {1302.0 215.0}
     interface-peer {eth0 n29}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n40 {
@@ -824,9 +929,17 @@ node n40 {
 	!
     }
     canvas c1
-    iconcoords {685.0 164.0}
-    labelcoords {685.0 196.0}
+    iconcoords {685.0 166.0}
+    labelcoords {685.0 198.0}
     interface-peer {eth0 n33}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute UserDefined}
 }
 
 node n41 {
@@ -844,6 +957,14 @@ node n41 {
     iconcoords {768.0 154.0}
     labelcoords {768.0 186.0}
     interface-peer {eth0 n34}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute UserDefined}
 }
 
 node n42 {
@@ -858,9 +979,17 @@ node n42 {
 	!
     }
     canvas c1
-    iconcoords {656.0 615.0}
-    labelcoords {656.0 647.0}
+    iconcoords {658.0 617.0}
+    labelcoords {658.0 649.0}
     interface-peer {eth0 n28}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute UserDefined}
 }
 
 node n43 {
@@ -878,6 +1007,14 @@ node n43 {
     iconcoords {53.0 426.0}
     labelcoords {53.0 458.0}
     interface-peer {eth0 n30}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute UserDefined}
 }
 
 link l8 {
@@ -1236,3 +1373,4 @@ option session {
     preservedir=0
     sdturl=tcp://127.0.0.1:50000/
 }
+
