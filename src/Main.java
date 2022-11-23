@@ -68,6 +68,7 @@ public class Main {
         Tuple<Integer,Data> data11 = bd5.findAnswer("braga", (byte) 8);
         Tuple<Integer,Data> data12 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("NS"));
         Tuple<Integer,Data> data13 = bd1.findAnswer("mail3.CR7.CMS.G706.",Data.typeOfValueConvert("MX"));
+        Tuple<Integer,Data> data14 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         System.out.println(data5.getValue2().toString().equals("CR7.CMS.G706.,SOASP;\n" +
                 "CR7.CMS.G706. SOASP braga.CR7.CMS.G706. 90000;\n" +
                 "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
@@ -133,6 +134,13 @@ public class Main {
                 "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n"  +
                 "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
                 "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n"+
+                "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
+        System.out.println(data14.getValue2().toString().equals("CR7.CMS.G706.,A;\n" +
+                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,\n" +
+                "CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;\n" +
+                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
+                "renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,\n" +
                 "mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"));
         int num = 75;
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");

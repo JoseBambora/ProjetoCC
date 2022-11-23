@@ -177,7 +177,8 @@ public class Cache
         if(cod == 1)
         {
             av = av.stream().filter(v -> v.getDominio().equals(dom)).toList();
-            ev = ev.stream().filter(v -> v.getDominio().equals(dom)).toList();
+            List<Value> finalAv = av;
+            ev = ev.stream().filter(v -> finalAv.stream().anyMatch(va -> va.getValue().equals(v.getDominio()))).toList();
         }
         if(!av.isEmpty())
             res.setAuthoriteValues(av.toArray(new Value[1]));
