@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
  * @author José Carvalho
  * Classe que define uma entrada na cache
  * DNSPacket.Data criação: 7/11/2022
- * DNSPacket.Data última atualização: 12/11/2022
+ * DNSPacket.Data última atualização: 23/11/2022
  */
 public class EntryCache
 {
@@ -36,16 +36,28 @@ public class EntryCache
             this.estado = State.FREE;
     }
 
+    /**
+     * Atualiza tempo de entrada
+     */
     public void updateTempoEntrada()
     {
         this.estado = State.VALID;
         this.tempoEntrada = LocalDateTime.now();
     }
 
+    /**
+     * Devolve o domínio da entrada.
+     * @return Domínio da entrada.
+     */
     public String getDominio()
     {
         return this.dados.getDominio();
     }
+
+    /**
+     * Devolve o tipo da entrada
+     * @return Tipo da entrada.
+     */
     public byte getType()
     {
         return this.dados.getType();
@@ -60,6 +72,10 @@ public class EntryCache
         return this.dados;
     }
 
+    /**
+     * Devolve a origem da entrada.
+     * @return Origem da entrada.
+     */
     public Origin getOrigem()
     {
         return this.origem;
@@ -94,6 +110,11 @@ public class EntryCache
                 dados.equals(that.dados) :
                 dados.getDominio().equals(that.dados.getDominio()));
     }
+
+    /**
+     * Verifica se uma entrada é válida.
+     * @return true caso afirmativo, false caso contrário.
+     */
     public boolean isValid()
     {
         return this.estado == State.VALID;

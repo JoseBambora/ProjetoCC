@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * DNSPacket.Data criação: 29/10/2022
- * DNSPacket.Data última atualização: 19/11/2022
+ * DNSPacket.Data última atualização: 23/11/2022
  */
 public class Cache
 {
@@ -95,9 +95,9 @@ public class Cache
     }
 
     /**
-     * Adiciona uma entrada de uma linha há cache. Usado para a transferência de zona
-     * @param line Linha a adicionar
-     * @throws Exception A linha não estiver certa.
+     * Adiciona uma entrada de uma linha há cache. Usado para a transferência de zona.
+     * @param line Linha a adicionar.
+     * @param origin Origem da linha.
      */
     public boolean addData(String line, EntryCache.Origin origin)
     {
@@ -106,8 +106,9 @@ public class Cache
     }
 
     /**
-     * Método que devolve os Authority Values
-     * @return Lista com os Authority Values
+     * Método que devolve os Authority Values.
+     * @param dominio Dominio da query.
+     * @return Lista com os Authority Values.
      */
     private List<Value> getAVBD(String dominio)
     {
@@ -148,7 +149,7 @@ public class Cache
      * Procura resposta a uma dada query, dando o domínio da query e o tipo.
      * @param dom Domínio da pergunta.
      * @param type Tipo da pergunta.
-     * @return Null se resposta não for encontrada, ou DNSPacket.Data se for encontrada.
+     * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
     private Tuple<Integer, Data> getAnswer(String dom, byte type)
     {
@@ -190,7 +191,7 @@ public class Cache
      * Procura resposta a uma dada query, dando o domínio da query e o tipo.
      * @param dom Domínio da pergunta.
      * @param type Tipo da pergunta.
-     * @return Null se resposta não for encontrada, ou DNSPacket.Data se for encontrada.
+     * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
     public Tuple<Integer, Data> findAnswer(String dom, byte type)
     {
@@ -213,7 +214,7 @@ public class Cache
     /**
      * Procura resposta quando é recebida um pacote DNS.
      * @param mensagem Query dns.
-     * @return Null se resposta não for encontrada, ou DNSPacket.Data se for encontrada.
+     * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
     public Tuple<Integer, Data> findAnswer(DNSPacket mensagem)
     {
@@ -435,6 +436,7 @@ public class Cache
     /**
      * Método que faz o parsing de um ficheiro para um BD.
      * @param lines Linhas de um ficheiro.
+     * @param logFile Ficheiro para escrever os warnigns do ficheiro de configuração da base de dados.
      */
     public void createBD(List<String> lines, String logFile) throws IOException
     {
@@ -451,8 +453,10 @@ public class Cache
     }
 
     /**
-     * Método que faz o parsing de um ficheiro para um BD
+     * Método que faz o parsing de um ficheiro para um BD.
      * @param filename Nome do ficheiro.
+     * @param dom Domínio do servidor.
+     * @param logFile Ficheiro para escrever os warnings.
      */
     public void createBD(String filename,String dom, String logFile) throws IOException
     {
@@ -467,6 +471,11 @@ public class Cache
         this.cache.forEach(e -> res.append(e.toString()).append('\n'));
         return res.toString();
     }
+
+    /**
+     * Método para testes
+     * @return Devolve o número de entradas na cache.
+     */
     public int size()
     {
         return this.cache.size();
