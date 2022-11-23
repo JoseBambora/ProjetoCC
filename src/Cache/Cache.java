@@ -109,13 +109,15 @@ public class Cache
      * Método que devolve os Authority Values
      * @return Lista com os Authority Values
      */
-    private List<Value> getAVBD()
+    private List<Value> getAVBD(String dominio)
     {
         this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
         this.cache.stream().filter(e -> e.getType() == ns)
-                           .filter(e -> e.getDominio().matches("(.*)" + this.dominio))
+                           .filter(e -> e.getOrigem() == EntryCache.Origin.FILE ?
+                                   e.getDominio().matches("(.*)" + this.dominio) :
+                                   e.getDominio().matches(dominio))
                            .forEach(e -> values.add(e.getData()));
         this.readWriteLock.readLock().unlock();
         return values;
@@ -169,7 +171,7 @@ public class Cache
             else
                 cod = 2;
         }
-        List<Value> av = this.getAVBD();
+        List<Value> av = this.getAVBD(dom);
         List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
         if(cod == 1)
         {
