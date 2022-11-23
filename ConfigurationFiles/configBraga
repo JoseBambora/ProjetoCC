@@ -5,4 +5,4 @@ CR7.CMS.G706. SS 10.0.13.10
 CR7.CMS.G706. DD 10.0.15.10
 CR7.CMS.G706. LG ../LogsFiles/CR7.CMS.G706.log
 all LG ../LogsFiles/all.log
-root ST DatabasesFiles/Rootservers.db
+root ST ../DatabasesFiles/Rootservers.db
