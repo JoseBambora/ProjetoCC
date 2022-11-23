@@ -1,0 +1,6 @@
+# Configuration file for SDT - SS Mario
+CMS.G706. SP 10.0.8.12
+CMS.G706. DD 10.0.16.13
+CMS.G706. LG ../LogsFiles/CMS.G706.log
+all LG ../LogsFiles/all.log
+root ST ../DatabasesFiles/Rootservers.db

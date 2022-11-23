@@ -1,4 +1,4 @@
-#Configuration file for SP Braga
+# Configuration file for SP Braga
 CR7.CMS.G706. DB ../DatabasesFiles/Braga.db
 CR7.CMS.G706. SS 10.0.16.10
 CR7.CMS.G706. SS 10.0.13.10
