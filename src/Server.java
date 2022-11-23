@@ -160,7 +160,7 @@ public class Server {
 
                         /* Send answer */
                         socket1.send(response);
-                        sc.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
+                        sc.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
                         Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
                         System.out.println(re);
 
