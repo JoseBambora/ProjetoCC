@@ -1,5 +1,3 @@
-import DNSPacket.*;
-import Exceptions.TypeOfValueException;
 import ObjectServer.ObjectSP;
 
 import java.io.*;
@@ -48,51 +46,40 @@ public class ZoneTransfer implements Runnable {
 
                         while (true) {
                                 Socket c = socketTcp.accept();
-                                PrintWriter toClient = new PrintWriter(c.getOutputStream());
-                                BufferedReader fromClient = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                                DataOutputStream toClient = new DataOutputStream(c.getOutputStream());
+                                DataInputStream fromClient = new DataInputStream(c.getInputStream());
 
-                                /* Receive query */
-                                String line = fromClient.readLine();
+                                /* Recebe dominio e valida */
+                                String domain = fromClient.readUTF();
+                                boolean autoriza = true; // allowSS(c.getInetAddress());
 
-                                /* Envia versão */
-                                DNSPacket qr = DNSPacket.bytesToDnsPacket(line.getBytes());
-                                if (Data.typeOfValueConvertSring(qr.getData().getTypeOfValue()).equals("SOASERIAL")) {
-                                        /* procurar versão na cache fase posterior e envia resposta, por enquanto envio a mesma querie*/
-                                        String aux = qr.toString();
-                                        toClient.println(aux.substring(0,aux.length()-1));
+                                if (this.objsp.getDominio().equals(domain) && autoriza) {
+                                        /* Envia número de entradas */
+                                        List<String> lines = Files.readAllLines(Paths.get(this.objsp.getBD()));
+                                        int ce = countEntrys(lines);
+                                        toClient.write(ce);
                                         toClient.flush();
 
-                                        /* Recebe dominio e valida */
-                                        String domain = fromClient.readLine();
-                                        boolean autoriza = true; // allowSS(c.getInetAddress())
+                                        /* Recebe número de entradas */
+                                        int ne = fromClient.read();
 
-                                        if (this.objsp.getDominio().equals(domain) && autoriza) {
-                                                /* Envia número de entradas */
-                                                List<String> lines = Files.readAllLines(Paths.get(this.objsp.getBD()));
-                                                int ce = countEntrys(lines);
-                                                toClient.println(ce);
-                                                toClient.flush();
-
-                                                /* Recebe número de entradas */
-                                                int ne = Integer.parseInt(fromClient.readLine());
-                                                if (ne == ce) {
-                                                        /* Envia entradas do ficheiro de base de dados */
-                                                        int i = 1;
-                                                        for (String l : lines) {
-                                                                if (l.length()>0 && l.charAt(0) != '#' && !l.equals("\n")) {
-                                                                        toClient.println(i + "-" + l);
-                                                                        toClient.flush();
-                                                                        i++;
-                                                                }
-                                                        }
+                                        /* Envia entradas do ficheiro de base de dados */
+                                        int i = 1;
+                                        for (String l : lines) {
+                                                if (l.length()>0 && l.charAt(0) != '#' && !l.equals("\n")) {
+                                                        toClient.writeUTF(i + ":" + l);
+                                                        toClient.flush();
+                                                        i++;
                                                 }
                                         }
                                 }
 
+                                fromClient.close();
+                                toClient.close();
                                 c.close();
                         }
 
-                } catch (IOException | TypeOfValueException e) {
+                } catch (IOException e) {
                         throw new RuntimeException(e);
                 }
 

@@ -8,6 +8,7 @@
 import DNSPacket.*;
 import Exceptions.InvalidArgumentException;
 import Exceptions.TypeOfValueException;
+import Cache.*;
 import Log.Log;
 import ObjectServer.*;
 
@@ -67,6 +68,7 @@ public class Server {
 
             /* Configurate server */
             ObjectServer sc = ObjectServer.parseServer(s.configFile);
+            // ev ficheiro de config lido, ficheiro de db e st
 
             /* Identificate the type of server */
             boolean sp = sc instanceof ObjectSP;
@@ -103,24 +105,24 @@ public class Server {
                     int clientPort = request.getPort();
 
                     try {
-
                         /* Build received packet */
                         DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
                         Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
                         System.out.println(qr);
 
-
                         /* Find answer */
-                        Data resp = sc.getCache().findAnswer(receivePacket).getValue2();
+                        Tuple<Integer, Data> anwser = sc.getCache().findAnswer(receivePacket);
 
-                        if (resp != null) {
+                        if (anwser.getValue1()!=3) {
+                            Data resp = anwser.getValue2();
                             /* Build Packet */
                             byte flags = 4;
-                            int nrv = resp.getResponseValues().length;
-                            int nav = resp.getAuthoriteValues().length;
-                            int nev = resp.getExtraValues().length;
+                            int nrv = 0, nav = 0, nev = 0;
+                            if (resp.getResponseValues()!=null) nrv = resp.getResponseValues().length;
+                            if (resp.getAuthoriteValues()!=null) nav = resp.getAuthoriteValues().length;
+                            if (resp.getExtraValues()!=null) nev = resp.getExtraValues().length;
 
-                            Header header = new Header(receivePacket.getHeader().getMessageID(), flags, (byte) 0, (byte) nrv, (byte) nav, (byte) nev);
+                            Header header = new Header(receivePacket.getHeader().getMessageID(), flags, anwser.getValue1().byteValue(), (byte) nrv, (byte) nav, (byte) nev);
                             DNSPacket sendPacket = new DNSPacket(header, resp);
 
                             /* Create Datagram */

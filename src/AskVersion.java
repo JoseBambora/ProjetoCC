@@ -1,16 +1,13 @@
-import DNSPacket.*;
-import Exceptions.TypeOfValueException;
+import Cache.*;
+import Cache.EntryCache;
+import DNSPacket.Data;
 import ObjectServer.ObjectSS;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
+import java.io.*;
 import java.net.Socket;
-import java.util.Random;
 
-public class AskVersion implements Runnable{
+
+public class AskVersion implements Runnable {
     private ObjectSS objss;
 
     public AskVersion(ObjectSS objss) {
@@ -23,51 +20,56 @@ public class AskVersion implements Runnable{
 
             while (true) {
 
-                InetAddress sp = objss.getSP().getAddress();
-                Socket s = new Socket(InetAddress.getByName("127.0.0.1"),6363);
-                PrintWriter toClient = new PrintWriter(s.getOutputStream());
-                BufferedReader fromClient = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                /* Verifica versão  */
+                Tuple<Integer, Data> respc  = objss.getCache().findAnswer(objss.getDominio(),(byte) 2);
+                boolean execTZ = false;
+                if (respc.getValue1() != 3) {
+                    execTZ = true;
+                }
 
-                DNSPacket qe = new DNSPacket((short) (new Random().nextInt(1,65535)), (byte) 1, objss.getDominio(), Data.typeOfValueConvert("SOASERIAL"));
-                String aux = qe.toString();
-                toClient.println(aux.substring(0,aux.length()-1));
+                // try e da timeout o valor de wait é o soaretry    objss.getSP().getAddress()
+                Socket s = new Socket("127.0.0.1",5353);
+                DataOutputStream toClient = new DataOutputStream(s.getOutputStream());
+                DataInputStream fromClient = new DataInputStream(s.getInputStream());
+
+                /* Send domain */
+                toClient.writeUTF(objss.getDominio());
                 toClient.flush();
 
-                String rr = fromClient.readLine();
+                /* Receive number of entrys */
+                int ne = fromClient.read();
+                /* Accept the number of entrys */
+                toClient.write(ne);
+                toClient.flush();
 
-                /* Verify version */
-                if (rr != null) {
-                    /* Send domain */
-                    toClient.println(objss.getDominio());
-                    toClient.flush();
-
-                    /* Receive number of entrys */
-                    int ne = Integer.parseInt(fromClient.readLine());
-                    boolean accept = true; /* Accept the number of entrys */
-                    if (accept) {
-                        toClient.println(ne);
-                        toClient.flush();
-
-                        String line;
-                        int nerec = 0;
-                        while ((line = fromClient.readLine()) != null) {
-                            String[] w = line.split("-");
-                            nerec++;
-                            System.out.println(w[1]);
-                        }
-
+                String line;
+                int nerec = 0;
+                while (nerec<ne) {
+                    line = fromClient.readUTF();
+                    String[] w = line.split(":");
+                    nerec++;
+                    try {
+                        objss.getCache().addData(w[1], EntryCache.Origin.SP);
+                    } catch (Exception e) {
+                        System.out.println("Linha " + nerec + " errada");
                     }
                 }
 
+                toClient.close();
+                fromClient.close();
                 s.close();
 
-                //String soar = objss.getCache().findAnswer(objss.getDominio(),(byte) 3).getResponseValues()[0].getValue();
+                int wait = 0;
+                Cache cache = objss.getCache();
+                if (cache!=null) {
+                    String soar = cache.findAnswer(objss.getDominio(),(byte) 3).getValue2().getResponseValues()[0].getValue();
+                    wait = Integer.parseInt(soar);
+                }
 
-                Thread.sleep(5000);
-
+                Thread.sleep(wait);
             }
 
-        } catch (TypeOfValueException | InterruptedException | IOException e) {
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         }
 
