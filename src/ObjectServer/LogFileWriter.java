@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Miguel Cidade Silva
  * Classe cuja função é criar um objeto que assegura a concorrência no processo de escrita de entradas nos ficheiros de log
  * DNSPacket.Data de criação 19/11/2022
- * DNSPacket.Data de edição 19/11/2022
+ * DNSPacket.Data de edição 23/11/2022
  */
 public class LogFileWriter {
     private static final Map<String,ReentrantLock> logLocks = new HashMap<>();
@@ -45,11 +45,11 @@ public class LogFileWriter {
      * @throws IOException Exceção para caso o ficheiro não exista
      */
     public static void writeLineInLogFile(String ficheiro, String line) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro,true));
         Lock l = getLockMap(ficheiro);
         l.lock();
         try {
-            writer.write(line);
+            writer.write(line+"\n");
             writer.close();
 
         } finally {
@@ -64,12 +64,12 @@ public class LogFileWriter {
      * @throws IOException Exceção para caso o ficheiro não exista
      */
     public static void writeInLogFile(String ficheiro, List<String> lines) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(ficheiro,true));
         Lock l = getLockMap(ficheiro);
         l.lock();
         try {
             for(String line : lines){
-                writer.write(line);
+                writer.write(line+"\n");
             }
             writer.close();
         }finally {

@@ -16,7 +16,7 @@ import java.net.InetAddress;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * DNSPacket.Data de criação 23/10/2022
- * DNSPacket.Data de edição 22/11/2022
+ * DNSPacket.Data de edição 23/11/2022
  */
 
 public class ObjectServer {
@@ -24,8 +24,8 @@ public class ObjectServer {
     private String dominio;
     private Map<String,List<InetSocketAddress>> DD;
     private List<InetSocketAddress> ST;
-    private  Map<String,String> logs;
-    private Cache cache;
+    private final Map<String,String> logs;
+    private final Cache cache;
 
     /**
      * Construtor de objetos da classe ObjectServer.ObjectServer
@@ -110,14 +110,6 @@ public class ObjectServer {
     }
 
     /**
-     * Setter do campo Dominio de um objeto da classe ObjectServer.ObjectServer
-     * @param dominio o domínio que queremos atribuir
-     */
-    public void setDominio(String dominio) {
-        this.dominio = dominio;
-    }
-
-    /**
      * Setter do campo DD de um objeto da classe ObjectServer.ObjectServer
      * @param DD a lista de endereços que queremos atribuir ao campo DD
      */
@@ -131,22 +123,6 @@ public class ObjectServer {
      */
     public void setST(List<InetSocketAddress> ST) {
         this.ST = ST;
-    }
-
-    /**
-     * Setter do campo LOGS de um objeto da classe ObjectServer.ObjectServer
-     * @param logs o mapa que queremos associar ao valor co campo LOGS de um objeto da classe ObjectServer.ObjectServer
-     */
-    public void setLogs(Map<String, String> logs) {
-        this.logs = logs;
-    }
-
-    /**
-     * Setter do campo cache de um objeto da classe ObjectServer.ObjectServer
-     * @param cache - a cache que pretender atribuir a um objeto da classe ObjectServer.ObjectServer
-     */
-    public void setCache(Cache cache) {
-        this.cache = cache;
     }
 
     /**
@@ -187,30 +163,40 @@ public class ObjectServer {
             Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1", warning);
             writeLogs.add(log.toString());
         }
-            LogFileWriter.writeInLogFile(ficheiroLog, writeLogs);
+        LogFileWriter.writeInLogFile(ficheiroLog, writeLogs);
     }
 
     /**
-     * Método auxiliar que permite a escrita de uma linha, neste caso de um warning, para um ficheiro de log de um servidor gerado no processo de parsing dos ficheiros de configuração
+     * Método auxiliar que permite a escrita de uma linha, para um ficheiro de log de um servidor gerado no processo de parsing dos ficheiros de configuração
      * @param warning warning a escrever nos ficheiro de logs
+     * @param et tipo de entrada do log
      * @param ficheiroLog log no qual iremos escrever
      * @throws IOException exceção para caso o ficheiro de configuração não exista
      */
-    private static void writeLineinLogs(String warning,String ficheiroLog) throws IOException {
-        Log log = new Log(Date.from(Instant.now()), Log.EntryType.FL, "127.0.0.1",warning);
+    private static void writeLineinLogs(String warning, Log.EntryType et, String ficheiroLog) throws IOException {
+        Log log = new Log(Date.from(Instant.now()), et, "127.0.0.1",warning);
         LogFileWriter.writeLineInLogFile(ficheiroLog,log.toString());
     }
 
     /**
      * Método auxiliar que escreve no terminal a lista de warnings do processo de parsing dos ficheiros de configuração de um servidor
-     * @param filename caminho para o ficheiro de configuração
-     * @param warnings lista de warnings a escrever como linhas no terminal
+     * @param strings lista de warnings a escrever como linhas no terminal
+     * @param et tipo de entrada no log
      */
-    public static void writeInTerminal(String filename, List<String> warnings) {
-        System.out.println("Warnings no processo de parsing do ficheiro de configuração'" + filename + "':");
-        for (String warning : warnings) {
-            System.out.println("- " + warning);
+    public static void writeInTerminal(List<String> strings,Log.EntryType et) {
+        for (String string : strings) {
+            writeLineinTerminal(string,et);
         }
+    }
+
+    /**
+     * Métdodo que escreve uma linha formatada correspondente a uma entrada nos logs no terminal
+     * @param line linha a escrever
+     * @param et tipo de entrada do log
+     */
+    public static void writeLineinTerminal(String line, Log.EntryType et){
+        Log log = new Log(Date.from(Instant.now()), et, "127.0.0.1",line);
+        System.out.println(log);
     }
 
     /**
@@ -220,8 +206,8 @@ public class ObjectServer {
      * @param answer String da linha não formatada, a formatar e colocar na resposta.
      * @throws IOException - exceção para caso o ficheiro de logs não exista
      */
-    public void writeAnswerInLog(String domain, Log.EntryType tl, String IP, int port, String answer) throws IOException {
-        Log formatedAnswer = new Log(Date.from(Instant.now()), tl, IP, port, answer);
+    public void writeAnswerInLog(String domain, Log.EntryType et, String IP, int port, String answer) throws IOException {
+        Log formatedAnswer = new Log(Date.from(Instant.now()), et, IP, port, answer);
         String writeDomain = "all";
         if (this.logs.containsKey(domain)) writeDomain = domain;
         LogFileWriter.writeLineInLogFile(this.logs.get(writeDomain),formatedAnswer.toString());
@@ -244,12 +230,16 @@ public class ObjectServer {
         }
         writeInLogs(warnings,this.logs.get(domainName));
         if (this instanceof ObjectSP auxserver){
-            auxserver.getCache().createBD(auxserver.getBD(), this.dominio,this.logs.get(domainName));
+            auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName),this.DD.get(domainName).get(0));
         }
         if (!this.verificaConfig(domainName)) {
             res = true;
-            writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.",this.logs.get(this.dominio));
+            writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.", Log.EntryType.FL,this.logs.get(domainName));
         }
+        writeLineinLogs("Servidor correspondente ao Ficheiro de configuração " +filename +" configurado", Log.EntryType.EV,this.logs.get(domainName));
+        writeLineinTerminal("Servidor correspondente ao Ficheiro de configuração " +filename +" configurado", Log.EntryType.EV);
+
+        //LOG File Writer -> se ficheiro de log ja existir tenho de fazer .append
         return res;
     }
 
@@ -353,7 +343,7 @@ public class ObjectServer {
                 server = null;
             }
         }
-        writeInTerminal(filename,warnings);
+        writeInTerminal(warnings, Log.EntryType.FL);
         return server;
     }
 
