@@ -38,6 +38,7 @@ public class EntryCache
 
     public void updateTempoEntrada()
     {
+        this.estado = State.VALID;
         this.tempoEntrada = LocalDateTime.now();
     }
 
