@@ -1,0 +1,42 @@
+# Base de dados para o SP do domínio JJM.G706.
+
+@ DEFAULT JJM.G706.
+m10 DEFAULT M10.JJM.G706.
+TTL DEFAULT 90000
+
+@ SOASP felix.@ TTL
+@ SOAADMIN cc\.admin.@ TTL
+@ SOASERIAL 123123 TTL
+@ SOAREFRESH 15000 TTL
+@ SOARETRY 4000 TTL
+@ SOAEXPIRE 502000 TTL
+
+# SP
+@ NS felix.@ TTL
+# SS
+@ NS otavio.@ TTL
+@ NS ramos.@ TTL
+
+# SP - SUBDOMAIN
+m10 NS cancelo.@ TTL
+# SS - SUBDOMAIN
+m10 NS rafael.@ TTL
+m10 NS bruno.@ TTL
+
+# SP
+felix A 10.0.13.12 TTL
+# SS
+otavio A 10.0.15.13 TTL
+ramos A 10.0.10.13 TTL
+# SP - SUBDOMAIN
+cancelo.m10 A 10.0.9.11 TTL
+# SS - SUBDOMAIN
+rafael.m10 A 10.0.15.11 TTL
+bruno.m10 A 10.0.14.10 TTL
+
+sp CNAME felix TTL
+ss1 CNAME otavio TTL
+ss2 CNAME ramos TTL
+sdsp CNAME felix.cr7 TTL
+sdss1 CNAME otavio.cr7 TTL
+sdss2 CNAME ramos.cr7 TTL

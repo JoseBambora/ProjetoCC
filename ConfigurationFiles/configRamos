@@ -1,0 +1,6 @@
+# Configuration file for SDT - SS Ramos
+JJM.G706. SP 10.0.13.12
+JJM.G706. DD 10.0.10.13
+JJM.G706. LG ../LogsFiles/JJM.G706.log
+all LG ../LogsFiles/all.log
+root ST ../DatabasesFiles/Rootservers.db

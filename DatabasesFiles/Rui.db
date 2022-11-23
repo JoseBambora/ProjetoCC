@@ -1,17 +1,24 @@
 # Base de dados para o SP do domínio REVERSE.G706.
 
 @ DEFAULT REVERSE.G706.
+cms DEFAULT CMS.G706.
+jjm DEFAULT JJM.G706.
 cr7 DEFAULT CR7.CMS.G706.
-m10 DEFAULT M10.CMS.G706.
+m10 DEFAULT M10.JJM.G706.
 TTL DEFAULT 90000
 
 # SP
 @ NS rui.@ TTL
 
 # PTR
+# TOPO
 10.0.14.11 PTR pepe.G706. TTL
 10.0.13.11 PTR palhinha.G706. TTL
+
+# REVERSE
 10.0.10.10 PTR rui.@ TTL
+
+# CR7
 10.0.15.10 PTR braga.cr7 TTL
 10.0.16.10 PTR renato.cr7 TTL
 10.0.16.11 PTR vitinha.cr7 TTL
@@ -19,6 +26,8 @@ TTL DEFAULT 90000
 10.0.10.12 PTR fernando2.cr7 TTL
 10.0.13.10 PTR mendes.cr7 TTL
 10.0.8.1 PTR silva.cr7 TTL
+
+# M10
 10.0.9.14 PTR horta.m10 TTL
 10.0.9.13 PTR bernardo.m10 TTL
 10.0.9.11 PTR cancelo.m10 TTL
@@ -28,3 +37,13 @@ TTL DEFAULT 90000
 10.0.16.1 PTR scaloni2.m10 TTL
 10.0.14.1 PTR bruno.m10 TTL
 10.0.9.10 PTR guerreiro.m10 TTL
+
+# CMS
+10.0.13.12 PTR felix.jjm TTL
+10.0.15.13 PTR otavio.jjm TTL
+10.0.10.13 PTR ramos.jjm TTL
+
+# JJM
+10.0.8.12 PTR william.cms TTL
+10.0.16.13 PTR mario.cms TTL
+10.0.14.12 PTR dalot.cms TTL

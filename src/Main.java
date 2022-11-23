@@ -37,18 +37,27 @@ public class Main {
         ObjectServer SP= ObjectServer.parseServer("../ConfigurationFiles/configPepe");
         System.out.println(SP.getCache().toString().equals("G706. NS pepe.G706. 90000\n" +
                 "G706. NS palhinha.G706. 90000\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000\n" +
-                "M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000\n" +
-                "REVERSE.G706. NS rui.REVERSE.G706. 90000\n" +
+                "CMS.G706. NS william.CMS.G706. 90000\n" +
+                "CMS.G706. NS mario.CMS.G706. 90000\n" +
+                "CMS.G706. NS dalot.CMS.G706. 90000\n" +
+                "JJM.G706. NS felix.JJM.G706. 90000\n" +
+                "JJM.G706. NS otavio.JJM.G706. 90000\n" +
+                "JJM.G706. NS ramos.JJM.G706. 90000\n" +
                 "pepe.G706. A 10.0.14.11:5353 90000\n" +
                 "palhinha.G706. A 10.0.13.11:5353 90000\n" +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000\n" +
-                "cancelo.M10.JJM.G706. A 10.0.9.11:5353 90000\n" +
-                "rui.REVERSE.G706. A 10.0.10.10:5353 90000\n" +
+                "william.CMS.G706. A 10.0.8.12:5353 90000\n" +
+                "mario.CMS.G706. A 10.0.16.13:5353 90000\n" +
+                "dalot.CMS.G706. A 10.0.14.12:5353 90000\n" +
+                "felix.JJM.G706. A 10.0.13.12:5353 90000\n" +
+                "otavio.JJM.G706. A 10.0.15.13:5353 90000\n" +
+                "ramos.JJM.G706. A 10.0.10.13:5353 90000\n" +
                 "st1.G706. CNAME pepe.G706. 90000\n" +
                 "st2.G706. CNAME palhinha.G706. 90000\n" +
-                "sd1.CR7.CMS.G706. CNAME braga.CR7.CMS.G706. 90000\n" +
-                "sd2.M10.JJM.G706. CNAME cancelo.M10.JJM.G706. 90000\n" +
+                "ss1sd1.JJM.G706. CNAME otavio.JJM.G706. 90000\n" +
+                "ss2sd1.JJM.G706. CNAME ramos.JJM.G706. 90000\n" +
+                "spsd2.CMS.G706. CNAME william.CMS.G706. 90000\n" +
+                "ss1sd2.CMS.G706. CNAME mario.CMS.G706. 90000\n" +
+                "ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000\n" +
                 "sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000\n"));
         Tuple<Integer, Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
         Tuple<Integer,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
@@ -87,18 +96,24 @@ public class Main {
                 "G706. NS palhinha.G706. 90000;\n" +
                 "G706. NS pepe.G706. 90000,\n" +
                 "G706. NS palhinha.G706. 90000,\n" +
-                "CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,\n" +
-                "M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,\n" +
-                "REVERSE.G706. NS rui.REVERSE.G706. 90000;\n" +
+                "CMS.G706. NS william.CMS.G706. 90000,\n" +
+                "CMS.G706. NS mario.CMS.G706. 90000,\n" +
+                "CMS.G706. NS dalot.CMS.G706. 90000,\n" +
+                "JJM.G706. NS felix.JJM.G706. 90000,\n" +
+                "JJM.G706. NS otavio.JJM.G706. 90000,\n" +
+                "JJM.G706. NS ramos.JJM.G706. 90000;\n" +
                 "pepe.G706. A 10.0.14.11:5353 90000,\n" +
                 "palhinha.G706. A 10.0.13.11:5353 90000,\n" +
-                "braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,\n" +
-                "cancelo.M10.JJM.G706. A 10.0.9.11:5353 90000,\n" +
-                "rui.REVERSE.G706. A 10.0.10.10:5353 90000;"));
+                "william.CMS.G706. A 10.0.8.12:5353 90000,\n" +
+                "mario.CMS.G706. A 10.0.16.13:5353 90000,\n" +
+                "dalot.CMS.G706. A 10.0.14.12:5353 90000,\n" +
+                "felix.JJM.G706. A 10.0.13.12:5353 90000,\n" +
+                "otavio.JJM.G706. A 10.0.15.13:5353 90000,\n" +
+                "ramos.JJM.G706. A 10.0.10.13:5353 90000;"));
         System.out.println(data9.getValue2().toString().equals(
                 "M10.JJM.G706.,MX;\n" +
-                "M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000,\n" +
-                "M10.JJM.G706. MX scaloni2.M10.JJM.G706. 90000;\n" +
+                "M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000 10,\n" +
+                "M10.JJM.G706. MX scaloni2.M10.JJM.G706. 90000 20;\n" +
                 "M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,\n" +
                 "M10.JJM.G706. NS rafael.M10.JJM.G706. 90000,\n" +
                 "M10.JJM.G706. NS bruno.M10.JJM.G706. 90000;\n" +

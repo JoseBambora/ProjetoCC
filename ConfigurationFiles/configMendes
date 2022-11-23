@@ -1,4 +1,4 @@
-#Configuration file for SS Mendes
+# Configuration file for SS Mendes
 CR7.CMS.G706. SP 10.0.15.10
 CR7.CMS.G706. DD 10.0.13.10
 CR7.CMS.G706. LG ../LogsFiles/CR7.CMS.G706.log

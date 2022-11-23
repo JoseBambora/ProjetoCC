@@ -99,24 +99,25 @@ public class Cache
      * @param line Linha a adicionar
      * @throws Exception A linha não estiver certa.
      */
-    public void addData(String line, EntryCache.Origin origin) throws Exception
+    public boolean addData(String line, EntryCache.Origin origin)
     {
         Value value = this.converteLinha(line);
-        if(value != null && !this.addData(value, origin))
-            throw new Exception("Valor " + line + "já está em cache");
+        return value != null && !this.addData(value, origin);
     }
 
     /**
      * Método que devolve os Authority Values
      * @return Lista com os Authority Values
      */
-    private List<Value> getAVBD()
+    private List<Value> getAVBD(String dominio)
     {
         this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
         this.cache.stream().filter(e -> e.getType() == ns)
-                           .filter(e -> e.getDominio().matches("(.*)" + this.dominio))
+                           .filter(e -> e.getOrigem() == EntryCache.Origin.FILE ?
+                                   e.getDominio().matches("(.*)" + this.dominio) :
+                                   e.getDominio().matches(dominio))
                            .forEach(e -> values.add(e.getData()));
         this.readWriteLock.readLock().unlock();
         return values;
@@ -170,7 +171,7 @@ public class Cache
             else
                 cod = 2;
         }
-        List<Value> av = this.getAVBD();
+        List<Value> av = this.getAVBD(dom);
         List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
         if(cod == 1)
         {
@@ -306,7 +307,8 @@ public class Cache
      * @param campo Campo que queremos ir buscar o inteiro. Esta string serve para saber quais os limites.
      * @return Inteiro Convertido
      */
-    private int converteInt(String[] words, int index, String campo) throws Exception {
+    private int converteInt(String[] words, int index, String campo)
+    {
         Tuple<Integer,Integer> tuple;
         if(campo.equals("'Prioridade'"))
             tuple = pri;
@@ -332,17 +334,21 @@ public class Cache
                     }
                     catch (NumberFormatException exp)
                     {
-                        throw new Exception("Valor não inteiro para a macro " + word);
+                        // throw new Exception("Valor não inteiro para a macro " + word);
+                        num = -1;
                     }
                 else
-                    throw new Exception("Valor não é inteiro e não está definido nas macros");
+                    num = -2;
+                    //throw new Exception("Valor não é inteiro e não está definido nas macros");
             }
             if(num < min || num > max)
-                throw new Exception("Número que excede o intervalo estabelecidos para o campo " + campo + ". O intervalo é [" + min + "," + max + "]");
+                num = -3;
+                //throw new Exception("Número que excede o intervalo estabelecidos para o campo " + campo + ". O intervalo é [" + min + "," + max + "]");
 
         }
         else
-            throw new Exception("Não respeita a sintaxe.");
+            num = -4;
+            //throw new Exception("Não respeita a sintaxe.");
         return num;
     }
 
@@ -350,22 +356,26 @@ public class Cache
      * Converte uma linha num DNSPacket.Value
      * @param line linha a converter
      * @return Valor convertido.
-     * @throws Exception Se a linha estiver errada.
      */
-    private Value converteLinha(String line) throws Exception
+    private Value converteLinha(String line)
     {
         Value res = null;
         String[] words = line.split(" ");
         if (line.length() > 0 && line.charAt(0) != '#' && words.length > 2)
         {
             if (words[1].equals("DEFAULT"))
+            {
                 this.macro.put(words[0], words[2]);
+                return res;
+            }
             else if (words.length > 3)
             {
                 String dom = words[0];
                 if (!words[1].equals("PTR"))
                     dom = converteDom(words[0]);
                 int TTL = converteInt(words, 3, "'TTL'");
+                if(TTL < 0)
+                    return res;
                 switch (words[1])
                 {
                     case "SOASP":
@@ -385,16 +395,35 @@ public class Cache
                         res = new Value(dom, aux.get(words[1]), words[2], TTL);
                         break;
                     case "CNAME":
+                        name = converteDom(words[2]);
+                        res = new Value(dom, aux.get(words[1]), name, TTL);
+                        break;
                     case "NS":
                     case "MX":
                         name = converteDom(words[2]);
-                        res = new Value(dom, aux.get(words[1]), name, TTL);
+                        if(words.length > 4)
+                        {
+                            int pri = converteInt(words,4,"'Prioridade'");
+                            if(pri < 0)
+                                return res;
+                            res = new Value(dom, aux.get(words[1]), name, TTL,pri);
+                        }
+                        else
+                            res = new Value(dom, aux.get(words[1]), name, TTL);
                         break;
                     case "A":
                         String en = words[2];
                         if (!en.contains(":"))
                             en += ":5353";
-                        res = new Value(dom, aux.get(words[1]), en, TTL);
+                        if(words.length > 4)
+                        {
+                            int pri = converteInt(words,4,"'Prioridade'");
+                            if(pri < 0)
+                                return res;
+                            res = new Value(dom, aux.get(words[1]), en, TTL,pri);
+                        }
+                        else
+                            res = new Value(dom, aux.get(words[1]), en, TTL);
                         break;
                     default:
                         break;
@@ -413,9 +442,9 @@ public class Cache
         AtomicInteger l = new AtomicInteger(1);
         lines.forEach(str ->
                             { l.getAndIncrement();
-                              try { this.addData(str, EntryCache.Origin.FILE);}
-                              catch (Exception e) { warnings.add("Erro ficheiro BD, linha " + l + ": " + e.getMessage());}
-                            });
+                              if(this.addData(str, EntryCache.Origin.FILE))
+                                  warnings.add("Erro ficheiro BD, linha " + l + " não adicionada");}
+                            );
         List<String> writeLogs = new ArrayList<>();
         warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,"",w).toString()); System.out.println(w);});
         LogFileWriter.writeInLogFile(logFile,writeLogs);
