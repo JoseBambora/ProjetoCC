@@ -99,10 +99,10 @@ public class Cache
      * @param line Linha a adicionar
      * @throws Exception A linha não estiver certa.
      */
-    public void addData(String line) throws Exception
+    public void addData(String line, EntryCache.Origin origin) throws Exception
     {
         Value value = this.converteLinha(line);
-        if(value != null && !this.addData(value, EntryCache.Origin.SP))
+        if(value != null && !this.addData(value, origin))
             throw new Exception("Valor " + line + "já está em cache");
     }
 
@@ -413,7 +413,7 @@ public class Cache
         AtomicInteger l = new AtomicInteger(1);
         lines.forEach(str ->
                             { l.getAndIncrement();
-                              try { this.addData(str);}
+                              try { this.addData(str, EntryCache.Origin.FILE);}
                               catch (Exception e) { warnings.add("Erro ficheiro BD, linha " + l + ": " + e.getMessage());}
                             });
         List<String> writeLogs = new ArrayList<>();
