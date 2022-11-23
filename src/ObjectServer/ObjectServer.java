@@ -220,9 +220,11 @@ public class ObjectServer {
      * @param answer String da linha não formatada, a formatar e colocar na resposta.
      * @throws IOException - exceção para caso o ficheiro de logs não exista
      */
-    public void writeAnswerInLog(String domain, String IP, String answer) throws IOException {
-        Log formatedAnswer = new Log(Date.from(Instant.now()), Log.EntryType.QR,IP,answer);
-        LogFileWriter.writeLineInLogFile(this.logs.get(domain),formatedAnswer.toString());
+    public void writeAnswerInLog(String domain, Log.EntryType tl, String IP, int port, String answer) throws IOException {
+        Log formatedAnswer = new Log(Date.from(Instant.now()), tl, IP, port, answer);
+        String writeDomain = "all";
+        if (this.logs.containsKey(domain)) writeDomain = domain;
+        LogFileWriter.writeLineInLogFile(this.logs.get(writeDomain),formatedAnswer.toString());
     }
 
     /**

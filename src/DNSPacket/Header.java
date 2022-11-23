@@ -165,7 +165,7 @@ public class Header {
 
     public String showHeader() {
         StringBuilder out = new StringBuilder();
-        out.append("# DNSPacket.Header\n");
+        out.append("# Header\n");
         out.append("MESSAGE-ID = ");
         out.append(Short.toUnsignedInt(messageID));
         out.append(", FLAGS = ");

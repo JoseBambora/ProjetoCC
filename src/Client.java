@@ -126,23 +126,15 @@ public class Client {
             System.out.println(rr);
 
             /* Print the response */
+            System.out.println("\n-----------------------------------------------------------------");
             System.out.println(resPacket.showDNSPacket());
+            System.out.println("-----------------------------------------------------------------");
 
-        } catch (InvalidArgumentException | TypeOfValueException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.toString());
-            System.out.println(fl);
-        } catch (UnknownHostException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Address passed as argument does not exist");
-            System.out.println(fl);
-        } catch (SocketException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error opening the socket");
-            System.out.println(fl);
         } catch (SocketTimeoutException e) {
             Log to = new Log(new Date(), Log.EntryType.TO, cl.serverAddress.getHostAddress(), cl.serverPort, "Query response");
             System.out.println(to);
-        } catch (IOException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error sending/receiving the query/response");
-            System.out.println(fl);
+        } catch (InvalidArgumentException | TypeOfValueException | IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

@@ -107,58 +107,62 @@ public class Server {
                     try {
                         /* Build received packet */
                         DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(receiveBytes);
+                        sc.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
                         Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
                         System.out.println(qr);
 
                         /* Find answer */
                         Tuple<Integer, Data> anwser = sc.getCache().findAnswer(receivePacket);
 
-                        if (anwser.getValue1()!=3) {
-                            Data resp = anwser.getValue2();
-                            /* Build Packet */
-                            byte flags = 4;
-                            int nrv = 0, nav = 0, nev = 0;
-                            if (resp.getResponseValues()!=null) nrv = resp.getResponseValues().length;
-                            if (resp.getAuthoriteValues()!=null) nav = resp.getAuthoriteValues().length;
-                            if (resp.getExtraValues()!=null) nev = resp.getExtraValues().length;
+                        int respCode = anwser.getValue1();
+                        Data resp = anwser.getValue2();
+                        /* Build Packet */
+                        byte flags = 4;
+                        int nrv = 0, nav = 0, nev = 0;
+                        if (resp.getResponseValues()!=null) nrv = resp.getResponseValues().length;
+                        if (resp.getAuthoriteValues()!=null) nav = resp.getAuthoriteValues().length;
+                        if (resp.getExtraValues()!=null) nev = resp.getExtraValues().length;
 
-                            Header header = new Header(receivePacket.getHeader().getMessageID(), flags, anwser.getValue1().byteValue(), (byte) nrv, (byte) nav, (byte) nev);
-                            DNSPacket sendPacket = new DNSPacket(header, resp);
+                        Header header = new Header(receivePacket.getHeader().getMessageID(), flags,(byte) respCode, (byte) nrv, (byte) nav, (byte) nev);
+                        DNSPacket sendPacket = new DNSPacket(header, resp);
 
-                            /* Create Datagram */
-                            byte[] sendBytes = sendPacket.dnsPacketToBytes();
-                            DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+                        /* Create Datagram */
+                        byte[] sendBytes = sendPacket.dnsPacketToBytes();
+                        DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
 
-                            /* Create new Datagram Socket */
-                            DatagramSocket socket1 = new DatagramSocket();
+                        /* Create new Datagram Socket */
+                        DatagramSocket socket1 = new DatagramSocket();
 
-                            /* Send answer */
-                            socket1.send(response);
-                            Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
-                            System.out.println(re);
+                        /* Send answer */
+                        socket1.send(response);
+                        sc.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
+                        Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
+                        System.out.println(re);
 
-                            /* Close new socket */
-                            socket1.close();
-                        }
+                        /* Close new socket */
+                        socket1.close();
+
+
                     } catch (TypeOfValueException e) {
-                        Log er = new Log(new Date(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.toString());
+                        sc.writeAnswerInLog(sc.getDominio(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
+                        Log er = new Log(new Date(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
                         System.out.println(er);
+                    } catch (Exception e) {
+                        sc.writeAnswerInLog(sc.getDominio(), Log.EntryType.FL, "127.0.0.1", s.port, e.getMessage());
+                        Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.getMessage());
+                        System.out.println(fl);
                     }
                 } catch (IOException e) {
+                    sc.writeAnswerInLog(sc.getDominio(), Log.EntryType.FL, "127.0.0.1", s.port, e.getMessage());
                     Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error sending/receiving the response/query");
                     System.out.println(fl);
                 }
             }
 
-        } catch (InvalidArgumentException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.toString());
-            System.out.println(fl);
-        } catch (SocketException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error creating the socket");
-            System.out.println(fl);
+        } catch (InvalidArgumentException | SocketException e) {
+            System.out.println(e.getMessage());
         } catch (IOException e) {
-            Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error parsing the configuration file");
-            System.out.println(fl);
+            System.out.println("Error parsing the configuration file");
         }
 
     }

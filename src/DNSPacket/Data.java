@@ -180,11 +180,11 @@ public class Data {
 
     public String showData() {
         StringBuilder out = new StringBuilder();
-        out.append("# DNSPacket.Data: Query-info\nQUERY-INFO.NAME = ");
+        out.append("# Data: Query-info\nQUERY-INFO.NAME = ");
         out.append(name);
         out.append(", QUERY-INFO.TYPE = ");
         out.append(Data.typeOfValueConvertSring(typeOfValue));
-        out.append(";\n# DNSPacket.Data: List of Response, Authorities and Extra Values\n");
+        out.append(";\n# Data: List of Response, Authorities and Extra Values\n");
         int i, tam;
         if (responseValues!=null) {
             for (i = 0, tam = responseValues.length; i < tam; i++) {
@@ -210,11 +210,11 @@ public class Data {
             for (i = 0, tam = extraValues.length; i < tam; i++) {
                 out.append("EXTRA-VALUES = ");
                 out.append(extraValues[i]);
-                if (i == tam - 1) out.append(";\n");
+                if (i == tam - 1) out.append(";");
                 else out.append(",\n");
             }
         }
-        else out.append("EXTRA-VALUES = (Null)\n");
+        else out.append("EXTRA-VALUES = (Null)");
         return out.toString();
     }
 
