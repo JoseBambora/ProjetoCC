@@ -1,0 +1,43 @@
+# Base de dados para o SP do domínio CMS.G706.
+
+@ DEFAULT CMS.G706.
+TTL DEFAULT 90000
+cr7 DEFAULT CR7.CMS.G706.
+
+@ SOASP .@ TTL
+@ SOAADMIN cc\.admin.@ TTL
+@ SOASERIAL 123123 TTL
+@ SOAREFRESH 15000 TTL
+@ SOARETRY 4000 TTL
+@ SOAEXPIRE 502000 TTL
+
+# SP
+@ NS william.@ TTL
+# SS
+@ NS mario.@ TTL
+@ NS dalot.@ TTL
+
+# SP - SUBDOMAIN
+cr7 NS braga.@ TTL
+# SS - SUBDOMAIN
+cr7 NS renato.@ TTL
+cr7 NS mendes.@ TTL
+
+# SP
+william A 10.0.8.12 TTL
+# SS
+mario A 10.0.16.13 TTL
+dalot A 10.0.14.12 TTL
+
+# SP - SUBDOMAIN
+braga.cr7 A 10.0.15.10 TTL
+# SS - SUBDOMAIN
+renato.cr7 A 10.0.16.10 TTL
+mendes.cr7 A 10.0.13.10 TTL
+
+sp CNAME william TTL
+ss1 CNAME mario TTL
+ss2 CNAME dalot TTL
+sdsp CNAME braga.cr7 TTL
+sdss1 CNAME renato.cr7 TTL
+sdss2 CNAME mendes.cr7 TTL

@@ -1,27 +1,45 @@
 # Base de dados para o SP do domínio G706.
 
 @ DEFAULT G706.
-cr7 DEFAULT CR7.CMS.G706.
-m10 DEFAULT M10.JJM.G706.
+cms DEFAULT CMS.G706.
+jjm DEFAULT JJM.G706.
 rev DEFAULT REVERSE.G706.
 TTL DEFAULT 90000
 
-# SP + SS
+# TOPO
 @ NS pepe.G706. TTL
 @ NS palhinha.G706. TTL
-cr7 NS braga.cr7 TTL
-m10 NS cancelo.m10 TTL
-rev NS rui.rev TTL
+
+# CMS
+cms NS william.cms TTL
+cms NS mario.cms TTL
+cms NS dalot.cms TTL
+
+# JJM
+jjm NS felix.jjm TTL
+jjm NS otavio.jjm TTL
+jjm NS ramos.jjm TTL
 
 # ST
 pepe A 10.0.14.11 TTL
 palhinha A 10.0.13.11 TTL
-braga.cr7 A 10.0.15.10 TTL
-cancelo.m10 A 10.0.9.11 TTL
-rui.rev A 10.0.10.10 TTL
+
+# CMS
+william.cms A 10.0.8.12 TTL
+mario.cms A 10.0.16.13 TTL
+dalot.cms A 10.0.14.12 TTL
+
+# JJM
+felix.jjm A 10.0.13.12 TTL
+otavio.jjm A 10.0.15.13 TTL
+ramos.jjm A 10.0.10.13 TTL
 
 st1 CNAME pepe TTL
 st2 CNAME palhinha TTL
-sd1.cr7 CNAME braga.cr7 TTL
-sd2.m10 CNAME cancelo.m10 TTL
+spsd1.jjm CNAME felix.jjm  TTL
+ss1sd1.jjm CNAME otavio.jjm TTL
+ss2sd1.jjm CNAME ramos.jjm TTL
+spsd2.cms CNAME william.cms TTL
+ss1sd2.cms CNAME mario.cms TTL
+ss2sd2.cms CNAME dalot.cms TTL
 sd3.rev CNAME rui.rev TTL
