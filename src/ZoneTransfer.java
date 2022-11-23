@@ -51,7 +51,7 @@ public class ZoneTransfer implements Runnable {
 
                                 /* Recebe dominio e valida */
                                 String domain = fromClient.readUTF();
-                                boolean autoriza = true; // allowSS(c.getInetAddress());
+                                boolean autoriza = allowSS(c.getInetAddress());
 
                                 if (this.objsp.getDominio().equals(domain) && autoriza) {
                                         /* Envia número de entradas */
