@@ -2,7 +2,7 @@
  * @Author João Martins
  * @Class Server
  * Created date: 03/11/2022
- * Last update: 15/11/2022
+ * Last update: 23/11/2022
  */
 
 import DNSPacket.*;
@@ -26,6 +26,15 @@ public class Server {
     private int port;           /* 3º arg: Port (optional) */
     private boolean debug;      /* 4º arg: Operation mode (optional) */
 
+
+    /**
+     * Construtor da classe Server.
+     * @param configFile Caminho para o ficheiro de configuração.
+     * @param timeout Valor de timeout.
+     * @param port Porta de funcionamento do servidor.
+     * @param debug Modo normal
+     * @throws InvalidArgumentException Argumento do modo inválido.
+     */
     public Server(String configFile, String timeout, String port, String debug) throws InvalidArgumentException {
         this.configFile = configFile;
         this.timeout = Integer.parseInt(timeout);
@@ -34,7 +43,13 @@ public class Server {
         else throw new InvalidArgumentException("Invalid last argument");
     }
 
-    public Server(String configFile, String timeout, String optional) throws InvalidArgumentException {
+    /**
+     * Construtor da classe Server.
+     * @param configFile Caminho para o ficheiro de configuração.
+     * @param timeout Valor de timeout.
+     * @param optional Porta de funcionamento do servidor ou modo normal
+     */
+    public Server(String configFile, String timeout, String optional) {
         this.configFile = configFile;
         this.timeout = Integer.parseInt(timeout);
         if (optional.compareTo("N")==0) {
@@ -46,6 +61,11 @@ public class Server {
         }
     }
 
+    /**
+     * Construtor da classe Server.
+     * @param configFile Caminho para o ficheiro de configuração.
+     * @param timeout Valor de timeout.
+     */
     public Server(String configFile, String timeout) throws InvalidArgumentException {
         this.configFile = configFile;
         this.timeout = Integer.parseInt(timeout);
@@ -53,6 +73,11 @@ public class Server {
         this.port = 5353;
     }
 
+
+    /**
+     * Server main.
+     * @param args argumentos passados por linha de comando.
+     */
     public static void main(String[] args) {
         Server s = null;
 

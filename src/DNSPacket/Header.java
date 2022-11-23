@@ -1,5 +1,13 @@
 package DNSPacket;
 
+
+
+/**
+ * @Author João Martins
+ * @Class Header
+ * Created date: 22/10/2022
+ * Last Update: 07/11/2022
+ */
 public class Header {
     private short messageID;
     private byte flags;
@@ -8,6 +16,9 @@ public class Header {
     private byte numberOfAuthorites;
     private byte numberOfExtraValues;
 
+    /**
+     * Construtor da classe header dados os campos: messageID, flags,responseCode, numberOfValues, numberOfAuthorites, numberOfExtraValues.
+     */
     public Header(short messageID, byte flags, byte responseCode, byte numberOfValues, byte numberOfAuthorites, byte numberOfExtraValues) {
         this.messageID = messageID;
         this.flags = flags;
@@ -17,7 +28,9 @@ public class Header {
         this.numberOfExtraValues = numberOfExtraValues;
     }
 
-
+    /**
+     * Construtor da classe header dados os campos: messageID, flags.
+     */
     public Header(short messageID, byte flags) {
         this.messageID = messageID;
         this.flags = flags;
@@ -27,6 +40,9 @@ public class Header {
         this.numberOfExtraValues = 0;
     }
 
+    /**
+     * Getters e setters.
+     */
     public short getMessageID() {
         return messageID;
     }
@@ -88,6 +104,9 @@ public class Header {
                 numberOfExtraValues == header.numberOfExtraValues;
     }
 
+    /**
+     * Converte o valor das flags para a sua representação em string.
+     */
     public String flagsToString () {
         String out;
         switch (this.flags) {
@@ -111,6 +130,9 @@ public class Header {
         return out;
     }
 
+    /**
+     * Dado a string com a representação das flags, obtemos o valor correspondente.
+     */
     public static byte flagsStrToByte (String flags) {
         byte out;
         switch (flags) {
@@ -134,6 +156,9 @@ public class Header {
         return out;
     }
 
+    /**
+     * Parsing de uma string com o header.
+     */
     public static Header stringToHeader (String header) {
         String[] headerFields = header.split(",");
         short mId = (short) Integer.parseInt(headerFields[0]);
@@ -145,6 +170,9 @@ public class Header {
         return new Header(mId,fs,rc,nv,na,ne);
     }
 
+    /**
+     * Representação do header em formato conciso.
+     */
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
@@ -163,6 +191,9 @@ public class Header {
         return out.toString();
     }
 
+    /**
+     * Representação do header para apresentação ao cliente.
+     */
     public String showHeader() {
         StringBuilder out = new StringBuilder();
         out.append("# Header\n");

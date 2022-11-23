@@ -1,3 +1,9 @@
+/**
+ * @Author João Martins
+ * @Class ZoneTransfer
+ * Created date: 03/11/2022
+ * Last update: 23/11/2022
+ */
 import ObjectServer.ObjectSP;
 
 import java.io.*;
@@ -13,10 +19,19 @@ import java.util.List;
 public class ZoneTransfer implements Runnable {
         private ObjectSP objsp;
 
+        /**
+         * Contrutor da classe ZoneTransfer.
+         * @param objsp
+         */
         public ZoneTransfer(ObjectSP objsp) {
                 this.objsp = objsp;
         }
 
+        /**
+         * Método que conta o número de entradas válidas com as linhas obtidos do ficheiro de base de dados.
+         * @param lines
+         * @return
+         */
         public int countEntrys (List<String> lines) {
                 int i = 0;
                 for (String l : lines) {
@@ -27,6 +42,11 @@ public class ZoneTransfer implements Runnable {
                 return i;
         }
 
+        /**
+         * Método que verifica se o SS tem autorização para realizar uma transferência de zona.
+         * @param ss
+         * @return true caso o ss se encontre na lista de SS do SP para o domínio em questão, false caso contrário.
+         */
         public boolean allowSS (InetAddress ss) {
                 Iterator<InetSocketAddress> it = objsp.getSS().iterator();
                 boolean f = false;
@@ -39,6 +59,9 @@ public class ZoneTransfer implements Runnable {
                 return f;
         }
 
+        /**
+         * Processo que vai correr em um segundo plano no servidor principal para realizar operações de transferência de zona.
+         */
         @Override
         public void run() {
                 try {

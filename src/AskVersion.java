@@ -1,3 +1,9 @@
+/**
+ * @Author João Martins
+ * @Class AskVersion
+ * Created date: 03/11/2022
+ * Last update: 23/11/2022
+ */
 import Cache.*;
 import Cache.EntryCache;
 import DNSPacket.Data;
@@ -10,10 +16,17 @@ import java.net.Socket;
 public class AskVersion implements Runnable {
     private ObjectSS objss;
 
+    /**
+     * Construtor da classe AskVersion.
+     * @param objss
+     */
     public AskVersion(ObjectSS objss) {
         this.objss = objss;
     }
 
+    /**
+     * Processo que ocorre em segundo plano no servidor secundário para perguntar a versão ao servidor principal e realizar transferência de zona.
+     */
     @Override
     public void run() {
         try {
@@ -21,10 +34,7 @@ public class AskVersion implements Runnable {
 
                 /* Verifica versão  */
                 Tuple<Integer, Data> respc = objss.getCache().findAnswer(objss.getDominio(), (byte) 2);
-                boolean execTZ = false;
-                if (respc.getValue1() != 3) {
-                    execTZ = true;
-                }
+                boolean execTZ = respc.getValue1() != 3;
 
                 // Com timeout -> o valor de wait é o soaretry
                 Socket s = new Socket(objss.getSP().getAddress(), objss.getSP().getPort());

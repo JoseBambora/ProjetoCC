@@ -1,9 +1,15 @@
 package DNSPacket;
 
 import Exceptions.TypeOfValueException;
-
 import java.util.Arrays;
 
+
+/**
+ * @Author João Martins
+ * @Class Data
+ * Created date: 22/10/2022
+ * Last Update: 5/11/2022
+ */
 public class Data {
     private String name;
     private byte typeOfValue;
@@ -12,6 +18,9 @@ public class Data {
     private Value[] extraValues;
 
 
+    /**
+     * Construtor de classe Data dado o name e o typeOfValue.
+     */
     public Data(String name, byte typeOfValue) {
         this.name = name;
         this.typeOfValue = typeOfValue;
@@ -20,6 +29,9 @@ public class Data {
         this.extraValues = null;
     }
 
+    /**
+     * Construtor da classe Data dados o name, typeOfValue, responseValues, authoritiesValues e extraValues.
+     */
     public Data(String name, byte typeOfValue, Value[] responseValues, Value[] authoriteValues, Value[] extraValues) {
         this.name = name;
         this.typeOfValue = typeOfValue;
@@ -28,6 +40,10 @@ public class Data {
         this.extraValues = extraValues;
     }
 
+    /**
+     * Converto uma string com um type para o inteiro respetivo.
+     * @throws TypeOfValueException tipo inválido.
+     */
     public static byte typeOfValueConvert (String type) throws TypeOfValueException {
         byte ret;
         switch (type) {
@@ -59,6 +75,9 @@ public class Data {
         return ret;
     }
 
+    /**
+     * Converte o tipo na sua representação em string.
+     */
     public static String typeOfValueConvertSring (byte type) {
         String ret = null;
         switch (type) {
@@ -90,7 +109,9 @@ public class Data {
         return ret;
     }
 
-
+    /**
+     * Getters e setters.
+     */
     public String getName() {
         return name;
     }
@@ -143,6 +164,23 @@ public class Data {
                 Arrays.equals(extraValues, data.extraValues);
     }
 
+    /**
+     * Conversão de um array de values para a sua representação textual.
+     */
+    public static String valuesToString (Value[] values) {
+        StringBuilder out = new StringBuilder();
+        out.append("\n");
+        for (int i = 0, tam = values.length; i < tam; i++) {
+            out.append(values[i]);
+            if (i == tam - 1) out.append(";");
+            else out.append(",\n");
+        }
+        return out.toString();
+    }
+
+    /**
+     * Converte a parte da Data num pacote DNS para o formato conciso.
+     */
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
@@ -150,34 +188,16 @@ public class Data {
         out.append(",");
         out.append(Data.typeOfValueConvertSring(typeOfValue));
         out.append(";");
-        int i, tam;
-        if (responseValues!=null) {
-            out.append("\n");
-            for (i = 0, tam = responseValues.length; i < tam; i++) {
-                out.append(responseValues[i]);
-                if (i == tam - 1) out.append(";");
-                else out.append(",\n");
-            }
-        }
-        if (authoriteValues!=null) {
-            out.append("\n");
-            for (i = 0, tam = authoriteValues.length; i < tam; i++) {
-                out.append(authoriteValues[i]);
-                if (i == tam - 1) out.append(";");
-                else out.append(",\n");
-            }
-        }
-        if (extraValues!=null) {
-            out.append("\n");
-            for (i = 0, tam = extraValues.length; i < tam; i++) {
-                out.append(extraValues[i]);
-                if (i == tam - 1) out.append(";");
-                else out.append(",\n");
-            }
-        }
+        if (responseValues!=null) out.append(Data.valuesToString(responseValues));
+        if (authoriteValues!=null) out.append(Data.valuesToString(authoriteValues));
+        if (extraValues!=null) out.append(Data.valuesToString(extraValues));
         return out.toString();
     }
 
+    /**
+     * Converte a parte da Data num pacote DNS para um formato mais amigo do utilizadorl.
+     * @return
+     */
     public String showData() {
         StringBuilder out = new StringBuilder();
         out.append("# Data: Query-info\nQUERY-INFO.NAME = ");
@@ -210,7 +230,7 @@ public class Data {
             for (i = 0, tam = extraValues.length; i < tam; i++) {
                 out.append("EXTRA-VALUES = ");
                 out.append(extraValues[i]);
-                if (i == tam - 1) out.append(";");
+                if (i == tam - 1) out.append(";\n");
                 else out.append(",\n");
             }
         }

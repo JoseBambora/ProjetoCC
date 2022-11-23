@@ -2,7 +2,7 @@
  * @Author João Martins
  * @Class Client
  * Created date: 03/11/2022
- * Last update: 22/11/2022
+ * Last update: 23/11/2022
  */
 
 import DNSPacket.*;
@@ -26,7 +26,13 @@ public class Client {
 
 
     /**
-     * Constructors of client.
+     * Contrutor da classe cliente.
+     * @param serverAddr Endereço IP do servidor de destino da query.
+     * @param timeout Valor de timeout.
+     * @param name Parametro Name da query.
+     * @param type Parametro Type da query.
+     * @throws UnknownHostException Endereço não é conhecido.
+     * @throws TypeOfValueException Tipo passado não existe.
      */
     public Client(String serverAddr, String timeout, String name, String type) throws UnknownHostException, TypeOfValueException {
         String[] words = serverAddr.split(":");
@@ -40,6 +46,17 @@ public class Client {
         this.debug = true;
     }
 
+    /**
+     * Contrutor da classe cliente.
+     * @param serverAddr Endereço IP do servidor de destino da query.
+     * @param timeout Valor de timeout.
+     * @param name Parametro Name da query.
+     * @param type Parametro Type da query.
+     * @param option Argumento opcional, pode ser modo recursivo ou modo normal.
+     * @throws UnknownHostException Endereço não é conhecido.
+     * @throws TypeOfValueException Tipo passado não existe.
+     * @throws InvalidArgumentException Argumento opcional é inválido.
+     */
     public Client(String serverAddr, String timeout, String name, String type, String option) throws UnknownHostException, TypeOfValueException, InvalidArgumentException {
         String[] words = serverAddr.split(":");
         this.serverAddress = InetAddress.getByName(words[0]);
@@ -61,6 +78,18 @@ public class Client {
         }
     }
 
+    /**
+     * Contrutor da classe cliente.
+     * @param serverAddr Endereço IP do servidor de destino da query.
+     * @param timeout Valor de timeout.
+     * @param name Parametro Name da query.
+     * @param type Parametro Type da query.
+     * @param recursive Argumento opcional, tentar modo recursivo.
+     * @param debug Argumento opcional, modo normal.
+     * @throws UnknownHostException Endereço não é conhecido.
+     * @throws TypeOfValueException Tipo passado não existe.
+     * @throws InvalidArgumentException Argumento opcional é inválido.
+     */
     public Client(String serverAddr, String timeout, String name, String type, String recursive, String debug) throws UnknownHostException, TypeOfValueException, InvalidArgumentException {
         String[] words = serverAddr.split(":");
         this.serverAddress = InetAddress.getByName(words[0]);
@@ -84,6 +113,10 @@ public class Client {
         return new DNSPacket((short) (new Random()).nextInt(1,65535), flags, this.name, this.type);
     }
 
+    /**
+     * Client main.
+     * @param args argumentos passados por linha de comando.
+     */
     public static void main(String[] args) {
         Client cl = null;
 
@@ -126,9 +159,8 @@ public class Client {
             System.out.println(rr);
 
             /* Print the response */
-            System.out.println("\n-----------------------------------------------------------------");
+            System.out.println("\n");
             System.out.println(resPacket.showDNSPacket());
-            System.out.println("-----------------------------------------------------------------");
 
         } catch (SocketTimeoutException e) {
             Log to = new Log(new Date(), Log.EntryType.TO, cl.serverAddress.getHostAddress(), cl.serverPort, "Query response");

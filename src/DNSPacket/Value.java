@@ -4,6 +4,12 @@ import Exceptions.TypeOfValueException;
 
 import java.util.Objects;
 
+/**
+ * @Author João Martins
+ * @Class Value
+ * Created date: 22/10/2022
+ * Last Update: 07/11/2022
+ */
 public class Value {
     private String dominio;
     private byte type;
@@ -11,6 +17,9 @@ public class Value {
     private int TTL;
     private int prioridade;
 
+    /**
+     * Construtor da classe Value dado o dominio, type, value, ttl e prioridade.
+     */
     public Value(String dominio, byte type, String value, int ttl, int prioridade) {
         this.dominio = dominio;
         this.type = type;
@@ -19,6 +28,9 @@ public class Value {
         this.prioridade = prioridade;
     }
 
+    /**
+     * Construtor da classe Value dado o dominio, type, value e ttl.
+     */
     public Value(String dominio, byte type, String value, int ttl) {
         this.dominio = dominio;
         this.type = type;
@@ -27,6 +39,9 @@ public class Value {
         this.prioridade = -1;
     }
 
+    /**
+     * Getters e setters.
+     */
     public String getDominio() {
         return dominio;
     }
@@ -67,15 +82,21 @@ public class Value {
         this.TTL = TTL;
     }
 
+    /**
+     * Parsing de uma string para obter um novo objeto Value.
+     */
     public static Value stringToValue (String value) throws TypeOfValueException {
         String[] fields = value.split(" ");
         int prioridade = -1;
         if (fields.length == 5) {
             prioridade = Integer.parseInt(fields[4]);
         }
-        return new Value(fields[0],(byte) Data.typeOfValueConvert(fields[1]),fields[2],Integer.parseInt(fields[3]),prioridade);
+        return new Value(fields[0], Data.typeOfValueConvert(fields[1]),fields[2],Integer.parseInt(fields[3]),prioridade);
     }
 
+    /**
+     * Representação de um objeto value.
+     */
     @Override
     public String toString() {
         String out;
