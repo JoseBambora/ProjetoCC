@@ -232,6 +232,8 @@ public class ObjectServer {
         if (this instanceof ObjectSP auxserver){
             auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName),this.DD.get(domainName).get(0));
         }
+        else if(this instanceof ObjectSS)
+            this.cache.setDominio(domainName);
         if (!this.verificaConfig(domainName)) {
             res = true;
             writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.", Log.EntryType.FL,this.logs.get(domainName));

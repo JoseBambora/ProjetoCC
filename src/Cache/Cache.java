@@ -49,7 +49,11 @@ public class Cache
         tipos.add("MX");
         tipos.add("A");
         tipos.add("PTR");
-        tipos.forEach(str -> {try {aux.put(str , Data.typeOfValueConvert(str));} catch (Exception e){}});
+        tipos.forEach(str -> {try {aux.put(str , Data.typeOfValueConvert(str));} catch (Exception ignored){}});
+    }
+
+    public void setDominio(String dominio) {
+        this.dominio = dominio;
     }
 
     /**
@@ -117,7 +121,7 @@ public class Cache
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
         this.cache.stream().filter(e -> e.getType() == ns)
-                           .filter(e -> e.getOrigem() == EntryCache.Origin.FILE ?
+                           .filter(e -> e.getOrigem() != EntryCache.Origin.OTHERS ?
                                    e.getDominio().matches("(.*)" + this.dominio) :
                                    e.getDominio().matches(dominio))
                            .forEach(e -> values.add(e.getData()));
