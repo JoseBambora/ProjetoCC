@@ -29,17 +29,16 @@ public class Main {
     }
     public static void main(String[] args) throws Exception {
         Cache bd1 = new Cache();
-        bd1.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log", new InetSocketAddress(5353));
+        bd1.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log");
         Cache bd2 = new Cache();
-        bd2.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
+        bd2.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log");
         Cache bd3 = new Cache();
-        bd3.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
+        bd3.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log");
         Cache bd4 = new Cache();
-        bd4.createBD("../DatabasesFiles/Rui.db","KB9.REVERSE.G706.","../LogsFiles/all.log", new InetSocketAddress(5353));
+        bd4.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
-        /*
         ObjectServer SP= ObjectServer.parseServer("../ConfigurationFiles/configPepe");
         System.out.println(SP.getCache().toString().equals("""
                 G706. NS pepe.G706. 90000
@@ -67,8 +66,6 @@ public class Main {
                 ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000
                 sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000
                 """));
-
-         */
         Tuple<Integer, Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
         Tuple<Integer,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         Tuple<Integer,Data> data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
@@ -176,6 +173,13 @@ public class Main {
         bd7.setDominio("CR7.CMS.G706.");
         List<String> lines = Files.readAllLines(Paths.get("../DatabasesFiles/Braga.db"), StandardCharsets.UTF_8);
         lines.forEach(s -> bd7.addData(s, EntryCache.Origin.SP));
-        System.out.println(bd7.findAnswer("braga.CR7.CMS.G706.", (byte) 7).getValue2());
+        System.out.println(bd7.findAnswer("braga.CR7.CMS.G706.", (byte) 7).getValue2().toString().equals("""
+                braga.CR7.CMS.G706.,A;
+                braga.CR7.CMS.G706. A 10.0.15.10:5353 90000;
+                CR7.CMS.G706. NS braga.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS renato.CR7.CMS.G706. 90000,
+                CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
+                renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
+                mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
     }
 }

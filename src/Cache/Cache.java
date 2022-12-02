@@ -5,7 +5,6 @@ import Log.*;
 import ObjectServer.*;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -444,7 +443,7 @@ public class Cache
      * @param lines Linhas de um ficheiro.
      * @param logFile Ficheiro para escrever os warnigns do ficheiro de configuração da base de dados.
      */
-    public void createBD(List<String> lines, String logFile, InetSocketAddress ip) throws IOException
+    public void createBD(List<String> lines, String logFile) throws IOException
     {
         List<String> warnings = new ArrayList<>();
         AtomicInteger l = new AtomicInteger(1);
@@ -454,7 +453,15 @@ public class Cache
                                   warnings.add("Erro ficheiro BD, linha " + l + " não adicionada");}
                             );
         List<String> writeLogs = new ArrayList<>();
-        warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,ip.toString(),w).toString()); System.out.println(w);});
+        String nameSP = this.cache.stream().filter(entryCache -> entryCache.getType() == aux.get("SOASP"))
+                                           .findFirst().map(entryCache -> entryCache.getData().getValue())
+                                           .orElse("");
+        String endereco = this.cache.stream().filter(entryCache -> entryCache.getType() == aux.get("A"))
+                                             .filter(entryCache ->  entryCache.getDominio().equals(nameSP))
+                                             .findFirst().map(entryCache -> entryCache.getData().getValue())
+                                             .orElse("");
+        warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,w).toString());});
+        writeLogs.forEach(System.out::println);
         LogFileWriter.writeInLogFile(logFile,writeLogs);
     }
 
@@ -464,11 +471,11 @@ public class Cache
      * @param dom Domínio do servidor.
      * @param logFile Ficheiro para escrever os warnings.
      */
-    public void createBD(String filename,String dom, String logFile, InetSocketAddress ip) throws IOException
+    public void createBD(String filename,String dom, String logFile) throws IOException
     {
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines,logFile,ip);
+        this.createBD(lines,logFile);
     }
     @Override
     public String toString()
