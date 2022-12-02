@@ -3,4 +3,4 @@ REVERSE.G706. DB ../DatabasesFiles/Rui.db
 REVERSE.G706. DD 10.0.10.10
 REVERSE.G706. LG ../LogsFiles/REVERSE.G706.log
 all LG ../LogsFiles/all.log
-root ST ../DatabasesFiles/rootservers.db
+root ST ../DatabasesFiles/Rootservers.db

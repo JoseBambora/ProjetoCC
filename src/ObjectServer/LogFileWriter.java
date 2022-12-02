@@ -20,11 +20,6 @@ public class LogFileWriter {
     private static final Lock lockMap = new ReentrantLock();
 
     /**
-     * Construtor de objetos da classe ObjectServer.LogFileWriter
-     */
-    public LogFileWriter() {}
-
-    /**
      * Getter do lock associado ao ficheiro de log
      * @param ficheiro nome do ficheiro de log
      * @return o lock do ficheiro de log

@@ -238,10 +238,10 @@ public class ObjectServer {
             res = true;
             writeLineinLogs("Campos em falta. Servidor com o ficheiro de configuração " + filename + " não configurado.", Log.EntryType.FL,this.logs.get(domainName));
         }
-        writeLineinLogs("Servidor correspondente ao Ficheiro de configuração " +filename +" configurado", Log.EntryType.EV,this.logs.get(domainName));
-        writeLineinTerminal("Servidor correspondente ao Ficheiro de configuração " +filename +" configurado", Log.EntryType.EV);
-
-        //LOG File Writer -> se ficheiro de log ja existir tenho de fazer .append
+        else {
+            writeLineinLogs("Servidor correspondente ao Ficheiro de configuração " + filename + " configurado", Log.EntryType.EV, this.logs.get(domainName));
+            writeLineinTerminal("Servidor correspondente ao Ficheiro de configuração " + filename + " configurado", Log.EntryType.EV);
+        }
         return res;
     }
 
