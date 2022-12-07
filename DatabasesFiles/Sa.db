@@ -1,0 +1,15 @@
+# Base de dados para o SP do domínio REVERSE.G706.
+
+@ DEFAULT IN-ADDR.REVERSE.G706.
+
+
+@ SOASP sa.@ TTL
+@ SOAADMIN fernando2\.admin.@ TTL
+@ SOASERIAL 123123 TTL
+@ SOAREFRESH 15000 TTL
+@ SOARETRY 4000 TTL
+@ SOAEXPIRE 502000 TTL
+
+# SP
+@ NS sa.@ TTL
+@ NS antonio.10.@ TTL

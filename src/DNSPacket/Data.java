@@ -1,7 +1,12 @@
 package DNSPacket;
 
 import Exceptions.TypeOfValueException;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -236,6 +241,69 @@ public class Data {
         }
         else out.append("EXTRA-VALUES = (Null)");
         return out.toString();
+    }
+
+    public static Data bytesToData(byte [] bytes,byte rv, byte av, byte ev)
+    {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        int len = byteBuffer.getInt();
+        byte []aux1 = new byte[len];
+        byteBuffer.get(aux1);
+        String name = new String(aux1);
+        byte t = byteBuffer.get();
+        int len1 = byteBuffer.getInt();
+        int len2 = byteBuffer.getInt();
+        int len3 = byteBuffer.getInt();
+        byte []aux2 = new byte[len1];
+        byte []aux3 = new byte[len2];
+        byte []aux4 = new byte[len3];
+        byteBuffer.get(aux2);
+        byteBuffer.get(aux3);
+        byteBuffer.get(aux4);
+        List<Value> rvv = new ArrayList<>();
+        List<Value> avv = new ArrayList<>();
+        List<Value> evv = new ArrayList<>();
+        for(int i = 0; i < rv; i++)
+            rvv.add(Value.bytesToValues(aux2));
+        for(int i = 0; i < av; i++)
+            avv.add(Value.bytesToValues(aux3));
+        for(int i = 0; i < ev; i++)
+            evv.add(Value.bytesToValues(aux4));
+        return new Data(name,t,rvv.toArray(new Value[1]),avv.toArray(new Value[1]),evv.toArray(new Value[1]));
+    }
+
+    public byte[] dataToBytes()
+    {
+        byte[] n = this.name.getBytes();
+        List<byte[]> values = new ArrayList<>();
+        int len1 = 0, len2 = 0, len3 = 0;
+        for(Value value : this.responseValues)
+        {
+            byte []b = value.valuesToBytes();
+            values.add(b);
+            len1 += b.length;
+        }
+        for(Value value : this.authoriteValues)
+        {
+            byte []b = value.valuesToBytes();
+            values.add(b);
+            len2 += b.length;
+        }
+        for(Value value : this.extraValues)
+        {
+            byte []b = value.valuesToBytes();
+            values.add(b);
+            len3 += b.length;
+        }
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4 + n.length + 1 + 12 + len1 + len2 + len3);
+        byteBuffer.putInt(this.name.length());
+        byteBuffer.put(n);
+        byteBuffer.put(this.typeOfValue);
+        byteBuffer.putInt(len1);
+        byteBuffer.putInt(len2);
+        byteBuffer.putInt(len3);
+        values.forEach(byteBuffer::put);
+        return byteBuffer.array();
     }
 
 }

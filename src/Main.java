@@ -1,5 +1,7 @@
 import Cache.*;
+import DNSPacket.DNSPacket;
 import DNSPacket.Data;
+import DNSPacket.Header;
 import DNSPacket.Value;
 import ObjectServer.ObjectServer;
 
@@ -181,5 +183,22 @@ public class Main {
                 CR7.CMS.G706. NS mendes.CR7.CMS.G706. 90000;
                 renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
                 mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
+        Value value = new Value("123",(byte) 0, "abc",3,4);
+        byte[] b = value.valuesToBytes();
+        Value value1 = Value.bytesToValues(b);
+        System.out.println("Value:" +value1.equals(value));
+        Header h = new Header((short) 3, (byte) 8,(byte) 0, (byte) 4,(byte) 4,(byte)4);
+        b = h.headerToBytes();
+        Header h2 = Header.bytesToHeader(b);
+        System.out.println("Header:" + h.equals(h2));
+        Value[] values = {value,value1,value1,value1};
+        Data d = new Data("abc",(byte) 0, values, values, values);
+        b = d.dataToBytes();
+        Data d1 = Data.bytesToData(b,(byte) 4,(byte) 4,(byte)4);
+        System.out.println("Data: " + d.equals(d1));
+        DNSPacket dnsPacket = new DNSPacket(h,d);
+        b = dnsPacket.dnsPacketToBytes();
+        DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
+        System.out.println("DNSPacket: " + dnsPacket1.equals(dnsPacket));
     }
 }

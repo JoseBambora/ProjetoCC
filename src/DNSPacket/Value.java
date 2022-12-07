@@ -2,6 +2,7 @@ package DNSPacket;
 
 import Exceptions.TypeOfValueException;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
@@ -115,5 +116,43 @@ public class Value {
         if (o == null || getClass() != o.getClass()) return false;
         Value value1 = (Value) o;
         return type == value1.type && TTL == value1.TTL && prioridade == value1.prioridade && Objects.equals(dominio, value1.dominio) && Objects.equals(value, value1.value);
+    }
+
+    public int numberBytes()
+    {
+        return this.dominio.getBytes().length + 1 + this.value.getBytes().length + 8;
+    }
+
+    public static Value bytesToValues(byte [] bytes)
+    {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        int len1 = byteBuffer.getInt();
+        byte []dom = new byte[len1];
+        byteBuffer.get(dom);
+        String domi = new String(dom);
+        byte t = byteBuffer.get();
+        int len2 = byteBuffer.getInt();
+        byte []val = new byte[len2];
+        byteBuffer.get(val);
+        String valu = new String(val);
+        int ttl = byteBuffer.getInt();
+        int pri = byteBuffer.getInt();
+        return new Value(domi,t,valu,ttl,pri);
+    }
+
+    public byte[] valuesToBytes()
+    {
+        byte []dom = this.dominio.getBytes();
+        byte []val = this.value.getBytes();
+        int size = (Integer.SIZE / 8) * 4 + dom.length + 1 + val.length;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        byteBuffer.putInt(dom.length);
+        byteBuffer.put(dom);
+        byteBuffer.put(this.type);
+        byteBuffer.putInt(val.length);
+        byteBuffer.put(val);
+        byteBuffer.putInt(this.TTL);
+        byteBuffer.putInt(this.prioridade);
+        return byteBuffer.array();
     }
 }

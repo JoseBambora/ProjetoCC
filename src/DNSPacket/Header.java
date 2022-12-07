@@ -1,6 +1,8 @@
 package DNSPacket;
 
 
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * @Author João Martins
@@ -211,6 +213,30 @@ public class Header {
         out.append(Byte.toUnsignedInt(numberOfExtraValues));
         out.append(";\n");
         return out.toString();
+    }
+
+    public static Header bytesToHeader(byte [] bytes)
+    {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        short mi = byteBuffer.getShort();
+        byte f = byteBuffer.get();
+        byte rc = byteBuffer.get();
+        byte nv = byteBuffer.get();
+        byte av = byteBuffer.get();
+        byte ev = byteBuffer.get();
+        return new Header(mi,f,rc,nv,av,ev);
+    }
+
+    public byte[] headerToBytes()
+    {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(7);
+        byteBuffer.putShort(this.messageID);
+        byteBuffer.put(this.flags);
+        byteBuffer.put(this.responseCode);
+        byteBuffer.put(this.numberOfValues);
+        byteBuffer.put(this.numberOfAuthorites);
+        byteBuffer.put(this.numberOfExtraValues);
+        return byteBuffer.array();
     }
 
 }
