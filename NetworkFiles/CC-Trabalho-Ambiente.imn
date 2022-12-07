@@ -750,6 +750,7 @@ node n33 {
     interface-peer {e2 n8}
     interface-peer {e3 n37}
     interface-peer {e4 n40}
+    interface-peer {e5 n44}
 }
 
 node n34 {
@@ -766,6 +767,7 @@ node n34 {
     interface-peer {e2 n11}
     interface-peer {e3 n38}
     interface-peer {e4 n41}
+    interface-peer {e5 n45}
 }
 
 node n14 {
@@ -1017,6 +1019,40 @@ node n43 {
     services {DefaultRoute UserDefined}
 }
 
+node n44 {
+    type router
+    model host
+    network-config {
+	hostname sa
+	!
+	interface eth0
+	 ip address 10.0.13.13/24
+	 ipv6 address 2001:13::13/64
+	!
+    }
+    canvas c1
+    iconcoords {547.0 60.0}
+    labelcoords {568.0 73.0}
+    interface-peer {eth0 n33}
+}
+
+node n45 {
+    type router
+    model host
+    network-config {
+	hostname antonio
+	!
+	interface eth0
+	 ip address 10.0.14.13/24
+	 ipv6 address 2001:14::13/64
+	!
+    }
+    canvas c1
+    iconcoords {898.0 79.0}
+    labelcoords {894.0 62.0}
+    interface-peer {eth0 n34}
+}
+
 link l8 {
     nodes {n13 n19}
 }
@@ -1239,6 +1275,16 @@ link l46 {
 
 link l47 {
     nodes {n41 n34}
+    bandwidth 0
+}
+
+link l48 {
+    nodes {n44 n33}
+    bandwidth 0
+}
+
+link l49 {
+    nodes {n45 n34}
     bandwidth 0
 }
 
