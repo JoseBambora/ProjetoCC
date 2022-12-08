@@ -485,6 +485,37 @@ public class Cache
         return res.toString();
     }
 
+    public String findIP(String dominio)
+    {
+        String [] dominios = dominio.split("\\.");
+        List<String> dominioCache = this.cache.stream().filter(EntryCache::isValid)
+                                                       .filter(e -> e.getType() == aux.get("A"))
+                                                       .map(e -> e.getDominio()).toList();
+        Map<String,Integer> map = new HashMap<>();
+        for(String dom : dominioCache)
+        {
+            map.put(dom,0);
+            int i = dominios.length-1;
+            StringBuilder dom2 = new StringBuilder('.' + dominios[i] + '.');
+            while(i > 0 && dom.matches("(.*)" + dom2))
+            {
+                i--;
+                dom2.insert(0, '.' + dominios[i]);
+                map.put(dom,map.get(dom)+1);
+            }
+            if(dom.matches("(.*)" + dom2))
+                map.put(dom,map.get(dom)+1);
+
+        }
+        int max = map.entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getValue).orElse(0);
+        List<String> doms = map.entrySet().stream().filter(e -> e.getValue().equals(max)).map(Map.Entry::getKey).toList();
+        return this.cache.stream().filter(EntryCache :: isValid)
+                .filter(e -> e.getType() == aux.get("A"))
+                .filter(e -> doms.contains(e.getDominio()))
+                .findFirst().map(e -> e.getData().getValue())
+                .orElse("");
+    }
+
     /**
      * Método para testes
      * @return Devolve o número de entradas na cache.

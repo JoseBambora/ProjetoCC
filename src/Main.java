@@ -170,7 +170,7 @@ public class Main {
             threads[i].join();
         System.out.println("ACABOU");
         System.out.println(cacheTestThreads.size() == num * num);
-         */
+*/
         Cache bd7 = new Cache();
         bd7.setDominio("CR7.CMS.G706.");
         List<String> lines = Files.readAllLines(Paths.get("../DatabasesFiles/Braga.db"), StandardCharsets.UTF_8);
@@ -200,5 +200,6 @@ public class Main {
         b = dnsPacket.dnsPacketToBytes();
         DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
         System.out.println("DNSPacket: " + dnsPacket1.equals(dnsPacket));
+        System.out.println(bd2.findIP("M10.CMS.G706."));
     }
 }
