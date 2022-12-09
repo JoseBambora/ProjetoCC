@@ -157,7 +157,6 @@ public class Main {
                 braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
                 renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
                 mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
-        /*
         int num = 75;
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");
         Cache cacheTestThreads = new Cache();
@@ -170,7 +169,6 @@ public class Main {
             threads[i].join();
         System.out.println("ACABOU");
         System.out.println(cacheTestThreads.size() == num * num);
-*/
         Cache bd7 = new Cache();
         bd7.setDominio("CR7.CMS.G706.");
         List<String> lines = Files.readAllLines(Paths.get("../DatabasesFiles/Braga.db"), StandardCharsets.UTF_8);
@@ -200,6 +198,25 @@ public class Main {
         b = dnsPacket.dnsPacketToBytes();
         DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
         System.out.println("DNSPacket: " + dnsPacket1.equals(dnsPacket));
-        System.out.println(bd2.findIP("M10.CMS.G706."));
+        List<String> l1 = new ArrayList<>();
+        l1.add("10.0.8.12:5353");
+        l1.add("10.0.16.13:5353");
+        l1.add("10.0.14.12:5353");
+        List<String> l2 = new ArrayList<>();
+        l2.add("10.0.13.12:5353");
+        l2.add("10.0.15.13:5353");
+        l2.add("10.0.10.13:5353");
+        System.out.println(l1.contains(bd2.findIP("CMS.G706.")));
+        System.out.println(l1.contains(bd2.findIP("CMS.G706.")));
+        System.out.println(l1.contains(bd2.findIP("CMS.G706.")));
+        System.out.println(l1.contains(bd2.findIP("M10.CMS.G706.")));
+        System.out.println(l1.contains(bd2.findIP("M10.CMS.G706.")));
+        System.out.println(l1.contains(bd2.findIP("M10.CMS.G706.")));
+        System.out.println(l2.contains(bd2.findIP("JJM.G706.")));
+        System.out.println(l2.contains(bd2.findIP("JJM.G706.")));
+        System.out.println(l2.contains(bd2.findIP("JJM.G706.")));
+        System.out.println(l2.contains(bd2.findIP("CR7.JJM.G706.")));
+        System.out.println(l2.contains(bd2.findIP("CR7.JJM.G706.")));
+        System.out.println(l2.contains(bd2.findIP("CR7.JJM.G706.")));
     }
 }

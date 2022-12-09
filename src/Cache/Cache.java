@@ -485,14 +485,25 @@ public class Cache
         return res.toString();
     }
 
+    /**
+     * Procura o IP para o modo iterativo.
+     * @param dominio Domínio da query.
+     * @return Endereço IP, mais a porta do servidor a contactar.
+     */
     public String findIP(String dominio)
     {
         String [] dominios = dominio.split("\\.");
-        List<String> dominioCache = this.cache.stream().filter(EntryCache::isValid)
-                                                       .filter(e -> e.getType() == aux.get("A"))
-                                                       .map(e -> e.getDominio()).toList();
+        byte ns = aux.get("NS");
+        Map<String, List<String>> dominioServer = new HashMap<>();
+        this.cache.stream().filter(EntryCache::isValid).filter(e -> e.getType() == ns)
+                .forEach(e ->
+                        {
+                            if (! dominioServer.containsKey('.' + e.getDominio()))
+                                dominioServer.put('.' + e.getDominio(),new ArrayList<>());
+                            dominioServer.get('.' + e.getDominio()).add(e.getData().getValue());});
         Map<String,Integer> map = new HashMap<>();
-        for(String dom : dominioCache)
+        dominioServer.keySet().forEach(s -> map.put(s,0));
+        for(String dom : dominioServer.keySet())
         {
             map.put(dom,0);
             int i = dominios.length-1;
@@ -507,11 +518,15 @@ public class Cache
                 map.put(dom,map.get(dom)+1);
 
         }
+        Random random = new Random();
         int max = map.entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getValue).orElse(0);
         List<String> doms = map.entrySet().stream().filter(e -> e.getValue().equals(max)).map(Map.Entry::getKey).toList();
+        List<String> servers = dominioServer.get(doms.get(0));
+        int r = random.nextInt(0,servers.size());
+        String server = servers.get(r);
         return this.cache.stream().filter(EntryCache :: isValid)
                 .filter(e -> e.getType() == aux.get("A"))
-                .filter(e -> doms.contains(e.getDominio()))
+                .filter(e -> e.getDominio().equals(server))
                 .findFirst().map(e -> e.getData().getValue())
                 .orElse("");
     }
