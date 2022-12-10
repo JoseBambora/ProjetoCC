@@ -2,13 +2,15 @@ import Cache.*;
 import DNSPacket.*;
 import Exceptions.TypeOfValueException;
 import Log.Log;
-import ObjectServer.ObjectServer;
+import ObjectServer.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Date;
+import java.util.Iterator;
 
 public class SolveQueries implements Runnable{
     private int serverPort;
@@ -34,37 +36,91 @@ public class SolveQueries implements Runnable{
             Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
             System.out.println(qr);
 
-            /* Find answer */
-            Tuple<Integer, Data> anwser = objectServer.getCache().findAnswer(receivePacket);
+            boolean answerQuery = true;
+            boolean isNs = objectServer instanceof ObjectSP ||  objectServer instanceof ObjectSS;
 
-            int respCode = anwser.getValue1();
-            Data resp = anwser.getValue2();
+            if (isNs) {
+                Iterator<String> it = objectServer.getDD().keySet().iterator();
+                boolean found = false;
+                String key;
+                while (it.hasNext() && !found) {
+                    key = it.next();
+                    if (receivePacket.getData().getName().contains(key)) {
+                        found = true;
+                    }
+                }
 
-            /* Build Packet */
-            byte flags = 4;
-            int nrv = 0, nav = 0, nev = 0;
-            if (resp.getResponseValues()!=null) nrv = resp.getResponseValues().length;
-            if (resp.getAuthoriteValues()!=null) nav = resp.getAuthoriteValues().length;
-            if (resp.getExtraValues()!=null) nev = resp.getExtraValues().length;
+                answerQuery = found;
+            }
 
-            Header header = new Header(receivePacket.getHeader().getMessageID(), flags,(byte) respCode, (byte) nrv, (byte) nav, (byte) nev);
-            DNSPacket sendPacket = new DNSPacket(header, resp);
+            if (answerQuery) {
 
-            /* Create Datagram */
-            byte[] sendBytes = sendPacket.dnsPacketToBytes();
-            DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+                /* Find answer */
+                DNSPacket anwser = objectServer.getCache().findAnswer(receivePacket);
+                int respCode = anwser.getHeader().getResponseCode();
 
-            /* Create new Datagram Socket */
-            DatagramSocket socket1 = new DatagramSocket();
+                if (respCode == 1 || respCode == 2) {
+                    boolean found = false;
+                    InetSocketAddress socketAddress;
 
-            /* Send answer */
-            socket1.send(response);
-            objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
-            Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, sendPacket.toString());
-            System.out.println(re);
+                    if (!isNs) {
+                        Iterator<String> itdd = objectServer.getDD().keySet().iterator();
+                        String key = null;
+                        while (itdd.hasNext() && !found) {
+                            key = itdd.next();
+                            if (receivePacket.getData().getName().contains(key)) {
+                                found = true;
+                            }
+                        }
 
-            /* Close new socket */
-            socket1.close();
+                        if (found) {
+                            socketAddress = objectServer.getDD().get(key).get(0);
+                        }
+
+                    }
+
+                    if (found) {
+                        // envia para dd
+                        // espera pela resposta
+
+                    }
+                    else if (objectServer.getST()!=null){
+                        socketAddress = objectServer.getST().get(0);
+                        // envia para st
+
+                        // recebe resposta
+
+                        // add cache
+
+                        // find ip
+
+                        // while nao for resp code
+
+                    }
+
+                    //flags = 0;
+                }
+
+
+                /* Build Packet */
+
+                /* Create Datagram */
+                byte[] sendBytes = anwser.dnsPacketToBytes();
+                DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
+
+                /* Create new Datagram Socket */
+                DatagramSocket socket1 = new DatagramSocket();
+
+                /* Send answer */
+                socket1.send(response);
+                objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, anwser.toString());
+                Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, anwser.toString());
+                System.out.println(re);
+
+                /* Close new socket */
+                socket1.close();
+
+            }
 
 
         } catch (TypeOfValueException e) {
