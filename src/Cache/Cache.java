@@ -116,7 +116,6 @@ public class Cache
      */
     private List<Value> getAVBD(String dominio)
     {
-        this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte ns = aux.get("NS");
         this.cache.stream().filter(e -> e.getType() == ns)
@@ -124,7 +123,6 @@ public class Cache
                                    e.getDominio().matches("(.*)" + this.dominio) :
                                    e.getDominio().matches(dominio))
                            .forEach(e -> values.add(e.getData()));
-        this.readWriteLock.readLock().unlock();
         return values;
     }
 
@@ -136,7 +134,6 @@ public class Cache
      */
     private List<Value> getEVBD(List<Value> RV, List<Value> AV)
     {
-        this.readWriteLock.readLock().lock();
         List<Value> values = new ArrayList<>();
         byte a = aux.get("A");
         this.cache.stream()
@@ -145,9 +142,39 @@ public class Cache
                   .filter(e -> RV.stream().anyMatch(value -> value.getValue().equals(e.getDominio())) ||
                                AV.stream().anyMatch(value -> value.getValue().equals(e.getDominio())))
                   .forEach(e -> values.add(e.getData()));
-
-        this.readWriteLock.readLock().unlock();
         return values;
+    }
+
+    /**
+     * Constroi um pacote de resposta
+     * @param header Header da query recebida
+     * @param data Dadas obtidos
+     * @param cod codigo de erro
+     * @param rv Lista dos response values
+     * @param av Lista dos authority values
+     * @param ev Lista dos extra values
+     * @return Pacote construido.
+     */
+    private DNSPacket buildPacket(Header header, Data data, byte cod, List<Value> rv, List<Value> av, List<Value> ev)
+    {
+        byte rvs = (byte) rv.size();
+        byte avs = (byte) av.size();
+        byte evs = (byte) ev.size();
+        Header h;
+        if(header != null)
+        {
+            String flags = header.flagsToString();
+            flags = flags.replaceAll("Q+", "");
+            if (av.stream().allMatch(v -> v.getDominio().equals(this.dominio)))
+                flags += "+A";
+            h = new Header(header.getMessageID(), Header.flagsStrToByte(flags), cod, rvs, avs, evs);
+        }
+        else
+        {
+            byte zero = (byte) 0;
+            h = new Header((short) 0, zero,cod,zero,zero,zero);
+        }
+        return new DNSPacket(h,data);
     }
     /**
      * Procura resposta a uma dada query, dando o domínio da query e o tipo.
@@ -155,16 +182,15 @@ public class Cache
      * @param type Tipo da pergunta.
      * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
-    private Tuple<Integer, Data> getAnswer(String dom, byte type)
+    private DNSPacket getAnswer(Header header,String dom, byte type)
     {
-        int cod = 0;
-        this.readWriteLock.readLock().lock();
-        Data res = new Data(dom,type);
+        byte cod = 0;
         List<Value> rv = this.cache.stream()
                                    .filter(EntryCache::isValid)
                                    .filter(e -> e.getType() == type)
                                    .filter(e -> e.getDominio().equals(dom))
                                    .map(EntryCache::getData).toList();
+        Data res = new Data(dom,type);
         if(!rv.isEmpty())
         {
             res.setResponseValues(rv.toArray(new Value[0]));
@@ -188,32 +214,43 @@ public class Cache
             res.setAuthoriteValues(av.toArray(new Value[1]));
         if(!ev.isEmpty())
             res.setExtraValues(ev.toArray(new Value[1]));
-        this.readWriteLock.readLock().unlock();
-        return new Tuple<>(cod,res);
+        return this.buildPacket(header,res,cod,rv,av,ev);
     }
 
+    /**
+     * Vai buscar o CNAME de um determinado domínio
+     * @param dom Domínio da query
+     * @param type Tipo da query
+     * @return Cname correspondente.
+     */
+    private String getCName(String dom, byte type)
+    {
+        byte cname = aux.get("CNAME");
+        if(type != cname)
+        {
+            String finalDom = dom;
+            List<String> aux = this.cache.stream()
+                    .map(e -> e.getNameCNAME(finalDom, cname))
+                    .filter(s -> s.length() > 0)
+                    .toList();
+            if (!aux.isEmpty())
+                dom = aux.get(0);
+        }
+        return dom;
+    }
     /**
      * Procura resposta a uma dada query, dando o domínio da query e o tipo.
      * @param dom Domínio da pergunta.
      * @param type Tipo da pergunta.
      * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
-    public Tuple<Integer, Data> findAnswer(String dom, byte type)
+    public Tuple<Byte,Data> findAnswer(String dom, byte type)
     {
-        byte cname = aux.get("CNAME");
-        if(type != cname)
-        {
-            this.readWriteLock.readLock().lock();
-            String finalDom = dom;
-            List<String> aux = this.cache.stream()
-                                         .map(e -> e.getNameCNAME(finalDom,cname))
-                                         .filter(s -> s.length() > 0)
-                                         .toList();
-            if(!aux.isEmpty())
-                dom = aux.get(0);
-            this.readWriteLock.readLock().unlock();
-        }
-        return getAnswer(dom,type);
+        this.readWriteLock.readLock().lock();
+        dom = this.getCName(dom,type);
+        DNSPacket aux = this.getAnswer(null,dom,type);
+        this.readWriteLock.readLock().unlock();
+        return new Tuple<>(aux.getHeader().getResponseCode(),aux.getData());
     }
 
     /**
@@ -221,11 +258,17 @@ public class Cache
      * @param mensagem Query dns.
      * @return Par entre inteiro e data. Interio corresponde ao código de erro.
      */
-    public Tuple<Integer, Data> findAnswer(DNSPacket mensagem)
+    public DNSPacket findAnswer(DNSPacket mensagem)
     {
-        String name = mensagem.getData().getName();
-        byte b = mensagem.getData().getTypeOfValue();
-        return this.findAnswer(name,b);
+        Header h = mensagem.getHeader();
+        Data d = mensagem.getData();
+        String name = d.getName();
+        byte b = d.getTypeOfValue();
+        this.readWriteLock.readLock().lock();
+        name = this.getCName(name,b);
+        DNSPacket res = this.getAnswer(h,name,b);
+        this.readWriteLock.readLock().unlock();
+        return res;
     }
 
     /**
@@ -253,22 +296,16 @@ public class Cache
         try
         {
             Map<Byte,Integer> counter = new HashMap<>();
-            tipos.forEach(str -> {try {counter.put(Data.typeOfValueConvert(str),0);} catch (Exception e){}});
+            tipos.forEach(str -> {try {counter.put(Data.typeOfValueConvert(str),0);} catch (Exception ignored){}});
             this.cache.stream()
                       .filter(e -> e.getOrigem() == EntryCache.Origin.FILE)
                       .forEach(e -> counter.put(e.getType(),counter.get(e.getType())+1));
             boolean res = false;
             switch (type)
             {
-                case "SP":
-                    res = counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
-                    break;
-                case "ST":
-                    res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
-                    break;
-                case "REVERSE":
-                    res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
-                    break;
+                case "SP" -> res = counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
+                case "ST"-> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
+                case "REVERSE" -> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
             }
             return res;
         }
@@ -492,6 +529,7 @@ public class Cache
      */
     public String findIP(String dominio)
     {
+        this.readWriteLock.readLock().lock();
         String [] dominios = dominio.split("\\.");
         byte ns = aux.get("NS");
         Map<String, List<String>> dominioServer = new HashMap<>();
@@ -502,7 +540,6 @@ public class Cache
                                 dominioServer.put('.' + e.getDominio(),new ArrayList<>());
                             dominioServer.get('.' + e.getDominio()).add(e.getData().getValue());});
         Map<String,Integer> map = new HashMap<>();
-        dominioServer.keySet().forEach(s -> map.put(s,0));
         for(String dom : dominioServer.keySet())
         {
             map.put(dom,0);
@@ -524,11 +561,13 @@ public class Cache
         List<String> servers = dominioServer.get(doms.get(0));
         int r = random.nextInt(0,servers.size());
         String server = servers.get(r);
-        return this.cache.stream().filter(EntryCache :: isValid)
+        String res = this.cache.stream().filter(EntryCache :: isValid)
                 .filter(e -> e.getType() == aux.get("A"))
                 .filter(e -> e.getDominio().equals(server))
                 .findFirst().map(e -> e.getData().getValue())
                 .orElse("");
+        this.readWriteLock.readLock().unlock();
+        return res;
     }
 
     /**
