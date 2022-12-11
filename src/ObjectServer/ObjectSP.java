@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
- * DNSPacket.Data de criação 23/10/2022
- * DNSPacket.Data de edição 22/11/2022
+ * Data de criação 23/10/2022
+ * Data de edição 22/11/2022
  */
 
 public class ObjectSP extends ObjectServer {

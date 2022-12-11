@@ -1,0 +1,6 @@
+# Configuration file for SP Antonio
+10.IN-ADDR.REVERSE.G706. DB ../DatabasesFiles/Antonio.db
+10.IN-ADDR.REVERSE.G706. DD 10.0.13.13
+10.IN-ADDR.REVERSE.G706. LG ../LogsFiles/10.IN-ADDR.REVERSE.G706.log
+all LG ../LogsFiles/all.log
+root ST ../DatabasesFiles/Rootservers.db

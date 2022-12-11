@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Miguel Cidade Silva
  * Classe cuja função é criar um objeto que assegura a concorrência no processo de escrita de entradas nos ficheiros de log
- * DNSPacket.Data de criação 19/11/2022
- * DNSPacket.Data de edição 23/11/2022
+ * Data de criação 19/11/2022
+ * Data de edição 23/11/2022
  */
 public class LogFileWriter {
     private static final Map<String,ReentrantLock> logLocks = new HashMap<>();

@@ -15,8 +15,8 @@ import java.net.InetAddress;
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
- * DNSPacket.Data de criação 23/10/2022
- * DNSPacket.Data de edição 23/11/2022
+ * Data de criação 23/10/2022
+ * Data de edição 23/11/2022
  */
 
 public class ObjectServer {

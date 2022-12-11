@@ -1,0 +1,6 @@
+# Configuration file for SP Sa
+IN-ADDR.REVERSE.G706. DB ../DatabasesFiles/Sa.db
+IN-ADDR.REVERSE.G706. DD 10.0.13.13
+IN-ADDR.REVERSE.G706. LG ../LogsFiles/IN-ADDR.REVERSE.G706.log
+all LG ../LogsFiles/all.log
+root ST ../DatabasesFiles/Rootservers.db

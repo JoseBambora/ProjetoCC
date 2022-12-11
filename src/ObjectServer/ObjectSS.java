@@ -7,8 +7,8 @@ import java.net.InetSocketAddress;
 /**
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores secundários
- * DNSPacket.Data de criação 23/10/2022
- * DNSPacket.Data de edição 14/11/2022
+ * Data de criação 23/10/2022
+ * Data de edição 14/11/2022
  */
 
 public class ObjectSS extends ObjectServer {
