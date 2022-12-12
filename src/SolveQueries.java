@@ -58,7 +58,7 @@ public class SolveQueries implements Runnable{
                 DNSPacket answer = objectServer.getCache().findAnswer(receivePacket);
                 int respCode = answer.getHeader().getResponseCode();
 
-                if (respCode == 1 || respCode == 2) {
+                if (!objectServer.getST().isEmpty() && (respCode == 1 || respCode == 2)) {
                     boolean found = false;
 
                     if (!isNs) {
