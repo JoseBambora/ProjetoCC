@@ -56,12 +56,11 @@ public class SolveQueries implements Runnable{
             if (answerQuery) {
 
                 /* Find answer */
-                DNSPacket anwser = objectServer.getCache().findAnswer(receivePacket);
-                int respCode = anwser.getHeader().getResponseCode();
+                DNSPacket answer = objectServer.getCache().findAnswer(receivePacket);
+                int respCode = answer.getHeader().getResponseCode();
 
                 if (respCode == 1 || respCode == 2) {
                     boolean found = false;
-                    InetSocketAddress socketAddress;
 
                     if (!isNs) {
                         Iterator<String> itdd = objectServer.getDD().keySet().iterator();
@@ -74,30 +73,55 @@ public class SolveQueries implements Runnable{
                         }
 
                         if (found) {
-                            socketAddress = objectServer.getDD().get(key).get(0);
+                            InetSocketAddress socketAddress = objectServer.getDD().get(key).get(0);
+                            DatagramPacket r = new DatagramPacket(data,data.length,socketAddress.getAddress(),socketAddress.getPort());
+
+                            DatagramSocket s = new DatagramSocket();
+                            s.send(r);
+
+                            byte[] buf = new byte[1000];
+                            DatagramPacket res = new DatagramPacket(buf, buf.length);
+                            s.receive(res);
+                            answer = DNSPacket.bytesToDnsPacket(buf);
+                            objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+                        }
+                    }
+
+                    if (!found && objectServer.getST()!=null){
+                        InetSocketAddress socketAddress = objectServer.getST().get(0);
+
+                        // envia para st
+                        DatagramPacket r = new DatagramPacket(data, data.length,socketAddress.getAddress(),socketAddress.getPort());
+                        DatagramSocket s = new DatagramSocket();
+                        s.send(r);
+
+                        // recebe resposta
+                        byte[] buf = new byte[1000];
+                        DatagramPacket res = new DatagramPacket(buf, buf.length);
+                        s.receive(res);
+                        DNSPacket np = DNSPacket.bytesToDnsPacket(buf);
+                        // add cache
+                        objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+
+                        int code = np.getHeader().getResponseCode();
+
+                        while (code != 0) {
+                            // find ip
+                            String ip = objectServer.getCache().findIP(receivePacket.getData().getName());
+                            r.setAddress(InetAddress.getByName(ip));
+                            r.setPort(5353);
+                            s.send(r);
+
+                            byte[] arr = new byte[1000];
+                            DatagramPacket rec = new DatagramPacket(arr, arr.length);
+                            s.receive(rec);
+                            np = DNSPacket.bytesToDnsPacket(arr);
+                            answer = np;
+                            objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+                            code = np.getHeader().getResponseCode();
                         }
 
                     }
-
-                    if (found) {
-                        // envia para dd
-                        // espera pela resposta
-
-                    }
-                    else if (objectServer.getST()!=null){
-                        socketAddress = objectServer.getST().get(0);
-                        // envia para st
-
-                        // recebe resposta
-
-                        // add cache
-
-                        // find ip
-
-                        // while nao for resp code
-
-                    }
-
                     //flags = 0;
                 }
 
@@ -105,7 +129,7 @@ public class SolveQueries implements Runnable{
                 /* Build Packet */
 
                 /* Create Datagram */
-                byte[] sendBytes = anwser.dnsPacketToBytes();
+                byte[] sendBytes = answer.dnsPacketToBytes();
                 DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
 
                 /* Create new Datagram Socket */
@@ -113,8 +137,8 @@ public class SolveQueries implements Runnable{
 
                 /* Send answer */
                 socket1.send(response);
-                objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, anwser.toString());
-                Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, anwser.toString());
+                objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
+                Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
                 System.out.println(re);
 
                 /* Close new socket */

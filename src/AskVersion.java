@@ -33,7 +33,7 @@ public class AskVersion implements Runnable {
             while (true) {
 
                 /* Verifica versão  */
-                Tuple<Integer, Data> respc = objss.getCache().findAnswer(objss.getDominio(), (byte) 2);
+                Tuple<Byte, Data> respc = objss.getCache().findAnswer(objss.getDominio(), (byte) 2);
                 boolean execTZ = respc.getValue1() != 3;
 
                 // Com timeout -> o valor de wait é o soaretry
