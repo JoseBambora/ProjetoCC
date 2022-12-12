@@ -90,12 +90,18 @@ public class Cache
      */
     public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
-        List<Value> rv = Arrays.stream(resposta.getData().getResponseValues()).toList();
-        List<Value> av = Arrays.stream(resposta.getData().getAuthoriteValues()).toList();
-        List<Value> ev = Arrays.stream(resposta.getData().getExtraValues()).toList();
-        rv.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
-        av.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
-        ev.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
+        if (resposta.getHeader().getNumberOfValues() != 0) {
+            List<Value> rv = Arrays.stream(resposta.getData().getResponseValues()).toList();
+            rv.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
+        }
+        if (resposta.getHeader().getNumberOfAuthorites() != 0) {
+            List<Value> av = Arrays.stream(resposta.getData().getAuthoriteValues()).toList();
+            av.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
+        }
+        if (resposta.getHeader().getNumberOfExtraValues() != 0) {
+            List<Value> ev = Arrays.stream(resposta.getData().getExtraValues()).toList();
+            ev.forEach(v -> this.addDataCache(new EntryCache(v, origin)));
+        }
     }
 
     /**
