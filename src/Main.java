@@ -196,8 +196,8 @@ public class Main {
         Data d1 = Data.bytesToData(b,(byte) 4,(byte) 4,(byte)4);
         list.add(d.equals(d1));
         DNSPacket dnsPacket = new DNSPacket(h,d);
-        b = dnsPacket.dnsPacketToBytes();
-        DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
+        b = dnsPacket.dnsPacketToBytesBinary();
+        DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacketBinary(b);
         list.add(dnsPacket1.equals(dnsPacket));
         List<String> l1 = new ArrayList<>();
         l1.add("10.0.8.12:5353");

@@ -75,10 +75,57 @@ public class DNSPacket {
                 data.equals(dnsPacket.data);
     }
 
+
+    public byte[] dnsPacketToBytes() {
+        return this.toString().getBytes();
+    }
+
+    /**
+     * Constroi a partir de um array de bytes vindo de um socket UDP o pacote DNS correspondente.
+     */
+    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws TypeOfValueException {
+        String packet = new String(bytes);
+        String[] fields = packet.split(";");
+        Header h = Header.stringToHeader(fields[0]);
+        String[] qi = fields[1].split(",");
+        String name = qi[0];
+        byte tv = Data.typeOfValueConvert(qi[1]);
+
+        int i = 0;
+        int ifields = 2;
+        Value[] rv = null;
+        if (h.getNumberOfValues()>0) {
+            rv = new Value[h.getNumberOfValues()];
+            String[] rvAux = fields[ifields++].split(",");
+            for (String str : rvAux) {
+                rv[i++] = Value.stringToValue(str.substring(1));
+            }
+        }
+        i = 0;
+        Value[] av = null;
+        if (h.getNumberOfAuthorites()>0) {
+            av = new Value[h.getNumberOfAuthorites()];
+            String[] avAux = fields[ifields++].split(",");
+            for (String str : avAux) {
+                av[i++] = Value.stringToValue(str.substring(1));
+            }
+        }
+        i = 0;
+        Value[] ev = null;
+        if (h.getNumberOfExtraValues()>0) {
+            ev = new Value[h.getNumberOfExtraValues()];
+            String[] evAux = fields[ifields].split(",");
+            for (String str : evAux) {
+                ev[i++] = Value.stringToValue(str.substring(1));
+            }
+        }
+        return new DNSPacket(h,new Data(name,tv,rv,av,ev));
+    }
+
     /**
      * Controi o array de bytes para ser enviado através do socket udp.
      */
-    public byte[] dnsPacketToBytes()
+    public byte[] dnsPacketToBytesBinary()
     {
         byte[] header = this.header.headerToBytes();
         byte[] data = this.data.dataToBytes();
@@ -93,7 +140,7 @@ public class DNSPacket {
     /**
      * Constroi a partir de um array de bytes vindo de um socket UDP o pacote DNS correspondente.
      */
-    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws TypeOfValueException {
+    public static DNSPacket bytesToDnsPacketBinary(byte[] bytes) throws TypeOfValueException {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int len1 = byteBuffer.getInt();
         int len2 = byteBuffer.getInt();
