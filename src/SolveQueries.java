@@ -49,7 +49,6 @@ public class SolveQueries implements Runnable{
                         found = true;
                     }
                 }
-
                 answerQuery = found;
             }
 
@@ -94,11 +93,16 @@ public class SolveQueries implements Runnable{
                         DatagramPacket r = new DatagramPacket(data, data.length,socketAddress.getAddress(),socketAddress.getPort());
                         DatagramSocket s = new DatagramSocket();
                         s.send(r);
+                        Log qe = new Log(new Date(), Log.EntryType.QE, socketAddress.getAddress().getHostAddress(), socketAddress.getPort(), receivePacket.toString());
+                        System.out.println(qe);
 
                         // recebe resposta
                         byte[] buf = new byte[1000];
                         DatagramPacket res = new DatagramPacket(buf, buf.length);
                         s.receive(res);
+                        qr = new Log(new Date(), Log.EntryType.QR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
+                        System.out.println(qr);
+
                         DNSPacket np = DNSPacket.bytesToDnsPacket(buf);
                         // add cache
                         objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
@@ -108,6 +112,7 @@ public class SolveQueries implements Runnable{
                         while (code != 0) {
                             // find ip
                             String ip = objectServer.getCache().findIP(receivePacket.getData().getName());
+                            System.out.println(ip); // para efeitos de debug
                             r.setAddress(InetAddress.getByName(ip));
                             r.setPort(5353);
                             s.send(r);
