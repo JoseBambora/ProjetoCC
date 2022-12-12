@@ -39,7 +39,7 @@ public class SolveQueries implements Runnable{
             boolean answerQuery = true;
             boolean isNs = objectServer instanceof ObjectSP ||  objectServer instanceof ObjectSS;
 
-            if (isNs) {
+            if (isNs && !objectServer.getST().isEmpty()) {
                 Iterator<String> it = objectServer.getDD().keySet().iterator();
                 boolean found = false;
                 String key;
