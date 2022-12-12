@@ -162,6 +162,7 @@ public class SolveQueries implements Runnable{
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", ex.getMessage());
                 System.out.println(fl);
             }
+            e.printStackTrace(); // debug
         } catch (Exception e) {
             try {
                 objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.FL, "127.0.0.1", serverPort, e.getMessage());
@@ -171,6 +172,7 @@ public class SolveQueries implements Runnable{
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", ex.getMessage());
                 System.out.println(fl);
             }
+            e.printStackTrace(); // debug
         }
     }
 }
