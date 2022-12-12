@@ -100,8 +100,8 @@ public class SolveQueries implements Runnable{
                         byte[] buf = new byte[1000];
                         DatagramPacket res = new DatagramPacket(buf, buf.length);
                         s.receive(res);
-                        qr = new Log(new Date(), Log.EntryType.QR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
-                        System.out.println(qr);
+                        Log rr = new Log(new Date(), Log.EntryType.RR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
+                        System.out.println(rr);
 
                         DNSPacket np = DNSPacket.bytesToDnsPacket(buf);
                         // add cache
@@ -110,6 +110,7 @@ public class SolveQueries implements Runnable{
                         int code = np.getHeader().getResponseCode();
 
                         while (code != 0) {
+                            System.out.println(code); // para efeitos de debug
                             // find ip
                             String ip = objectServer.getCache().findIP(receivePacket.getData().getName());
                             System.out.println(ip); // para efeitos de debug
