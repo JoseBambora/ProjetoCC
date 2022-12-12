@@ -113,9 +113,10 @@ public class SolveQueries implements Runnable{
                             System.out.println(code); // para efeitos de debug
                             // find ip
                             String ip = objectServer.getCache().findIP(receivePacket.getData().getName());
+                            String[] wd = ip.split(":");
                             System.out.println(ip); // para efeitos de debug
-                            r.setAddress(InetAddress.getByName(ip));
-                            r.setPort(5353);
+                            r.setAddress(InetAddress.getByName(wd[0]));
+                            r.setPort(Integer.parseInt(wd[1]));
                             s.send(r);
 
                             byte[] arr = new byte[1000];
