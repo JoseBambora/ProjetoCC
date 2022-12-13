@@ -1,7 +1,9 @@
-@ DEFAULT IN-ADDR.REVERSE.G706.
+# Base de dados para o SP do domínio REVERSE.G706.
 
+@ DEFAULT REVERSE.G706.
+TTL DEFAULT 90000
 
-@ SOASP sa.@ TTL
+@ SOASP rui.@ TTL
 @ SOAADMIN scaloni2\.admin.@ TTL
 @ SOASERIAL 123123 TTL
 @ SOAREFRESH 15000 TTL
@@ -10,4 +12,8 @@
 
 # SP
 @ NS rui.@ TTL
-@ NS rui.IN-ADDR.@ TTL
+@ NS sa.IN-ADDR.@ TTL
+
+# A
+rui.@
+sa.IN-ADDR.@

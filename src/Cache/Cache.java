@@ -312,6 +312,7 @@ public class Cache
                 case "SP" -> res = counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
                 case "ST"-> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
                 case "REVERSE" -> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
+                case "REVERSET" -> res =  counter.keySet().stream().allMatch(b -> b.equals(aux.get("MX")) || b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
             }
             return res;
         }
@@ -413,10 +414,7 @@ public class Cache
         if (line.length() > 0 && line.charAt(0) != '#' && words.length > 2)
         {
             if (words[1].equals("DEFAULT"))
-            {
                 this.macro.put(words[0], words[2]);
-                return res;
-            }
             else if (words.length > 3)
             {
                 String dom = words[0];
@@ -491,9 +489,10 @@ public class Cache
         List<String> warnings = new ArrayList<>();
         AtomicInteger l = new AtomicInteger(1);
         lines.forEach(str ->
-                            { l.getAndIncrement();
-                              if(this.addData(str, EntryCache.Origin.FILE))
-                                  warnings.add("Erro ficheiro BD, linha " + l + " não adicionada");}
+                            {
+                                l.getAndIncrement();
+                                if(this.addData(str, EntryCache.Origin.FILE))
+                                    warnings.add("Erro ficheiro BD, linha " + l + " não adicionada");}
                             );
         List<String> writeLogs = new ArrayList<>();
         String nameSP = this.cache.stream().filter(entryCache -> entryCache.getType() == aux.get("SOASP"))
@@ -503,7 +502,7 @@ public class Cache
                                              .filter(entryCache ->  entryCache.getDominio().equals(nameSP))
                                              .findFirst().map(entryCache -> entryCache.getData().getValue())
                                              .orElse("");
-        warnings.forEach(w -> {writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,w).toString());});
+        warnings.forEach(w -> writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,w).toString()));
         writeLogs.forEach(System.out::println);
         LogFileWriter.writeInLogFile(logFile,writeLogs);
     }

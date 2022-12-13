@@ -23,6 +23,10 @@ cr7 NS braga.@ TTL
 cr7 NS renato.@ TTL
 cr7 NS mendes.@ TTL
 
+# Email
+@ MX fernando1.@ TTL 10
+@ MX fernando2.@ TTL 20
+
 # SP
 william A 10.0.8.12 TTL
 # SS
@@ -34,6 +38,12 @@ braga.cr7 A 10.0.15.10 TTL
 # SS - SUBDOMAIN
 renato.cr7 A 10.0.16.10 TTL
 mendes.cr7 A 10.0.13.10 TTL
+# Email
+fernando1 A 10.0.8.11 TTL
+fernando2 A 10.0.10.12 TTL
+# Web
+vitinha A 10.0.16.11 TTL
+silva A 10.0.8.10 TTL
 
 sp CNAME william TTL
 ss1 CNAME mario TTL

@@ -1,6 +1,7 @@
-# Base de dados para o SP do domínio REVERSE.G706.
+# Base de dados para o SP do domínio IN-ADDR.REVERSE.G706.
 
 @ DEFAULT IN-ADDR.REVERSE.G706.
+TTL DEFAULT 90000
 
 
 @ SOASP sa.@ TTL
@@ -13,3 +14,7 @@
 # SP
 @ NS sa.@ TTL
 @ NS antonio.10.@ TTL
+
+# A
+sa.@ A
+antonio.10.@ A

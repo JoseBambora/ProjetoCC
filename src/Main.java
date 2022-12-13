@@ -158,7 +158,7 @@ public class Main {
                 braga.CR7.CMS.G706. A 10.0.15.10:5353 90000,
                 renato.CR7.CMS.G706. A 10.0.16.10:5353 90000,
                 mendes.CR7.CMS.G706. A 10.0.13.10:5353 90000;"""));
-        int num = 100;
+        int num = 50;
         System.out.println("COMEÇA TESTE CONCORRÊNCIA");
         Cache cacheTestThreads = new Cache();
         Thread[] threads = new Thread[num];
@@ -186,7 +186,7 @@ public class Main {
         byte[] b = value.valuesToBytes();
         Value value1 = Value.bytesToValues(b);
         list.add(value1.equals(value));
-        Header h = new Header((short) 3, (byte) 8,(byte) 0, (byte) 4,(byte) 4,(byte)4);
+        Header h = new Header((short) 3, (byte) 7,(byte) 0, (byte) 4,(byte) 4,(byte)4);
         b = h.headerToBytes();
         Header h2 = Header.bytesToHeader(b);
         list.add(h.equals(h2));
@@ -196,9 +196,12 @@ public class Main {
         Data d1 = Data.bytesToData(b,(byte) 4,(byte) 4,(byte)4);
         list.add(d.equals(d1));
         DNSPacket dnsPacket = new DNSPacket(h,d);
-        b = dnsPacket.dnsPacketToBytesBinary();
-        DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacketBinary(b);
+        b = dnsPacket.dnsPacketToBytes(false);
+        DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
         list.add(dnsPacket1.equals(dnsPacket));
+        b = dnsPacket.dnsPacketToBytes(true);
+        DNSPacket dnsPacket2 = DNSPacket.bytesToDnsPacket(b);
+        list.add(dnsPacket2.equals(dnsPacket));
         List<String> l1 = new ArrayList<>();
         l1.add("10.0.8.12:5353");
         l1.add("10.0.16.13:5353");
@@ -219,6 +222,21 @@ public class Main {
         list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
         list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
         list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
+        Cache cache1 = new Cache();
+        Cache cache2 = new Cache();
+        Cache cache3 = new Cache();
+        Cache cache4 = new Cache();
+        Cache cache5 = new Cache();
+        cache1.createBD("../DatabasesFiles/William.db","CMS.G706.","../LogsFiles/all.log");
+        cache2.createBD("../DatabasesFiles/Felix.db","CMS.G706.","../LogsFiles/all.log");
+        cache3.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        cache4.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
+        cache5.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        list.add(cache5.checkBD("REVERSE"));
+        list.add(cache1.checkBD("SP"));
+        list.add(cache1.checkBD("SP"));
+        list.add(cache1.checkBD("REVERSET"));
+        list.add(cache1.checkBD("REVERSET"));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

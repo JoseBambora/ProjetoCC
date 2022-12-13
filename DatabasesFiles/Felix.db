@@ -23,6 +23,10 @@ m10 NS cancelo.@ TTL
 m10 NS rafael.@ TTL
 m10 NS bruno.@ TTL
 
+# Email
+@ MX scaloni1.@ TTL 10
+@ MX scaloni2.@ TTL 20
+
 # SP
 felix A 10.0.13.12 TTL
 # SS
@@ -33,6 +37,12 @@ cancelo.m10 A 10.0.9.11 TTL
 # SS - SUBDOMAIN
 rafael.m10 A 10.0.15.11 TTL
 bruno.m10 A 10.0.14.10 TTL
+# Email
+scaloni1 A 10.0.10.11 TTL
+scaloni2 A 10.0.16.12 TTL
+# Web
+ruben A 10.0.15.12 TTL
+guerreiro A 10.0.9.10 TTL
 
 sp CNAME felix TTL
 ss1 CNAME otavio TTL

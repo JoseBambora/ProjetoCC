@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 public class DNSPacket {
     private Header header;
     private Data data;
+    private boolean debug;
 
     /**
      * Construtor da classe DNSPacket dados o messageID, flags, name e typeofValue.
@@ -76,21 +77,20 @@ public class DNSPacket {
     }
 
 
-    public byte[] dnsPacketToBytes() {
+    private byte[] dnsPacketToBytesDebug() {
         return this.toString().getBytes();
     }
 
     /**
      * Constroi a partir de um array de bytes vindo de um socket UDP o pacote DNS correspondente.
      */
-    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws TypeOfValueException {
+    private static DNSPacket bytesToDnsPacketDebug(byte[] bytes) throws TypeOfValueException {
         String packet = new String(bytes);
         String[] fields = packet.split(";");
         Header h = Header.stringToHeader(fields[0]);
         String[] qi = fields[1].split(",");
         String name = qi[0];
         byte tv = Data.typeOfValueConvert(qi[1]);
-
         int i = 0;
         int ifields = 2;
         Value[] rv = null;
@@ -125,7 +125,7 @@ public class DNSPacket {
     /**
      * Controi o array de bytes para ser enviado através do socket udp.
      */
-    public byte[] dnsPacketToBytesBinary()
+    private byte[] dnsPacketToBytesBinary()
     {
         byte[] header = this.header.headerToBytes();
         byte[] data = this.data.dataToBytes();
@@ -140,7 +140,8 @@ public class DNSPacket {
     /**
      * Constroi a partir de um array de bytes vindo de um socket UDP o pacote DNS correspondente.
      */
-    public static DNSPacket bytesToDnsPacketBinary(byte[] bytes) throws TypeOfValueException {
+    private static DNSPacket bytesToDnsPacketBinary(byte[] bytes)
+    {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int len1 = byteBuffer.getInt();
         int len2 = byteBuffer.getInt();
@@ -153,5 +154,45 @@ public class DNSPacket {
         return new DNSPacket(h,d);
     }
 
+    public byte[] dnsPacketToBytes(boolean debug)
+    {
+        byte debugF;
+        byte []bytes;
+        if (debug)
+        {
+            debugF = 0;
+            bytes = this.dnsPacketToBytesDebug();
+        }
+        else
+        {
+            debugF = 1;
+            bytes = this.dnsPacketToBytesBinary();
+        }
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1+bytes.length);
+        byteBuffer.put(debugF);
+        byteBuffer.put(bytes);
+        return byteBuffer.array();
+    }
 
+    public byte[] dnsPacketToBytes()
+    {
+        return this.dnsPacketToBytes(this.debug);
+    }
+
+    public static DNSPacket bytesToDnsPacket(byte[] bytes) throws TypeOfValueException
+    {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        byte debugByte =  byteBuffer.get();
+        int len = bytes.length - 1;
+        byte [] packet = new byte[len];
+        byteBuffer.get(packet);
+        DNSPacket dnsPacket;
+        boolean debug = debugByte == (byte) 0;
+        if (debug)
+            dnsPacket = bytesToDnsPacketDebug(packet);
+        else
+            dnsPacket = bytesToDnsPacketBinary(packet);
+        dnsPacket.debug = debug;
+        return dnsPacket;
+    }
 }
