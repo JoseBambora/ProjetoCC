@@ -1,5 +1,5 @@
 # Configuration file for SDT - SP Felix
-JJM.G706. DB ../DatabasesFiles/William.db
+JJM.G706. DB ../DatabasesFiles/Felix.db
 JJM.G706. SS 10.0.15.13
 JJM.G706. SS 10.0.10.13
 JJM.G706. DD 10.0.13.12

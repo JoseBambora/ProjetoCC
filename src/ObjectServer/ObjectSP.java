@@ -84,17 +84,39 @@ public class ObjectSP extends ObjectServer {
     }
 
     /**
+     * Método auxiliar que fornece o tipo a utilizar na verificação da base de dados de um servidor conforme o dominio
+     * @param dominio dominio do servidor
+     * @return O tipo de base de dados
+     */
+    private String getType(String dominio){
+        String type = "";
+        if (dominio.equals("10.IN-ADDR.REVERSE.G706.")){
+            type = "REVERSE";
+        }
+        else{
+            if(dominio.matches("(.*)"+"REVERSE.G706.")){
+                type = "REVERSET";
+            }
+            else type = "SP";
+        }
+        System.out.println(type);
+        return type;
+    }
+
+
+    /**
      * Método que verifica se os valores dos campos de um ServidorSP estão bem preenchidos após processo de parsing
      * @param dominio - Dominio do servidor
      * @return true caso estejam devidamente preenchidos, false caso contrário
      */
     public boolean verificaSP(String dominio) {
         boolean emptyfields;
-        if (this.SS.isEmpty() && this.getDD().isEmpty()&& this.getST().isEmpty()) emptyfields = true; //caso seja um ST deve ter estes campos vazios
-        else emptyfields= !this.SS.isEmpty(); //se for um SP está mal configurado caso não tenha nenhum SS
+        if (this.getDD().isEmpty() && this.getST().isEmpty()) emptyfields = true; //caso seja um ST deve ter estes campos vazios
+        else emptyfields = !this.SS.isEmpty(); //se for um SP está mal configurado caso não tenha nenhum SS
+        if(dominio.matches("(.*)"+"REVERSE.G706.")) emptyfields = true;
         boolean dbchecker;
-        if (dominio.equals("REVERSE.G706.")) dbchecker = this.getCache().checkBD("REVERSE");
-        else dbchecker = this.getCache().checkBD("SP");
+        dbchecker = this.getCache().checkBD(this.getType(dominio));
+        System.out.println("dbchecker:"+dbchecker+" emptyfields:"+emptyfields);
         return emptyfields && dbchecker;
     }
 }
