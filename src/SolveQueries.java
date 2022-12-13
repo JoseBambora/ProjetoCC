@@ -13,11 +13,11 @@ import java.util.Date;
 import java.util.Iterator;
 
 public class SolveQueries implements Runnable{
-    private int serverPort;
-    private byte[] data;
-    private InetAddress clientAddress;
-    private int clientPort;
-    private ObjectServer objectServer;
+    private final int serverPort;
+    private final byte[] data;
+    private final InetAddress clientAddress;
+    private final int clientPort;
+    private final ObjectServer objectServer;
 
     public SolveQueries(int serverPort, byte[] data, InetAddress clientAddress, int clientPort, ObjectServer objectServer) {
         this.serverPort = serverPort;
@@ -39,7 +39,7 @@ public class SolveQueries implements Runnable{
             boolean answerQuery = true;
             boolean isNs = objectServer instanceof ObjectSP ||  objectServer instanceof ObjectSS;
 
-            if (isNs && !objectServer.getST().isEmpty()) {
+            if (isNs) {
                 Iterator<String> it = objectServer.getDD().keySet().iterator();
                 boolean found = false;
                 String key;
@@ -58,39 +58,34 @@ public class SolveQueries implements Runnable{
                 DNSPacket answer = objectServer.getCache().findAnswer(receivePacket);
                 int respCode = answer.getHeader().getResponseCode();
 
-                if (!objectServer.getST().isEmpty() && (respCode == 1 || respCode == 2)) {
+                if (!isNs && (respCode == 1 || respCode == 2)) {
                     boolean found = false;
+                    InetSocketAddress socketAddress = null;
 
-                    if (!isNs) {
-                        Iterator<String> itdd = objectServer.getDD().keySet().iterator();
-                        String key = null;
-                        while (itdd.hasNext() && !found) {
-                            key = itdd.next();
-                            if (receivePacket.getData().getName().contains(key)) {
-                                found = true;
-                            }
-                        }
-
-                        if (found) {
-                            InetSocketAddress socketAddress = objectServer.getDD().get(key).get(0);
-                            DatagramPacket r = new DatagramPacket(data,data.length,socketAddress.getAddress(),socketAddress.getPort());
-
-                            DatagramSocket s = new DatagramSocket();
-                            s.send(r);
-
-                            byte[] buf = new byte[1000];
-                            DatagramPacket res = new DatagramPacket(buf, buf.length);
-                            s.receive(res);
-                            answer = DNSPacket.bytesToDnsPacket(buf);
-                            objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+                    Iterator<String> itdd = objectServer.getDD().keySet().iterator();
+                    String key = null;
+                    while (itdd.hasNext() && !found) {
+                        key = itdd.next();
+                        if (receivePacket.getData().getName().contains(key)) {
+                            found = true;
                         }
                     }
 
-                    if (!found && objectServer.getST()!=null){
-                        InetSocketAddress socketAddress = objectServer.getST().get(0);
+                    if (found) {
+                        socketAddress = objectServer.getDD().get(key).get(0);
+                        DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
+                        DatagramSocket s = new DatagramSocket();
+                        s.send(r);
+                        byte[] buf = new byte[1000];
+                        DatagramPacket res = new DatagramPacket(buf, buf.length);
+                        s.receive(res);
+                        answer = DNSPacket.bytesToDnsPacket(buf);
+                        objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+                    } else {
+                        socketAddress = objectServer.getST().get(0);
 
                         // envia para st
-                        DatagramPacket r = new DatagramPacket(data, data.length,socketAddress.getAddress(),socketAddress.getPort());
+                        DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
                         DatagramSocket s = new DatagramSocket();
                         s.send(r);
                         Log qe = new Log(new Date(), Log.EntryType.QE, socketAddress.getAddress().getHostAddress(), socketAddress.getPort(), receivePacket.toString());
@@ -129,8 +124,9 @@ public class SolveQueries implements Runnable{
                         }
 
                     }
-                    //flags = 0;
                 }
+                //flags = 0;
+
 
 
                 /* Build Packet */
@@ -150,9 +146,7 @@ public class SolveQueries implements Runnable{
 
                 /* Close new socket */
                 socket1.close();
-
             }
-
 
         } catch (TypeOfValueException e) {
             try {
