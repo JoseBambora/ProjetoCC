@@ -10,14 +10,14 @@ import java.util.Date;
 import java.util.Iterator;
 
 public class SolveQueries implements Runnable{
-    private final int serverPort;
+    private final Server server;
     private final byte[] data;
     private final InetAddress clientAddress;
     private final int clientPort;
     private final ObjectServer objectServer;
 
-    public SolveQueries(int serverPort, byte[] data, InetAddress clientAddress, int clientPort, ObjectServer objectServer) {
-        this.serverPort = serverPort;
+    public SolveQueries(Server server, byte[] data, InetAddress clientAddress, int clientPort, ObjectServer objectServer) {
+        this.server = server;
         this.data = data;
         this.clientAddress = clientAddress;
         this.clientPort = clientPort;
@@ -142,7 +142,7 @@ public class SolveQueries implements Runnable{
             e.printStackTrace(); // debug
         } catch (Exception e) {
             try {
-                objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.FL, "127.0.0.1", serverPort, e.getMessage());
+                objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.FL, "127.0.0.1", server.getPort(), e.getMessage());
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.getMessage());
                 System.out.println(fl);
             } catch (Exception ex) {

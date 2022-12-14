@@ -40,6 +40,11 @@ public class Server {
         else throw new InvalidArgumentException("Invalid last argument");
     }
 
+
+    public int getPort() {
+        return port;
+    }
+
     /**
      * Construtor da classe Server.
      * @param configFile Caminho para o ficheiro de configuração.
@@ -126,7 +131,7 @@ public class Server {
                     InetAddress clientAddress = request.getAddress();
                     int clientPort = request.getPort();
 
-                    Thread solveQuery = new Thread(new SolveQueries(s.port, receiveBytes, clientAddress, clientPort, sc));
+                    Thread solveQuery = new Thread(new SolveQueries(s, receiveBytes, clientAddress, clientPort, sc));
                     solveQuery.start();
 
                 } catch (IOException e) {
