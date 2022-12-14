@@ -99,7 +99,6 @@ public class ObjectSP extends ObjectServer {
             }
             else type = "SP";
         }
-        System.out.println(type);
         return type;
     }
 
