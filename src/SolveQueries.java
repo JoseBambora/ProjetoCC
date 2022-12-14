@@ -121,7 +121,7 @@ public class SolveQueries implements Runnable{
             }
 
             // Create Datagram
-            byte[] sendBytes = answer.dnsPacketToBytes();
+            byte[] sendBytes = answer.dnsPacketToBytes(server.isDebug());
             DatagramPacket response = new DatagramPacket(sendBytes, sendBytes.length, clientAddress, clientPort);
 
             // Send answer

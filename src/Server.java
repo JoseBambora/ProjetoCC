@@ -40,6 +40,9 @@ public class Server {
         else throw new InvalidArgumentException("Invalid last argument");
     }
 
+    public boolean isDebug() {
+        return  debug;
+    }
 
     public int getPort() {
         return port;
