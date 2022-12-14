@@ -133,7 +133,7 @@ public class Client {
             DNSPacket sendPacket = cl.createDNSPacket();
 
             /* Create udp datagram */
-            byte[] sendBytes = sendPacket.dnsPacketToBytes();
+            byte[] sendBytes = sendPacket.dnsPacketToBytes(cl.debug);
             DatagramPacket request = new DatagramPacket(sendBytes, sendBytes.length, cl.serverAddress, cl.serverPort);
 
             /* Create the client udp socket with the preset timeout */
