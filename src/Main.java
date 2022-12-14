@@ -200,8 +200,11 @@ public class Main {
         DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
         b = dnsPacket.dnsPacketToBytes(true);
         DNSPacket dnsPacket2 = DNSPacket.bytesToDnsPacket(b);
+        byte[] b2 = dnsPacket2.dnsPacketToBytes();
+        DNSPacket dnsPacket3 = DNSPacket.bytesToDnsPacket(b2);
         list.add(dnsPacket1.equals(dnsPacket));
         list.add(dnsPacket2.equals(dnsPacket));
+        list.add(dnsPacket3.equals(dnsPacket));
         List<String> l1 = new ArrayList<>();
         l1.add("10.0.8.12:5353");
         l1.add("10.0.16.13:5353");

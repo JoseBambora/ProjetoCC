@@ -57,7 +57,7 @@ public class SolveQueries implements Runnable{
                     key = it.next();
                     if (receivePacket.getData().getName().contains(key)) found = true;
                 }
-                if (found) answer = send_to_server(socket1, key);
+                if (found) answer = objectServer.getCache().findAnswer(receivePacket);
 
             } else if (isNs && objectServer.getST().isEmpty()) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
