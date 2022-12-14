@@ -10,7 +10,7 @@ import java.util.List;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores principais
  * Data de criação 23/10/2022
- * Data de edição 22/11/2022
+ * Data de edição 14/12/2022
  */
 
 public class ObjectSP extends ObjectServer {
@@ -116,7 +116,6 @@ public class ObjectSP extends ObjectServer {
         if(dominio.matches("(.*)"+"REVERSE.G706.")) emptyfields = true;
         boolean dbchecker;
         dbchecker = this.getCache().checkBD(this.getType(dominio));
-        System.out.println("dbchecker:"+dbchecker+" emptyfields:"+emptyfields);
         return emptyfields && dbchecker;
     }
 }

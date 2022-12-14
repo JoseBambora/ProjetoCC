@@ -1,10 +1,11 @@
 /**
  * @author Miguel Cidade Silva
  * Classe cuja função é auxiliar no processo de transferência de zona
- * Data de criação 23/10/2022
- * Data de edição 22/11/2022
+ * Data de criação 11/12/2022
+ * Data de edição 14/12/2022
  */
 
+import Cache.Tuple;
 import ObjectServer.ObjectSP;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,8 +16,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ZoneTransferManager implements Runnable{
 
@@ -35,8 +38,8 @@ public class ZoneTransferManager implements Runnable{
 
     /**
      * Método que conta o número de entradas válidas com as linhas obtidos do ficheiro de base de dados.
-     * @param lines
-     * @return
+     * @param lines linhas a contar as entradas
+     * @return o número de entradas válidas nas linhas enviadas como parâmetro
      */
     public int countEntrys (List<String> lines) {
         int i = 0;
@@ -50,7 +53,7 @@ public class ZoneTransferManager implements Runnable{
 
     /**
      * Método que verifica se o SS tem autorização para realizar uma transferência de zona.
-     * @param ss
+     * @param ss - Endereço IP do SS
      * @return true caso o ss se encontre na lista de SS do SP para o domínio em questão, false caso contrário.
      */
     public boolean allowSS (InetAddress ss) {
@@ -65,10 +68,14 @@ public class ZoneTransferManager implements Runnable{
         return f;
     }
 
+    /**
+     * Método run que realiza a transferência de zona
+     */
     @Override
     public void run() {
         try {
             ServerSocket socketTcp = new ServerSocket(5353);
+            this.socket = socketTcp.accept();
             DataOutputStream toClient = new DataOutputStream(this.socket.getOutputStream());
             DataInputStream fromClient = new DataInputStream(this.socket.getInputStream());
 
@@ -79,21 +86,23 @@ public class ZoneTransferManager implements Runnable{
             if (this.objsp.getDominio().equals(domain) && autoriza) {
                 /* Envia número de entradas */
                 List<String> lines = Files.readAllLines(Paths.get(this.objsp.getBD()));
-                int ce = countEntrys(lines);
-                toClient.write(ce);
+                AtomicInteger num = new AtomicInteger(1);
+                List<Tuple<Integer,String>> aux = new ArrayList<>();
+                lines.forEach(s -> aux.add(new Tuple<>(num.getAndIncrement(),s)));
+                List<Tuple<Integer,String>> aux2 = aux.stream().filter(l -> l.getValue2().length() > 0
+                                                    && l.getValue2().charAt(0) != '#'
+                                                    && !l.getValue2().equals("\n")).toList();
+                toClient.write(aux2.size());
                 toClient.flush();
 
                 /* Recebe número de entradas */
                 int ne = fromClient.read();
 
                 /* Envia entradas do ficheiro de base de dados */
-                int i = 1;
-                for (String l : lines) {
-                    if (l.length() > 0 && l.charAt(0) != '#' && !l.equals("\n")) {
-                        toClient.writeUTF(i + ":" + l);
-                        toClient.flush();
-                        i++;
-                    }
+                for(Tuple<Integer,String> l : aux2)
+                {
+                    toClient.writeUTF(l.getValue1() + ":" + l.getValue2());
+                    toClient.flush();
                 }
             }
             fromClient.close();
@@ -103,4 +112,6 @@ public class ZoneTransferManager implements Runnable{
             throw new RuntimeException(e);
         }
     }
+
+
 }
