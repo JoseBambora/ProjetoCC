@@ -198,9 +198,9 @@ public class Main {
         DNSPacket dnsPacket = new DNSPacket(h,d);
         b = dnsPacket.dnsPacketToBytes(false);
         DNSPacket dnsPacket1 = DNSPacket.bytesToDnsPacket(b);
-        list.add(dnsPacket1.equals(dnsPacket));
         b = dnsPacket.dnsPacketToBytes(true);
         DNSPacket dnsPacket2 = DNSPacket.bytesToDnsPacket(b);
+        list.add(dnsPacket1.equals(dnsPacket));
         list.add(dnsPacket2.equals(dnsPacket));
         List<String> l1 = new ArrayList<>();
         l1.add("10.0.8.12:5353");
@@ -237,6 +237,22 @@ public class Main {
         list.add(cache3.checkBD("REVERSET"));
         list.add(cache4.checkBD("REVERSET"));
         list.add(cache5.checkBD("REVERSE"));
+        list.add(bd2.findAnswer("braga.CR7.CMS.G706",(byte) 0).getValue2().toString().equals("""
+                braga.CR7.CMS.G706,SOASP;
+                CMS.G706. NS william.CMS.G706. 90000,
+                CMS.G706. NS mario.CMS.G706. 90000,
+                CMS.G706. NS dalot.CMS.G706. 90000;
+                william.CMS.G706. A 10.0.8.12:5353 90000,
+                mario.CMS.G706. A 10.0.16.13:5353 90000,
+                dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
+        list.add(bd2.findAnswer( new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"braga.CR7.CMS.G706",(byte) 0)).toString().equals("""
+                2,A,1,0,3,3;braga.CR7.CMS.G706,SOASP;
+                CMS.G706. NS william.CMS.G706. 90000,
+                CMS.G706. NS mario.CMS.G706. 90000,
+                CMS.G706. NS dalot.CMS.G706. 90000;
+                william.CMS.G706. A 10.0.8.12:5353 90000,
+                mario.CMS.G706. A 10.0.16.13:5353 90000,
+                dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

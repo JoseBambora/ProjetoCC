@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  * @author José Carvalho
@@ -171,8 +172,18 @@ public class Cache
         {
             String flags = header.flagsToString();
             flags = flags.replaceAll("Q+", "");
-            if (av.stream().allMatch(v -> v.getDominio().equals(this.dominio)))
-                flags += "+A";
+            List<String> ns = this.cache.stream()
+                    .filter(EntryCache::isValid)
+                    .filter(e -> e.getType() == aux.get("NS"))
+                    .filter(e -> e.getOrigem() == EntryCache.Origin.FILE)
+                    .map(EntryCache::getDominio).toList();
+            if (av.stream().allMatch(v -> ns.contains(v.getDominio())))
+            {
+                if(flags.isEmpty())
+                    flags = "A";
+                else
+                    flags += "+A";
+            }
             h = new Header(header.getMessageID(), Header.flagsStrToByte(flags), cod, rvs, avs, evs);
         }
         else
@@ -203,19 +214,23 @@ public class Cache
         }
         else
         {
-            if(this.cache.stream().anyMatch(e -> e.getDominio().equals(dom)))
+            if(this.cache.stream().anyMatch(e -> e.domainExist(dom,this.dominio)))
                 cod = 1;
             else
                 cod = 2;
         }
-        List<Value> av = this.getAVBD(dom);
-        List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
+        List<Value> av;
         if(cod == 1)
         {
-            av = av.stream().filter(v -> v.getDominio().equals(dom)).toList();
-            List<Value> finalAv = av;
-            ev = ev.stream().filter(v -> finalAv.stream().anyMatch(va -> va.getValue().equals(v.getDominio()))).toList();
+            av = this.cache.stream().filter(EntryCache::isValid)
+                    .filter(e -> e.getType() == aux.get("NS"))
+                    .filter(e -> e.domainExist(dom,this.dominio))
+                    .map(e -> e.getData())
+                    .toList();
         }
+        else
+            av = this.getAVBD(dom);
+        List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
         if(!av.isEmpty())
             res.setAuthoriteValues(av.toArray(new Value[1]));
         if(!ev.isEmpty())

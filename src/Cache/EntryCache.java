@@ -119,4 +119,33 @@ public class EntryCache
     {
         return this.estado == State.VALID;
     }
+
+    /**
+     * Código de erro 1. Verificar entradas com servidores a contactar.
+     * @param domain Domínio da query.
+     * @param domainServer Domínio do servidor.
+     * @return True se houver entradas (codigo de erro = 1), false caso contrário (código de erro = 2)
+     */
+    public boolean domainExist(String domain, String domainServer)
+    {
+        String []sections = this.getDominio().split("\\.");
+        boolean found = true;
+        int i = sections.length-1;
+        while(found && i >= 0)
+        {
+            if (!domainServer.contains(sections[i]))
+            {
+                found = false;
+            }
+            else
+                i--;
+        }
+        boolean res = false;
+        if(!found)
+        {
+            res = domain.contains(sections[i]);
+        }
+        return res;
+
+    }
 }
