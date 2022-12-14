@@ -15,5 +15,5 @@ TTL DEFAULT 90000
 @ NS sa.IN-ADDR.@ TTL
 
 # A
-rui.@
-sa.IN-ADDR.@
+rui.@ A 10.0.10.10 TTL
+sa.IN-ADDR.@ A 10.0.13.13 TTL

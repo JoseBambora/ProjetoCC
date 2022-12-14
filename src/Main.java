@@ -232,11 +232,11 @@ public class Main {
         cache3.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
         cache4.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
         cache5.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        list.add(cache1.checkBD("SP"));
+        list.add(cache2.checkBD("SP"));
+        list.add(cache3.checkBD("REVERSET"));
+        list.add(cache4.checkBD("REVERSET"));
         list.add(cache5.checkBD("REVERSE"));
-        list.add(cache1.checkBD("SP"));
-        list.add(cache1.checkBD("SP"));
-        list.add(cache1.checkBD("REVERSET"));
-        list.add(cache1.checkBD("REVERSET"));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

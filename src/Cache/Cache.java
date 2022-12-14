@@ -311,7 +311,7 @@ public class Cache
             {
                 case "SP" -> res = counter.keySet().stream().allMatch(b -> b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
                 case "ST"-> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A"))) || counter.get(b) > 0);
-                case "REVERSE" -> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
+                case "REVERSE" -> res =  counter.keySet().stream().allMatch(b -> (!b.equals(aux.get("NS")) && !b.equals(aux.get("A")) && !b.equals(aux.get("PTR"))) || counter.get(b) > 0);
                 case "REVERSET" -> res =  counter.keySet().stream().allMatch(b -> b.equals(aux.get("MX")) || b.equals(aux.get("PTR")) || b.equals(aux.get("CNAME")) || counter.get(b) > 0);
             }
             return res;

@@ -3,7 +3,6 @@
 @ DEFAULT IN-ADDR.REVERSE.G706.
 TTL DEFAULT 90000
 
-
 @ SOASP sa.@ TTL
 @ SOAADMIN fernando2\.admin.@ TTL
 @ SOASERIAL 123123 TTL
@@ -16,5 +15,5 @@ TTL DEFAULT 90000
 @ NS antonio.10.@ TTL
 
 # A
-sa.@ A
-antonio.10.@ A
+sa.@ A 10.0.13.13 TTL
+antonio.10.@ A 10.0.14.13 TTL

@@ -8,7 +8,8 @@ m10 DEFAULT M10.JJM.G706.
 TTL DEFAULT 90000
 
 # SP
-@ NS sa.@ TTL
+@ NS antonio.@ TTL
+antonio.@ A 10.0.14.13 TTL
 
 # PTR
 # TOPO
