@@ -12,7 +12,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -74,8 +73,6 @@ public class ZoneTransferManager implements Runnable{
     @Override
     public void run() {
         try {
-            ServerSocket socketTcp = new ServerSocket(5353);
-            this.socket = socketTcp.accept();
             DataOutputStream toClient = new DataOutputStream(this.socket.getOutputStream());
             DataInputStream fromClient = new DataInputStream(this.socket.getInputStream());
 
