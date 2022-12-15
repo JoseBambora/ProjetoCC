@@ -30,14 +30,14 @@ public class Main {
         System.out.println(bd.findAnswer(domQ,(byte) 9));
     }
     public static void main(String[] args) throws Exception {
-        Cache bd1 = new Cache();
-        bd1.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log");
-        Cache bd2 = new Cache();
-        bd2.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log");
-        Cache bd3 = new Cache();
-        bd3.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log");
-        Cache bd4 = new Cache();
-        bd4.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
+        Cache cacheBraga = new Cache();
+        cacheBraga.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log");
+        Cache cacheTopo = new Cache();
+        cacheTopo.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log");
+        Cache cacheCancelo = new Cache();
+        cacheCancelo.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log");
+        Cache cacheRui = new Cache();
+        cacheRui.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
@@ -69,16 +69,16 @@ public class Main {
                 ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000
                 sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000
                 """));
-        Tuple<Byte,Data> data5 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
-        Tuple<Byte,Data> data6 = bd1.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
-        Tuple<Byte,Data> data7 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
-        Tuple<Byte,Data> data8 = bd2.findAnswer("G706.",Data.typeOfValueConvert("NS"));
-        Tuple<Byte,Data> data9 = bd3.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX"));
+        Tuple<Byte,Data> data5 = cacheBraga.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
+        Tuple<Byte,Data> data6 = cacheBraga.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
+        Tuple<Byte,Data> data7 = cacheBraga.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
+        Tuple<Byte,Data> data8 = cacheTopo.findAnswer("G706.",Data.typeOfValueConvert("NS"));
+        Tuple<Byte,Data> data9 = cacheCancelo.findAnswer("M10.JJM.G706.",Data.typeOfValueConvert("MX"));
         Tuple<Byte,Data> data10 = bd5.findAnswer("braga", (byte) 9);
         Tuple<Byte,Data> data11 = bd5.findAnswer("braga", (byte) 8);
-        Tuple<Byte,Data> data12 = bd1.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("NS"));
-        Tuple<Byte,Data> data13 = bd1.findAnswer("mail3.CR7.CMS.G706.",Data.typeOfValueConvert("MX"));
-        Tuple<Byte,Data> data14 = bd1.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("A"));
+        Tuple<Byte,Data> data12 = cacheBraga.findAnswer("mail1.CR7.CMS.G706.",Data.typeOfValueConvert("NS"));
+        Tuple<Byte,Data> data13 = cacheBraga.findAnswer("mail3.CR7.CMS.G706.",Data.typeOfValueConvert("MX"));
+        Tuple<Byte,Data> data14 = cacheBraga.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("A"));
         list.add(data5.getValue2().toString().equals("""
                 CR7.CMS.G706.,SOASP;
                 CR7.CMS.G706. SOASP braga.CR7.CMS.G706. 90000;
@@ -213,34 +213,43 @@ public class Main {
         l2.add("10.0.13.12:5353");
         l2.add("10.0.15.13:5353");
         l2.add("10.0.10.13:5353");
-        list.add(l1.contains(bd2.findIP("CMS.G706.")));
-        list.add(l1.contains(bd2.findIP("CMS.G706.")));
-        list.add(l1.contains(bd2.findIP("CMS.G706.")));
-        list.add(l1.contains(bd2.findIP("M10.CMS.G706.")));
-        list.add(l1.contains(bd2.findIP("M10.CMS.G706.")));
-        list.add(l1.contains(bd2.findIP("M10.CMS.G706.")));
-        list.add(l2.contains(bd2.findIP("JJM.G706.")));
-        list.add(l2.contains(bd2.findIP("JJM.G706.")));
-        list.add(l2.contains(bd2.findIP("JJM.G706.")));
-        list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
-        list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
-        list.add(l2.contains(bd2.findIP("CR7.JJM.G706.")));
-        Cache cache1 = new Cache();
-        Cache cache2 = new Cache();
-        Cache cache3 = new Cache();
-        Cache cache4 = new Cache();
-        Cache cache5 = new Cache();
-        cache1.createBD("../DatabasesFiles/William.db","CMS.G706.","../LogsFiles/all.log");
-        cache2.createBD("../DatabasesFiles/Felix.db","CMS.G706.","../LogsFiles/all.log");
-        cache3.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
-        cache4.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
-        cache5.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
-        list.add(cache1.checkBD("SP"));
-        list.add(cache2.checkBD("SP"));
-        list.add(cache3.checkBD("REVERSET"));
-        list.add(cache4.checkBD("REVERSET"));
-        list.add(cache5.checkBD("REVERSE"));
-        list.add(bd2.findAnswer("braga.CR7.CMS.G706",(byte) 0).getValue2().toString().equals("""
+        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        Cache cacheWilliam = new Cache();
+        Cache cacheFelix = new Cache();
+        Cache cacheSa = new Cache();
+        Cache cacheAntonio = new Cache();
+        cacheWilliam.createBD("../DatabasesFiles/William.db","CMS.G706.","../LogsFiles/all.log");
+        cacheFelix.createBD("../DatabasesFiles/Felix.db","CMS.G706.","../LogsFiles/all.log");
+        cacheSa.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        cacheAntonio.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        list.add(cacheWilliam.checkBD("SP"));
+        list.add(cacheFelix.checkBD("SP"));
+        list.add(cacheSa.checkBD("REVERSET"));
+        list.add(cacheRui.checkBD("REVERSET"));
+        list.add(cacheAntonio.checkBD("REVERSE"));
+        Cache cacheResolver = new Cache();
+        DNSPacket query = new DNSPacket((short)0,Header.flagsStrToByte("Q"),"CR7.CMS.G706.",(byte) 6);
+        DNSPacket response1 = cacheTopo.findAnswer(query);
+        DNSPacket response2 = cacheWilliam.findAnswer(query);
+        DNSPacket response3 = cacheBraga.findAnswer(query);
+        cacheResolver.addData(response1, EntryCache.Origin.OTHERS);
+        cacheResolver.addData(response2, EntryCache.Origin.OTHERS);
+        cacheResolver.addData(response3, EntryCache.Origin.OTHERS);
+        System.out.println(response1.showDNSPacket());
+        System.out.println(response2.showDNSPacket());
+        System.out.println(response3.showDNSPacket());
+        list.add(cacheTopo.findAnswer("braga.CR7.CMS.G706",(byte) 0).getValue2().toString().equals("""
                 braga.CR7.CMS.G706,SOASP;
                 CMS.G706. NS william.CMS.G706. 90000,
                 CMS.G706. NS mario.CMS.G706. 90000,
@@ -248,7 +257,7 @@ public class Main {
                 william.CMS.G706. A 10.0.8.12:5353 90000,
                 mario.CMS.G706. A 10.0.16.13:5353 90000,
                 dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
-        list.add(bd2.findAnswer( new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"braga.CR7.CMS.G706",(byte) 0)).toString().equals("""
+        list.add(cacheTopo.findAnswer( new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"braga.CR7.CMS.G706",(byte) 0)).toString().equals("""
                 2,A,1,0,3,3;braga.CR7.CMS.G706,SOASP;
                 CMS.G706. NS william.CMS.G706. 90000,
                 CMS.G706. NS mario.CMS.G706. 90000,
