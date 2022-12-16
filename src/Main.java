@@ -266,6 +266,13 @@ public class Main {
                 william.CMS.G706. A 10.0.8.12:5353 90000,
                 mario.CMS.G706. A 10.0.16.13:5353 90000,
                 dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
+        list.add(cacheRui.findAnswer(new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"IN-ADDR.REVERSE.G706.",(byte) 6)).toString().equals("""
+                2,A,0,1,2,2;IN-ADDR.REVERSE.G706.,NS;
+                IN-ADDR.REVERSE.G706. NS sa.IN-ADDR.REVERSE.G706. 90000;
+                REVERSE.G706. NS rui.REVERSE.G706. 90000,
+                IN-ADDR.REVERSE.G706. NS sa.IN-ADDR.REVERSE.G706. 90000;
+                rui.REVERSE.G706. A 10.0.10.10:5353 90000,
+                sa.IN-ADDR.REVERSE.G706. A 10.0.13.13:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

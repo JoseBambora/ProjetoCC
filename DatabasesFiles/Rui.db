@@ -12,7 +12,7 @@ TTL DEFAULT 90000
 
 # SP
 @ NS rui.@ TTL
-@ NS sa.IN-ADDR.@ TTL
+IN-ADDR.@ NS sa.IN-ADDR.@ TTL
 
 # A
 rui.@ A 10.0.10.10 TTL
