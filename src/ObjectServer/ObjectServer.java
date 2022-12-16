@@ -230,7 +230,7 @@ public class ObjectServer {
         }
         writeInLogs(warnings,this.logs.get(domainName));
         if (this instanceof ObjectSP auxserver){
-            auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName));
+            auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName),false);
         }
         else if(this instanceof ObjectSS)
             this.cache.setDominio(domainName);

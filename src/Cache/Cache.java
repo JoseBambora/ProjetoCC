@@ -499,7 +499,7 @@ public class Cache
      * @param lines Linhas de um ficheiro.
      * @param logFile Ficheiro para escrever os warnigns do ficheiro de configuração da base de dados.
      */
-    public void createBD(List<String> lines, String logFile) throws IOException
+    public void createBD(List<String> lines, String logFile, boolean debug) throws IOException
     {
         List<String> warnings = new ArrayList<>();
         AtomicInteger l = new AtomicInteger(1);
@@ -517,8 +517,19 @@ public class Cache
                                              .filter(entryCache ->  entryCache.getDominio().equals(nameSP))
                                              .findFirst().map(entryCache -> entryCache.getData().getValue())
                                              .orElse("");
-        warnings.forEach(w -> writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,w).toString()));
-        writeLogs.forEach(System.out::println);
+        if (warnings.isEmpty())
+        {
+            String str = "Base de dados criada com sucesso";
+            writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,str).toString());
+            if(debug)
+                System.out.println(str);
+        }
+        else
+        {
+            warnings.forEach(w -> writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,w).toString()));
+            if(debug)
+                writeLogs.forEach(System.out::println);
+        }
         LogFileWriter.writeInLogFile(logFile,writeLogs);
     }
 
@@ -528,11 +539,11 @@ public class Cache
      * @param dom Domínio do servidor.
      * @param logFile Ficheiro para escrever os warnings.
      */
-    public void createBD(String filename,String dom, String logFile) throws IOException
+    public void createBD(String filename,String dom, String logFile, boolean debug) throws IOException
     {
         this.dominio = dom;
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
-        this.createBD(lines,logFile);
+        this.createBD(lines,logFile, debug);
     }
     @Override
     public String toString()

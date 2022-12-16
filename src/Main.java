@@ -31,13 +31,13 @@ public class Main {
     }
     public static void main(String[] args) throws Exception {
         Cache cacheBraga = new Cache();
-        cacheBraga.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log");
+        cacheBraga.createBD("../DatabasesFiles/Braga.db", "CR7.CMS.G706.","../LogsFiles/CR7.CMS.G706.log",false);
         Cache cacheTopo = new Cache();
-        cacheTopo.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log");
+        cacheTopo.createBD("../DatabasesFiles/Topo.db","G706.","../LogsFiles/all.log",false);
         Cache cacheCancelo = new Cache();
-        cacheCancelo.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log");
+        cacheCancelo.createBD("../DatabasesFiles/Cancelo.db", "M10.JJM.G706.","../LogsFiles/all.log",false);
         Cache cacheRui = new Cache();
-        cacheRui.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log");
+        cacheRui.createBD("../DatabasesFiles/Rui.db","REVERSE.G706.","../LogsFiles/all.log",false);
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
@@ -233,10 +233,10 @@ public class Main {
         Cache cacheFelix = new Cache();
         Cache cacheSa = new Cache();
         Cache cacheAntonio = new Cache();
-        cacheWilliam.createBD("../DatabasesFiles/William.db","CMS.G706.","../LogsFiles/all.log");
-        cacheFelix.createBD("../DatabasesFiles/Felix.db","CMS.G706.","../LogsFiles/all.log");
-        cacheSa.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
-        cacheAntonio.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log");
+        cacheWilliam.createBD("../DatabasesFiles/William.db","CMS.G706.","../LogsFiles/all.log",false);
+        cacheFelix.createBD("../DatabasesFiles/Felix.db","CMS.G706.","../LogsFiles/all.log",false);
+        cacheSa.createBD("../DatabasesFiles/Sa.db","IN-ADDR.REVERSE.G706.","../LogsFiles/all.log",false);
+        cacheAntonio.createBD("../DatabasesFiles/Antonio.db","10.IN-ADDR.REVERSE.G706.","../LogsFiles/all.log",false);
         list.add(cacheWilliam.checkBD("SP"));
         list.add(cacheFelix.checkBD("SP"));
         list.add(cacheSa.checkBD("REVERSET"));
