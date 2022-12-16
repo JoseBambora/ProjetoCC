@@ -273,6 +273,11 @@ public class Main {
                 IN-ADDR.REVERSE.G706. NS sa.IN-ADDR.REVERSE.G706. 90000;
                 rui.REVERSE.G706. A 10.0.10.10:5353 90000,
                 sa.IN-ADDR.REVERSE.G706. A 10.0.13.13:5353 90000;"""));
+        list.add(cacheAntonio.findAnswer(new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"10.0.10.10",(byte) 10)).toString().equals("""
+                2,A,0,1,1,1;10.0.10.10,PTR;
+                10.0.10.10 PTR rui.10.IN-ADDR.REVERSE.G706. 90000;
+                10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
+                antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

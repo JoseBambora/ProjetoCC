@@ -452,10 +452,6 @@ public class Cache
                         res = new Value(dom, aux.get(words[1]), words[2], TTL);
                         break;
                     case "PTR":
-                        if (!dom.contains(":"))
-                            dom += ":5353";
-                        res = new Value(dom, aux.get(words[1]), words[2], TTL);
-                        break;
                     case "CNAME":
                         name = converteDom(words[2]);
                         res = new Value(dom, aux.get(words[1]), name, TTL);
