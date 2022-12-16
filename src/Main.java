@@ -52,6 +52,7 @@ public class Main {
                 JJM.G706. NS felix.JJM.G706. 90000
                 JJM.G706. NS otavio.JJM.G706. 90000
                 JJM.G706. NS ramos.JJM.G706. 90000
+                REVERSE.G706. NS rui.REVERSE.G706. 90000
                 pepe.G706. A 10.0.14.11:5353 90000
                 palhinha.G706. A 10.0.13.11:5353 90000
                 william.CMS.G706. A 10.0.8.12:5353 90000
@@ -60,6 +61,7 @@ public class Main {
                 felix.JJM.G706. A 10.0.13.12:5353 90000
                 otavio.JJM.G706. A 10.0.15.13:5353 90000
                 ramos.JJM.G706. A 10.0.10.13:5353 90000
+                rui.REVERSE.G706. A 10.0.10.10:5353 90000
                 st1.G706. CNAME pepe.G706. 90000
                 st2.G706. CNAME palhinha.G706. 90000
                 ss1sd1.JJM.G706. CNAME otavio.JJM.G706. 90000
@@ -67,7 +69,7 @@ public class Main {
                 spsd2.CMS.G706. CNAME william.CMS.G706. 90000
                 ss1sd2.CMS.G706. CNAME mario.CMS.G706. 90000
                 ss2sd2.CMS.G706. CNAME dalot.CMS.G706. 90000
-                sd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000
+                spsd3.REVERSE.G706. CNAME rui.REVERSE.G706. 90000
                 """));
         Tuple<Byte,Data> data5 = cacheBraga.findAnswer("CR7.CMS.G706.",Data.typeOfValueConvert("SOASP"));
         Tuple<Byte,Data> data6 = cacheBraga.findAnswer("renato.CR7.CMS.G706.",Data.typeOfValueConvert("A"));
@@ -116,7 +118,8 @@ public class Main {
                 CMS.G706. NS dalot.CMS.G706. 90000,
                 JJM.G706. NS felix.JJM.G706. 90000,
                 JJM.G706. NS otavio.JJM.G706. 90000,
-                JJM.G706. NS ramos.JJM.G706. 90000;
+                JJM.G706. NS ramos.JJM.G706. 90000,
+                REVERSE.G706. NS rui.REVERSE.G706. 90000;
                 pepe.G706. A 10.0.14.11:5353 90000,
                 palhinha.G706. A 10.0.13.11:5353 90000,
                 william.CMS.G706. A 10.0.8.12:5353 90000,
@@ -124,7 +127,8 @@ public class Main {
                 dalot.CMS.G706. A 10.0.14.12:5353 90000,
                 felix.JJM.G706. A 10.0.13.12:5353 90000,
                 otavio.JJM.G706. A 10.0.15.13:5353 90000,
-                ramos.JJM.G706. A 10.0.10.13:5353 90000;"""));
+                ramos.JJM.G706. A 10.0.10.13:5353 90000,
+                rui.REVERSE.G706. A 10.0.10.10:5353 90000;"""));
         list.add(data9.getValue2().toString().equals("""
                 M10.JJM.G706.,MX;
                 M10.JJM.G706. MX scaloni1.M10.JJM.G706. 90000 10,
@@ -246,9 +250,6 @@ public class Main {
         cacheResolver.addData(response1, EntryCache.Origin.OTHERS);
         cacheResolver.addData(response2, EntryCache.Origin.OTHERS);
         cacheResolver.addData(response3, EntryCache.Origin.OTHERS);
-        System.out.println(response1.showDNSPacket());
-        System.out.println(response2.showDNSPacket());
-        System.out.println(response3.showDNSPacket());
         list.add(cacheTopo.findAnswer("braga.CR7.CMS.G706",(byte) 0).getValue2().toString().equals("""
                 braga.CR7.CMS.G706,SOASP;
                 CMS.G706. NS william.CMS.G706. 90000,

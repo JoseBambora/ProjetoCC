@@ -20,6 +20,8 @@ jjm NS felix.jjm TTL
 jjm NS otavio.jjm TTL
 jjm NS ramos.jjm TTL
 
+rev NS rui.rev TTL
+
 # ST
 pepe A 10.0.14.11 TTL
 palhinha A 10.0.13.11 TTL
@@ -34,6 +36,8 @@ felix.jjm A 10.0.13.12 TTL
 otavio.jjm A 10.0.15.13 TTL
 ramos.jjm A 10.0.10.13 TTL
 
+rui.rev A 10.0.10.10 TTL
+
 st1 CNAME pepe TTL
 st2 CNAME palhinha TTL
 spsd1.jjm CNAME felix.jjm  TTL
@@ -42,4 +46,4 @@ ss2sd1.jjm CNAME ramos.jjm TTL
 spsd2.cms CNAME william.cms TTL
 ss1sd2.cms CNAME mario.cms TTL
 ss2sd2.cms CNAME dalot.cms TTL
-sd3.rev CNAME rui.rev TTL
+spsd3.rev CNAME rui.rev TTL
