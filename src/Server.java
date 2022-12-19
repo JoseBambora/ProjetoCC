@@ -48,6 +48,10 @@ public class Server {
         return port;
     }
 
+    public int getTimeout() {
+        return timeout;
+    }
+
     /**
      * Construtor da classe Server.
      * @param configFile Caminho para o ficheiro de configuração.
@@ -116,7 +120,7 @@ public class Server {
             Thread transferss;
             if (ss) {
                 ObjectSS sec = (ObjectSS) sc;
-                transferss = new Thread(new AskVersion(sec));
+                transferss = new Thread(new AskVersion(sec, s));
                 transferss.start();
             }
 
