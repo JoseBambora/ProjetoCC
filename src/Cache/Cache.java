@@ -12,31 +12,35 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
  * Algoritmo usado: Least Recently Used (LRU)
  * DNSPacket.Data criação: 29/10/2022
- * DNSPacket.Data última atualização: 23/11/2022
+ * DNSPacket.Data última atualização: 20/12/2022
  */
 public class Cache
 {
     private static final Tuple<Integer,Integer> pri = new Tuple<>(0,255);
     private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
     private final List<EntryCache> cache;
+    private final Map<Tuple<String,Byte>,List<NegativeEntryCache>> cacheNegativa;
     private final Map<String, Byte> aux;
     private final Map<String, String> macro;
     private final List<String> tipos;
     private String dominio = ""; // SÓ PARA SP
     private final ReentrantReadWriteLock readWriteLock;
+    private final ReentrantReadWriteLock readWriteLockNC;
     public Cache()
     {
         this.readWriteLock = new ReentrantReadWriteLock();
+        this.readWriteLockNC = new ReentrantReadWriteLock();
         this.macro = new HashMap<>();
         this.aux = new HashMap<>();
         this.cache = new ArrayList<>();
+        this.cacheNegativa = new HashMap<>();
         this.tipos = new ArrayList<>();
         tipos.add("SOASP");
         tipos.add("SOAADMIN");
@@ -74,6 +78,26 @@ public class Cache
     }
 
     /**
+     * Adiciona uma entrada à cache negativa.
+     */
+    private boolean addDataNegativeCache(String dom, byte type, NegativeEntryCache entryCache)
+    {
+        this.readWriteLockNC.writeLock().lock();
+        this.cacheNegativa.values().forEach(e -> e.forEach(EntryCache::removeExpireInfo));
+        Tuple<String,Byte> t = new Tuple<>(dom,type);
+        boolean in = this.cacheNegativa.containsKey(t);
+        if(!in)
+        {
+            this.cacheNegativa.put(t,new ArrayList<>());
+            this.cacheNegativa.get(t).add(entryCache);
+        }
+        else
+            this.cacheNegativa.get(t).forEach(EntryCache::updateTempoEntrada);
+        this.readWriteLockNC.writeLock().unlock();
+        return in;
+    }
+
+    /**
      * Adicionar um determinado valor à cache.
      * @param value Valor a adicionar à cache.
      * @param origin Origem da mensagem, SP se for transferência de zona, OTHERs no resto.
@@ -91,17 +115,27 @@ public class Cache
      */
     public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
+        Consumer<Value> consumer;
+        byte error = resposta.getHeader().getResponseCode();
+        if(error == 0)
+            consumer = v -> this.addDataCache(new EntryCache(v,origin));
+        else
+        {
+            String dom = resposta.getData().getName();
+            byte type = resposta.getData().getTypeOfValue();
+            consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error));
+        }
         if (resposta.getHeader().getNumberOfValues() != 0) {
             List<Value> rv = Arrays.stream(resposta.getData().getResponseValues()).toList();
-            rv.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
+            rv.forEach(consumer);
         }
         if (resposta.getHeader().getNumberOfAuthorites() != 0) {
             List<Value> av = Arrays.stream(resposta.getData().getAuthoriteValues()).toList();
-            av.forEach(v -> this.addDataCache(new EntryCache(v,origin)));
+            av.forEach(consumer);
         }
         if (resposta.getHeader().getNumberOfExtraValues() != 0) {
             List<Value> ev = Arrays.stream(resposta.getData().getExtraValues()).toList();
-            ev.forEach(v -> this.addDataCache(new EntryCache(v, origin)));
+            ev.forEach(consumer);
         }
     }
 
@@ -208,9 +242,16 @@ public class Cache
                                    .filter(e -> e.getDominio().equals(dom))
                                    .map(EntryCache::getData).toList();
         Data res = new Data(dom,type);
+        Tuple<String,Byte> t = new Tuple<>(dom,type);
         if(!rv.isEmpty())
         {
             res.setResponseValues(rv.toArray(new Value[0]));
+        }
+        else if(this.cacheNegativa.containsKey(t))
+        {
+            List<Value> v = this.cacheNegativa.get(t).stream().map(e -> e.getData()).toList();
+            cod = this.cacheNegativa.get(t).get(0).getErrorCode();
+            return this.buildPacket(header,res,cod,v,new ArrayList<>(),new ArrayList<>());
         }
         else
         {
