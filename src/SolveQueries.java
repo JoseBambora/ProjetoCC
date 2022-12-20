@@ -73,14 +73,7 @@ public class SolveQueries implements Runnable{
         Value[] ev = rp.getData().getExtraValues();
         String val;
 
-        Arrays.sort(av,new Comparator<Value>() {
-            @Override
-            public int compare(Value value, Value t1) {
-                return value.getPrioridade()- t1.getPrioridade();
-            }
-        });
-
-        System.out.println(av[0].toString() + "\n" + av[1].toString());
+        Arrays.sort(av, (value, t1) -> value.getPrioridade()- t1.getPrioridade());
 
         for (int i = 0; i<av.length; i++) {
             val = av[i].getValue();
