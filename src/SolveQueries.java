@@ -6,10 +6,8 @@ import ObjectServer.*;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SolveQueries implements Runnable{
     private final Server server;
@@ -74,6 +72,15 @@ public class SolveQueries implements Runnable{
         Value[] av = rp.getData().getAuthoriteValues();
         Value[] ev = rp.getData().getExtraValues();
         String val;
+
+        Arrays.sort(av,new Comparator<Value>() {
+            @Override
+            public int compare(Value value, Value t1) {
+                return value.getPrioridade()- t1.getPrioridade();
+            }
+        });
+
+        System.out.println(av);
 
         for (int i = 0; i<av.length; i++) {
             val = av[i].getValue();
