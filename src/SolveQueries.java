@@ -80,7 +80,7 @@ public class SolveQueries implements Runnable{
             }
         });
 
-        System.out.println(av);
+        System.out.println(av.toString());
 
         for (int i = 0; i<av.length; i++) {
             val = av[i].getValue();
