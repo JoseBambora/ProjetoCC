@@ -6,8 +6,10 @@ import ObjectServer.*;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 public class SolveQueries implements Runnable{
     private final Server server;
@@ -36,6 +38,58 @@ public class SolveQueries implements Runnable{
         return answer;
     }
 
+    private DNSPacket contact_st(DatagramSocket socket, DNSPacket receivePacket) throws IOException {
+        Iterator<InetSocketAddress> it = objectServer.getST().iterator();
+        InetSocketAddress aux;
+        boolean received = false;
+        DNSPacket ret = null;
+        while (it.hasNext() && !received) {
+            aux = it.next();
+            // envia para st
+            DatagramPacket r = new DatagramPacket(data, data.length, aux.getAddress(), aux.getPort());
+            socket.send(r);
+            Log qe = new Log(new Date(), Log.EntryType.QE, aux.getAddress().getHostAddress(), aux.getPort(), receivePacket.toString());
+            System.out.println(qe);
+
+            try {
+                // recebe resposta
+                byte[] buf = new byte[1000];
+                DatagramPacket res = new DatagramPacket(buf, buf.length);
+                socket.receive(res);
+                received = true;
+                ret = DNSPacket.bytesToDnsPacket(buf);
+                Log rr = new Log(new Date(), Log.EntryType.RR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
+                System.out.println(rr);
+                break;
+            } catch (TypeOfValueException | SocketTimeoutException ignore) {
+
+            }
+        }
+        return ret;
+    }
+
+    private List<InetSocketAddress> getNSSocketAddresses(DNSPacket rp) {
+        List<InetSocketAddress> list = new ArrayList<>();
+
+        Value[] av = rp.getData().getAuthoriteValues();
+        Value[] ev = rp.getData().getExtraValues();
+        String val;
+
+        for (int i = 0; i<av.length; i++) {
+            val = av[i].getValue();
+            for (int j = 0; j< ev.length; j++) {
+                if (val.equals(ev[j].getDominio())) {
+                    String[] wd = ev[j].getValue().split(":");
+                    int port = 5353;
+                    if (wd.length>1) port = Integer.parseInt(wd[1]);
+                    list.add(new InetSocketAddress(wd[0],port));
+                }
+            }
+        }
+
+        return list;
+    }
+
     @Override
     public void run() {
         try {
@@ -48,6 +102,7 @@ public class SolveQueries implements Runnable{
             boolean isNs = objectServer instanceof ObjectSP ||  objectServer instanceof ObjectSS;
             DNSPacket answer = null;
             DatagramSocket socket1 = new DatagramSocket();
+            socket1.setSoTimeout(server.getTimeout());
 
             if (isNs && !objectServer.getDD().isEmpty()) {
                 Iterator<String> it = objectServer.getDD().keySet().iterator();
@@ -62,60 +117,55 @@ public class SolveQueries implements Runnable{
             } else if (isNs && objectServer.getST().isEmpty()) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
 
-            } else {
+            } else if (!isNs) {
                 boolean found = false;
                 String key = null;
-                if (!isNs) {
-                    Iterator<String> it = objectServer.getDD().keySet().iterator();
-                    while (it.hasNext() && !found) {
-                        key = it.next();
-                        if (receivePacket.getData().getName().contains(key)) found = true;
-                    }
+
+                Iterator<String> it = objectServer.getDD().keySet().iterator();
+                while (it.hasNext() && !found) {
+                    key = it.next();
+                    if (receivePacket.getData().getName().contains(key)) found = true;
                 }
 
-                if (found) answer = send_to_server(socket1, key);
+                if (found) {
+                    answer = send_to_server(socket1, key);
+                    answer.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
+                }
                 else {
                     // iterative mode
-                    InetSocketAddress socketAddress = objectServer.getST().get(0);
+                    DNSPacket np = contact_st(socket1,receivePacket);
 
-                    // envia para st
-                    DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
-                    socket1.send(r);
-                    Log qe = new Log(new Date(), Log.EntryType.QE, socketAddress.getAddress().getHostAddress(), socketAddress.getPort(), receivePacket.toString());
-                    System.out.println(qe);
-
-                    // recebe resposta
-                    byte[] buf = new byte[1000];
-                    DatagramPacket res = new DatagramPacket(buf, buf.length);
-                    socket1.receive(res);
-                    Log rr = new Log(new Date(), Log.EntryType.RR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
-                    System.out.println(rr);
-
-                    DNSPacket np = DNSPacket.bytesToDnsPacket(buf);
-
-                    // add cache
-                    objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
-
-                    int code = np.getHeader().getResponseCode();
-
-                    while (code == 1) {
-                        System.out.println(code); // para efeitos de debug
-                        // find ip
-                        String ip = objectServer.getCache().findIP(receivePacket.getData().getName());
-                        String[] wd = ip.split(":");
-                        System.out.println(ip); // para efeitos de debug
-                        r.setAddress(InetAddress.getByName(wd[0]));
-                        r.setPort(Integer.parseInt(wd[1]));
-                        socket1.send(r);
-
-                        byte[] arr = new byte[1000];
-                        DatagramPacket rec = new DatagramPacket(arr, arr.length);
-                        socket1.receive(rec);
-                        np = DNSPacket.bytesToDnsPacket(arr);
-                        answer = np;
+                    if (np!=null) {
+                        // add cache
                         objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
-                        code = np.getHeader().getResponseCode();
+                        int code = np.getHeader().getResponseCode();
+                        DatagramPacket dp = new DatagramPacket(data, data.length);
+
+                        while (code == 1) {
+                            List<InetSocketAddress> lsa = getNSSocketAddresses(np);
+                            Iterator<InetSocketAddress> itlsa = lsa.iterator();
+                            boolean received = false;
+                            while (itlsa.hasNext() && !received) {
+                                InetSocketAddress sa = itlsa.next();
+                                dp.setAddress(sa.getAddress());
+                                dp.setPort(sa.getPort());
+                                socket1.send(dp);
+
+                                try {
+                                    byte[] arr = new byte[1000];
+                                    DatagramPacket rec = new DatagramPacket(arr, arr.length);
+                                    socket1.receive(rec);
+                                    np = DNSPacket.bytesToDnsPacket(arr);
+                                    received = true;
+                                    answer = np;
+                                    objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+                                    code = np.getHeader().getResponseCode();
+                                } catch (TypeOfValueException | SocketTimeoutException ignored) {}
+                            }
+                        }
+                        np.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
                     }
+
                 }
 
             }
@@ -130,6 +180,8 @@ public class SolveQueries implements Runnable{
             Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
             System.out.println(re);
 
+            socket1.close();
+
         } catch (TypeOfValueException e) {
             try {
                 objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
@@ -140,12 +192,12 @@ public class SolveQueries implements Runnable{
                 System.out.println(fl);
             }
             e.printStackTrace(); // debug
-        } catch (Exception e) {
+        } catch (IOException e) {
             try {
                 objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.FL, "127.0.0.1", server.getPort(), e.getMessage());
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.getMessage());
                 System.out.println(fl);
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", ex.getMessage());
                 System.out.println(fl);
             }
