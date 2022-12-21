@@ -1063,7 +1063,7 @@ node n45 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	cmdup=('mkdir ProjetoCC', )
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
 	}
     }
     services {DefaultRoute SSH UserDefined}

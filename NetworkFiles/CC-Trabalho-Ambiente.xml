@@ -671,6 +671,7 @@
     <service name="UserDefined" node="45">
       <startups>
         <startup>mkdir ProjetoCC</startup>
+        <startup>cp -RT ../../../home/core/ProjetoCC ProjetoCC</startup>
       </startups>
     </service>
   </service_configurations>
