@@ -1034,6 +1034,14 @@ node n44 {
     iconcoords {547.0 60.0}
     labelcoords {568.0 73.0}
     interface-peer {eth0 n33}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', 'cp -RT ../../../home/core/ProjetoCC ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 node n45 {
@@ -1051,6 +1059,14 @@ node n45 {
     iconcoords {898.0 79.0}
     labelcoords {894.0 62.0}
     interface-peer {eth0 n34}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	cmdup=('mkdir ProjetoCC', )
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
 }
 
 link l8 {
