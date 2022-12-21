@@ -163,7 +163,7 @@ public class SolveQueries implements Runnable{
                                 } catch (TypeOfValueException | SocketTimeoutException ignored) {}
                             }
                         }
-                        np.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
+                        np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
                     }
 
                 }
