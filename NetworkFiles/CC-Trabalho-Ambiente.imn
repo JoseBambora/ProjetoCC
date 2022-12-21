@@ -108,7 +108,7 @@ node n17 {
     canvas c1
     iconcoords {156.33333333333334 618.6666666666666}
     labelcoords {153.33333333333334 663.6666666666666}
-    services {DefaultRoute SSH}
+    services {DefaultRoute SSH UserDefined}
     interface-peer {eth0 n15}
     custom-config {
 	custom-config-id service:UserDefined
