@@ -92,7 +92,12 @@ public class Cache
             this.cacheNegativa.get(t).add(entryCache);
         }
         else
-            this.cacheNegativa.get(t).forEach(EntryCache::updateTempoEntrada);
+        {
+            if(this.cacheNegativa.get(t).contains(entryCache))
+                this.cacheNegativa.get(t).forEach(EntryCache::updateTempoEntrada);
+            else
+                this.cacheNegativa.get(t).add(entryCache);
+        }
         this.readWriteLockNC.writeLock().unlock();
         return in;
     }
@@ -115,25 +120,32 @@ public class Cache
      */
     public void addData(DNSPacket resposta, EntryCache.Origin origin)
     {
+        NegativeEntryCache.tipo tipo = NegativeEntryCache.tipo.RV;
         Consumer<Value> consumer;
         byte error = resposta.getHeader().getResponseCode();
+        String dom = resposta.getData().getName();
+        byte type = resposta.getData().getTypeOfValue();
         if(error == 0)
             consumer = v -> this.addDataCache(new EntryCache(v,origin));
         else
         {
-            String dom = resposta.getData().getName();
-            byte type = resposta.getData().getTypeOfValue();
-            consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error));
+            consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error,tipo));
         }
         if (resposta.getHeader().getNumberOfValues() != 0) {
+            if(error != 0)
+                consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.RV));
             List<Value> rv = Arrays.stream(resposta.getData().getResponseValues()).toList();
             rv.forEach(consumer);
         }
         if (resposta.getHeader().getNumberOfAuthorites() != 0) {
+            if(error != 0)
+                consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.AV));
             List<Value> av = Arrays.stream(resposta.getData().getAuthoriteValues()).toList();
             av.forEach(consumer);
         }
         if (resposta.getHeader().getNumberOfExtraValues() != 0) {
+            if(error != 0)
+                consumer = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.EV));
             List<Value> ev = Arrays.stream(resposta.getData().getExtraValues()).toList();
             ev.forEach(consumer);
         }
@@ -235,48 +247,66 @@ public class Cache
      */
     private DNSPacket getAnswer(Header header,String dom, byte type)
     {
-        byte cod = 0;
-        List<Value> rv = this.cache.stream()
-                                   .filter(EntryCache::isValid)
-                                   .filter(e -> e.getType() == type)
-                                   .filter(e -> e.getDominio().equals(dom))
-                                   .map(EntryCache::getData).toList();
+        DNSPacket result = null;
         Data res = new Data(dom,type);
         Tuple<String,Byte> t = new Tuple<>(dom,type);
-        if(!rv.isEmpty())
+        byte cod = 0;
+        if(this.cacheNegativa.containsKey(t))
         {
-            res.setResponseValues(rv.toArray(new Value[0]));
-        }
-        else if(this.cacheNegativa.containsKey(t))
-        {
-            List<Value> v = this.cacheNegativa.get(t).stream().map(e -> e.getData()).toList();
-            cod = this.cacheNegativa.get(t).get(0).getErrorCode();
-            return this.buildPacket(header,res,cod,v,new ArrayList<>(),new ArrayList<>());
+            List<Value> rv = new ArrayList<>();
+            List<Value> av = new ArrayList<>();
+            List<Value> ev = new ArrayList<>();
+            List<NegativeEntryCache> l = this.cacheNegativa.get(t);
+            l.forEach(e -> e.addPacket(rv,av,ev));
+            if(!rv.isEmpty())
+                res.setResponseValues(rv.toArray(new Value[0]));
+            if(!av.isEmpty())
+                res.setAuthoriteValues(av.toArray(new Value[1]));
+            if(!ev.isEmpty())
+                res.setExtraValues(ev.toArray(new Value[1]));
+            cod = l.get(0).getErrorCode();
+            result = this.buildPacket(header,res,cod,rv,av,ev);
         }
         else
         {
-            if(this.cache.stream().anyMatch(e -> e.domainExist(dom,this.dominio)))
-                cod = 1;
+            List<Value> rv = this.cache.stream()
+                    .filter(EntryCache::isValid)
+                    .filter(e -> e.getType() == type)
+                    .filter(e -> e.getDominio().equals(dom))
+                    .map(EntryCache::getData).toList();
+            if(!rv.isEmpty())
+            {
+                res.setResponseValues(rv.toArray(new Value[0]));
+            }
+            else if(this.cacheNegativa.containsKey(t))
+            {
+            }
             else
-                cod = 2;
+            {
+                if(this.cache.stream().anyMatch(e -> e.domainExist(dom,this.dominio)))
+                    cod = 1;
+                else
+                    cod = 2;
+            }
+            List<Value> av;
+            if(cod == 1)
+            {
+                av = this.cache.stream().filter(EntryCache::isValid)
+                        .filter(e -> e.getType() == aux.get("NS"))
+                        .filter(e -> e.domainExist(dom,this.dominio))
+                        .map(e -> e.getData())
+                        .toList();
+            }
+            else
+                av = this.getAVBD(dom);
+            List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
+            if(!av.isEmpty())
+                res.setAuthoriteValues(av.toArray(new Value[1]));
+            if(!ev.isEmpty())
+                res.setExtraValues(ev.toArray(new Value[1]));
+            result = this.buildPacket(header,res,cod,rv,av,ev);
         }
-        List<Value> av;
-        if(cod == 1)
-        {
-            av = this.cache.stream().filter(EntryCache::isValid)
-                    .filter(e -> e.getType() == aux.get("NS"))
-                    .filter(e -> e.domainExist(dom,this.dominio))
-                    .map(e -> e.getData())
-                    .toList();
-        }
-        else
-            av = this.getAVBD(dom);
-        List<Value> ev = this.getEVBD(Arrays.asList(res.getResponseValues() == null ? new Value[0] : res.getResponseValues()), av);
-        if(!av.isEmpty())
-            res.setAuthoriteValues(av.toArray(new Value[1]));
-        if(!ev.isEmpty())
-            res.setExtraValues(ev.toArray(new Value[1]));
-        return this.buildPacket(header,res,cod,rv,av,ev);
+        return result;
     }
 
     /**

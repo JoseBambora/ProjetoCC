@@ -278,6 +278,15 @@ public class Main {
                 10.0.10.10 PTR rui.10.IN-ADDR.REVERSE.G706. 90000;
                 10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
                 antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;"""));
+        cacheResolver.addData(response3, EntryCache.Origin.OTHERS);
+        list.add(cacheResolver.findAnswer(query).toString().equals("""
+                0,,1,0,3,3;CR7.CMS.G706.,NS;
+                CMS.G706. NS william.CMS.G706. 90000,
+                CMS.G706. NS mario.CMS.G706. 90000,
+                CMS.G706. NS dalot.CMS.G706. 90000;
+                william.CMS.G706. A 10.0.8.12:5353 90000,
+                mario.CMS.G706. A 10.0.16.13:5353 90000,
+                dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");
