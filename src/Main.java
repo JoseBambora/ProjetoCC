@@ -287,6 +287,23 @@ public class Main {
                 william.CMS.G706. A 10.0.8.12:5353 90000,
                 mario.CMS.G706. A 10.0.16.13:5353 90000,
                 dalot.CMS.G706. A 10.0.14.12:5353 90000;"""));
+        list.add(cacheAntonio.findAnswer("13.9.0.10.IN-ADDR.REVERSE.G706.",(byte) 10).toString().equals("""
+                (0,13.9.0.10.IN-ADDR.REVERSE.G706.,PTR;
+                10.0.9.13 PTR bernardo.M10.JJM.G706. 90000;
+                10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
+                antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;)"""));
+        list.add(cacheSa.findAnswer("13.9.0.10.IN-ADDR.REVERSE.G706.",(byte) 10).getValue2().toString().equals("""
+                13.9.0.10.IN-ADDR.REVERSE.G706.,PTR;
+                10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
+                antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;"""));
+        list.add(cacheRui.findAnswer("13.9.0.10.IN-ADDR.REVERSE.G706.",(byte) 10).getValue2().toString().equals("""
+                13.9.0.10.IN-ADDR.REVERSE.G706.,PTR;
+                IN-ADDR.REVERSE.G706. NS sa.IN-ADDR.REVERSE.G706. 90000;
+                sa.IN-ADDR.REVERSE.G706. A 10.0.13.13:5353 90000;"""));
+        list.add(cacheTopo.findAnswer("13.9.0.10.IN-ADDR.REVERSE.G706.",(byte) 10).getValue2().toString().equals("""
+                13.9.0.10.IN-ADDR.REVERSE.G706.,PTR;
+                REVERSE.G706. NS rui.REVERSE.G706. 90000;
+                rui.REVERSE.G706. A 10.0.10.10:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");
