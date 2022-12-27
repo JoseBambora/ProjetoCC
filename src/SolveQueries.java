@@ -173,7 +173,7 @@ public class SolveQueries implements Runnable{
                 }
 
                 if (found) {
-                    answer = send_to_server(socket1, key);
+                    answer = send_to_server(socket1, key); // fazer isto para a lista ???
                     answer.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
                 }
                 else {
@@ -209,6 +209,7 @@ public class SolveQueries implements Runnable{
                             }
                         }
                         np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
+                        if (answer == null) answer = np;
                     }
 
                 }
