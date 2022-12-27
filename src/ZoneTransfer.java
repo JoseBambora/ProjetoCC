@@ -12,13 +12,15 @@ import java.net.Socket;
 
 public class ZoneTransfer implements Runnable {
         private ObjectSP objsp;
+        private boolean debug;
 
         /**
          * Contrutor da classe ZoneTransfer.
          * @param objsp
          */
-        public ZoneTransfer(ObjectSP objsp) {
+        public ZoneTransfer(ObjectSP objsp, boolean debug) {
                 this.objsp = objsp;
+                this.debug = debug;
         }
 
         /**
@@ -30,7 +32,7 @@ public class ZoneTransfer implements Runnable {
 
                         while (true) {
                                 Socket c = socketTcp.accept();
-                                Thread ZT = new Thread(new ZoneTransferManager(this.objsp,c));
+                                Thread ZT = new Thread(new ZoneTransferManager(this.objsp,c,debug));
                                 ZT.start();
                         }
 

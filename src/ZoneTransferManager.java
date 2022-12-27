@@ -6,6 +6,7 @@
  */
 
 import Cache.Tuple;
+import Log.Log;
 import ObjectServer.ObjectSP;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,6 +17,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,15 +26,17 @@ public class ZoneTransferManager implements Runnable{
 
     private ObjectSP objsp;
     private Socket socket;
+    private Boolean debug;
 
     /**
      * Construtor da classe ZoneTransferManager
      * @param objsp Servidor a partir do qual é feita a transferência de zona
      * @param socket Socket a partir do qual é feita a comunicação
      */
-    public ZoneTransferManager(ObjectSP objsp, Socket socket) {
+    public ZoneTransferManager(ObjectSP objsp, Socket socket, boolean debug) {
         this.objsp = objsp;
         this.socket = socket;
+        this.debug = debug;
     }
 
     /**
@@ -105,8 +109,17 @@ public class ZoneTransferManager implements Runnable{
             fromClient.close();
             toClient.close();
             this.socket.close();
-            } catch (IOException e) {
-            throw new RuntimeException(e);
+
+            if (this.debug) {
+                Log zt = new Log(new Date(), Log.EntryType.ZT, ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress(), ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort(), "SP");
+                System.out.println(zt);
+            }
+
+        } catch (IOException e) {
+            if (this.debug) {
+                Log ez = new Log(new Date(), Log.EntryType.EZ, ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress(), ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort(), "SP");
+                System.out.println(ez);
+            }
         }
     }
 

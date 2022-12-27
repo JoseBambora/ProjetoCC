@@ -95,8 +95,10 @@ public class SolveQueries implements Runnable{
             /* Build received packet */
             DNSPacket receivePacket = DNSPacket.bytesToDnsPacket(data);
             objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
-            Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
-            System.out.println(qr);
+            if (this.server.isDebug()) {
+                Log qr = new Log(new Date(), Log.EntryType.QR, clientAddress.getHostAddress(), clientPort, receivePacket.toString());
+                System.out.println(qr);
+            }
 
             boolean isNs = objectServer instanceof ObjectSP ||  objectServer instanceof ObjectSS;
             DNSPacket answer = null;
@@ -231,31 +233,35 @@ public class SolveQueries implements Runnable{
             // Send answer
             socket1.send(response);
             objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
-            Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
-            System.out.println(re);
+            if (this.server.isDebug()) {
+                Log re = new Log(new Date(), Log.EntryType.RP, clientAddress.getHostAddress(), clientPort, answer.toString());
+                System.out.println(re);
+            }
 
             socket1.close();
 
         } catch (TypeOfValueException e) {
             try {
                 objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
-                Log er = new Log(new Date(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
-                System.out.println(er);
+                if (this.server.isDebug()) {
+                    Log er = new Log(new Date(), Log.EntryType.ER, clientAddress.getHostAddress(), clientPort, e.getMessage());
+                    System.out.println(er);
+                }
             } catch (IOException ex) {
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", ex.getMessage());
                 System.out.println(fl);
             }
-            e.printStackTrace(); // debug
         } catch (IOException e) {
             try {
                 objectServer.writeAnswerInLog(objectServer.getDominio(), Log.EntryType.FL, "127.0.0.1", server.getPort(), e.getMessage());
-                Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.getMessage());
-                System.out.println(fl);
+                if (this.server.isDebug()) {
+                    Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", e.getMessage());
+                    System.out.println(fl);
+                }
             } catch (IOException ex) {
                 Log fl = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", ex.getMessage());
                 System.out.println(fl);
             }
-            e.printStackTrace(); // debug
         }
     }
 }

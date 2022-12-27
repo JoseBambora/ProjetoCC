@@ -102,7 +102,6 @@ public class Server {
 
             /* Configurate server */
             ObjectServer sc = ObjectServer.parseServer(s.configFile, s.debug);
-            // ev ficheiro de config lido, ficheiro de db e st
 
             /* Identificate the type of server */
             boolean sp = sc instanceof ObjectSP;
@@ -112,7 +111,7 @@ public class Server {
             Thread transfersp;
             if (sp) {
                 ObjectSP pri = (ObjectSP) sc;
-                transfersp = new Thread(new ZoneTransfer(pri));
+                transfersp = new Thread(new ZoneTransfer(pri,s.debug));
                 transfersp.start();
             }
 

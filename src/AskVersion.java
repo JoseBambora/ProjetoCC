@@ -40,18 +40,26 @@ public class AskVersion implements Runnable {
             DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(server.getTimeout());
             DatagramPacket dp = null;
-            int wait = 0;
+            int wait = server.getTimeout();
             while (true) {
                 try {
                     DNSPacket qv = new DNSPacket((short) (new Random()).nextInt(1, 65535), (byte) 1, objss.getDominio(), (byte) 2);
                     byte[] sendBytes = qv.dnsPacketToBytes(server.isDebug());
                     dp = new DatagramPacket(sendBytes, sendBytes.length,objss.getSP().getAddress(),objss.getSP().getPort());
                     socket.send(dp);
+                    if (this.server.isDebug()) {
+                        Log qe = new Log(new Date(), Log.EntryType.QE, objss.getSP().getAddress().getHostAddress(), objss.getSP().getPort(), qv.toString());
+                        System.out.println(qe);
+                    }
 
                     byte[] receiveBytes = new byte[1000];
                     DatagramPacket response = new DatagramPacket(receiveBytes, receiveBytes.length);
                     socket.receive(response);
                     DNSPacket resp = DNSPacket.bytesToDnsPacket(receiveBytes);
+                    if (this.server.isDebug()) {
+                        Log rr = new Log(new Date(), Log.EntryType.RR, response.getAddress().getHostAddress(), response.getPort(), resp.toString());
+                        System.out.println(rr);
+                    }
 
                     /* Verifica versão  */
                     Tuple<Byte, Data> respc = objss.getCache().findAnswer(objss.getDominio(), (byte) 2);
@@ -96,33 +104,50 @@ public class AskVersion implements Runnable {
                         fromClient.close();
                         s.close();
 
-                        Log to = new Log(new Date(), Log.EntryType.ZT, objss.getSP().getAddress().getHostAddress(),objss.getSP().getPort(), "SS");
-                        System.out.println(to);
-
                         Cache cache = objss.getCache();
                         if (cache != null) {
                             String soar = cache.findAnswer(objss.getDominio(), (byte) 3).getValue2().getResponseValues()[0].getValue();
                             wait = Integer.parseInt(soar);
                         }
+
+                        if (this.server.isDebug()) {
+                            Log zt = new Log(new Date(), Log.EntryType.ZT, objss.getSP().getAddress().getHostAddress(), objss.getSP().getPort(), "SS");
+                            System.out.println(zt);
+                        }
                     }
 
                 } catch (SocketTimeoutException e) {
-                    Log to = new Log(new Date(), Log.EntryType.TO, "127.0.0.1", "Zone Transfer");
-                    System.out.println(to);
+                    if (this.server.isDebug()) {
+                        Log to = new Log(new Date(), Log.EntryType.TO, "127.0.0.1", "Zone Transfer");
+                        System.out.println(to);
+                    }
                     Cache cache = objss.getCache();
                     if (cache != null) {
                         Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 4);
                         if (fa.getValue1() != 0) {
-                            wait = 0;
+                            wait = this.server.getTimeout();
                         }
                         else {
                             wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
                         }
                     }
                 } catch (IOException | TypeOfValueException e) {
-                    Log to = new Log(new Date(), Log.EntryType.EZ, objss.getSP().getAddress().getHostAddress(),objss.getSP().getPort(), "SS");
-                    System.out.println(to);
-                    wait = 0;
+                    if (this.server.isDebug()) {
+                        Log to = new Log(new Date(), Log.EntryType.EZ, objss.getSP().getAddress().getHostAddress(),objss.getSP().getPort(), "SS");
+                        System.out.println(to);
+                    }
+
+                    Cache cache = objss.getCache();
+                    if (cache != null) {
+                        Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 3);
+                        if (fa.getValue1() != 0) {
+                            wait = this.server.getTimeout();
+                        }
+                        else {
+                            wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
+                        }
+                    }
+
                 }
 
                 Thread.sleep(wait);
