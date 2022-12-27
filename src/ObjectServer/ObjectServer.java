@@ -16,7 +16,7 @@ import java.net.InetAddress;
  * @author Miguel Cidade Silva
  * Classe que faz o parsing de um ficheiro de configuração de servidores
  * Data de criação 23/10/2022
- * Data de edição 23/11/2022
+ * Data de edição 24/11/2022
  */
 
 public class ObjectServer {
@@ -219,10 +219,11 @@ public class ObjectServer {
      * @param logcounter contador do numero de logs de topo
      * @param domainName dominio do log onde queremos escrever
      * @param warnings lista de warnings a escrever como entradas nos ficheiros de logs e como linhas no terminal
+     * @param debug booleano que representa se operamos ou não em modo debug
      * @return true caso o servidor esteja bem formulado, false caso contrário
      * @throws IOException exceção para caso o ficheiro de configuração não exista
      */
-    public boolean postParsing(String filename,int logcounter, String domainName, List<String> warnings) throws IOException {
+    public boolean postParsing(String filename,int logcounter, String domainName, List<String> warnings, boolean debug) throws IOException {
         boolean res = false;
         if (logcounter == 0) {
             res = true;
@@ -230,7 +231,7 @@ public class ObjectServer {
         }
         writeInLogs(warnings,this.logs.get(domainName));
         if (this instanceof ObjectSP auxserver){
-            auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName),false);
+            auxserver.getCache().createBD(auxserver.getBD(), domainName,this.logs.get(domainName),debug);
         }
         else if(this instanceof ObjectSS)
             this.cache.setDominio(domainName);
@@ -240,7 +241,7 @@ public class ObjectServer {
         }
         else {
             writeLineinLogs("Servidor correspondente ao Ficheiro de configuração " + filename + " configurado", Log.EntryType.EV, this.logs.get(domainName));
-            writeLineinTerminal("Servidor correspondente ao Ficheiro de configuração " + filename + " configurado", Log.EntryType.EV);
+            if (debug) writeLineinTerminal("Servidor correspondente ao Ficheiro de configuração " + filename + " configurado", Log.EntryType.EV);
         }
         return res;
     }
@@ -248,10 +249,11 @@ public class ObjectServer {
     /**
      * Método que realiza o parsing de um ficheiro de configuração de um servidor DNS
      * @param filename localização do ficheiro de configuração
+     * @param debug booleano que representa se operamos em modo debug ou não
      * @return O servidor configurado
      * @throws IOException exceção lançada caso haja erros de input/output
      */
-    public static ObjectServer parseServer(String filename) throws IOException {
+    public static ObjectServer parseServer(String filename,boolean debug) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
         ObjectServer server = null;
         ObjectSP sp = null;
@@ -340,12 +342,12 @@ public class ObjectServer {
             }
         }
         if(server!=null) {
-            boolean makeNullServer = server.postParsing(filename,logcounter,logDomain,warnings);
+            boolean makeNullServer = server.postParsing(filename,logcounter,logDomain,warnings,debug);
             if (makeNullServer)  {
                 server = null;
             }
         }
-        writeInTerminal(warnings, Log.EntryType.FL);
+        if (debug) writeInTerminal(warnings, Log.EntryType.FL);
         return server;
     }
 

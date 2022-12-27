@@ -101,7 +101,7 @@ public class Server {
             }
 
             /* Configurate server */
-            ObjectServer sc = ObjectServer.parseServer(s.configFile);
+            ObjectServer sc = ObjectServer.parseServer(s.configFile, s.debug);
             // ev ficheiro de config lido, ficheiro de db e st
 
             /* Identificate the type of server */
