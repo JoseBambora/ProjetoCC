@@ -7,7 +7,6 @@ import ObjectServer.*;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SolveQueries implements Runnable{
     private final Server server;
@@ -114,8 +113,54 @@ public class SolveQueries implements Runnable{
                 }
                 if (found) answer = objectServer.getCache().findAnswer(receivePacket);
 
+                if (receivePacket.getHeader().getFlags() == 3 && found && answer.getHeader().getResponseCode() == 1) {
+                    DatagramPacket dp = new DatagramPacket(data, data.length);
+                    List<InetSocketAddress> lsa = getNSSocketAddresses(answer);
+                    Iterator<InetSocketAddress> itlsa = lsa.iterator();
+                    boolean received = false;
+                    while (itlsa.hasNext() && !received) {
+                        InetSocketAddress sa = itlsa.next();
+                        dp.setAddress(sa.getAddress());
+                        dp.setPort(sa.getPort());
+                        socket1.send(dp);
+
+                        try {
+                            byte[] arr = new byte[1000];
+                            DatagramPacket rec = new DatagramPacket(arr, arr.length);
+                            socket1.receive(rec);
+                            answer = DNSPacket.bytesToDnsPacket(arr);
+                            received = true;
+                            objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+                        } catch (TypeOfValueException | SocketTimeoutException ignored) {}
+                    }
+
+                }
+
             } else if (isNs && objectServer.getST().isEmpty()) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
+
+                if (receivePacket.getHeader().getFlags() == 3 && answer.getHeader().getResponseCode() == 1) {
+                    DatagramPacket dp = new DatagramPacket(data, data.length);
+                    List<InetSocketAddress> lsa = getNSSocketAddresses(answer);
+                    Iterator<InetSocketAddress> itlsa = lsa.iterator();
+                    boolean received = false;
+                    while (itlsa.hasNext() && !received) {
+                        InetSocketAddress sa = itlsa.next();
+                        dp.setAddress(sa.getAddress());
+                        dp.setPort(sa.getPort());
+                        socket1.send(dp);
+
+                        try {
+                            byte[] arr = new byte[1000];
+                            DatagramPacket rec = new DatagramPacket(arr, arr.length);
+                            socket1.receive(rec);
+                            answer = DNSPacket.bytesToDnsPacket(arr);
+                            received = true;
+                            objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+                        } catch (TypeOfValueException | SocketTimeoutException ignored) {}
+                    }
+
+                }
 
             } else if (!isNs) {
                 boolean found = false;
