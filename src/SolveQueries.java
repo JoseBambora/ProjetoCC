@@ -191,18 +191,22 @@ public class SolveQueries implements Runnable{
 
                         while (code == 1) {
                             List<InetSocketAddress> lsa = getNSSocketAddresses(np);
-                            Iterator<InetSocketAddress> itlsa = lsa.iterator();
+			    Iterator<InetSocketAddress> itlsa = lsa.iterator();
                             boolean received = false;
                             while (itlsa.hasNext() && !received) {
                                 InetSocketAddress sa = itlsa.next();
                                 dp.setAddress(sa.getAddress());
                                 dp.setPort(sa.getPort());
                                 socket1.send(dp);
-
+				Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+				System.out.println(qe);
                                 try {
                                     byte[] arr = new byte[1000];
                                     DatagramPacket rec = new DatagramPacket(arr, arr.length);
                                     socket1.receive(rec);
+
+				    Log rr = new Log(new Date(), Log.EntryType.RR, rec.getAddress().getHostAddress(), rec.getPort(), receivePacket.toString());
+			            System.out.println(rr);
                                     np = DNSPacket.bytesToDnsPacket(arr);
                                     received = true;
                                     answer = np;
