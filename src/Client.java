@@ -142,8 +142,10 @@ public class Client {
 
             /* Send the packet */
             socket.send(request);
-            Log qe = new Log(new Date(), Log.EntryType.QE,cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.toString());
-            System.out.println(qe);
+            if (cl.debug) {
+                Log qe = new Log(new Date(), Log.EntryType.QE, cl.serverAddress.getHostAddress(), cl.serverPort, sendPacket.toString());
+                System.out.println(qe);
+            }
 
             /* Get the query response */
             byte[] receiveBytes = new byte[1000];
@@ -155,8 +157,10 @@ public class Client {
 
             /* Build the response message */
             DNSPacket resPacket = DNSPacket.bytesToDnsPacket(receiveBytes);
-            Log rr = new Log(new Date(), Log.EntryType.RR, cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
-            System.out.println(rr);
+            if (cl.debug) {
+                Log rr = new Log(new Date(), Log.EntryType.RR, cl.serverAddress.getHostAddress(), cl.serverPort, resPacket.toString());
+                System.out.println(rr);
+            }
 
             /* Print the response */
             System.out.println("\n");
