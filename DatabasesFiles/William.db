@@ -18,10 +18,10 @@ cr7 DEFAULT CR7.CMS.G706.
 @ NS dalot.@ TTL
 
 # SP - SUBDOMAIN
-cr7 NS braga.cr7 TTL
+cr7 NS braga.cr7 TTL 30
 # SS - SUBDOMAIN
-cr7 NS renato.cr7 TTL
-cr7 NS mendes.cr7 TTL
+cr7 NS renato.cr7 TTL 20
+cr7 NS mendes.cr7 TTL 10
 
 # Email
 @ MX fernando1.cr7 TTL 10
