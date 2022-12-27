@@ -17,9 +17,8 @@ import java.util.function.Consumer;
 /**
  * @author José Carvalho
  * Classe que representa a estrutura de uma cache dos servidores
- * Algoritmo usado: Least Recently Used (LRU)
  * DNSPacket.Data criação: 29/10/2022
- * DNSPacket.Data última atualização: 20/12/2022
+ * DNSPacket.Data última atualização: 27/12/2022
  */
 public class Cache
 {
@@ -131,6 +130,8 @@ public class Cache
             consumer1 = v -> this.addDataCache(new EntryCache(v,origin));
             consumer2 = consumer1;
             consumer3 = consumer1;
+	    Tuple<String,Byte> t = new Tuple<>(dom,type);
+	    this.cacheNegativa.remove(t);
         }
         else
         {

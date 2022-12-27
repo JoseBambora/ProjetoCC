@@ -163,7 +163,10 @@ public class SolveQueries implements Runnable{
                 }
 
             } else if (!isNs) {
-                boolean found = false;
+                answer = objectServer.getCache().findAnswer(receivePacket);
+		if(answer.getHeader().getResponseCode() != 0)
+		{
+		boolean found = false;
                 String key = null;
 
                 Iterator<String> it = objectServer.getDD().keySet().iterator();
@@ -203,7 +206,7 @@ public class SolveQueries implements Runnable{
                                     np = DNSPacket.bytesToDnsPacket(arr);
                                     received = true;
                                     answer = np;
-                                    objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+				    objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
                                     code = np.getHeader().getResponseCode();
                                 } catch (TypeOfValueException | SocketTimeoutException ignored) {}
                             }
@@ -211,6 +214,7 @@ public class SolveQueries implements Runnable{
                         np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
                         if (answer == null) answer = np;
                     }
+		}
 
                 }
 
