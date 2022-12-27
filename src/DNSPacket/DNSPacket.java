@@ -195,4 +195,10 @@ public class DNSPacket {
         dnsPacket.debug = debug;
         return dnsPacket;
     }
+    public boolean isEmpty()
+    {
+	return this.header.getNumberOfExtraValues() == (byte) 0 &&
+		this.header.getNumberOfAuthorites() == (byte) 0 &&
+		this.header.getNumberOfValues() == (byte) 0;
+    }
 }

@@ -164,7 +164,7 @@ public class SolveQueries implements Runnable{
 
             } else if (!isNs) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
-		if(answer.getHeader().getResponseCode() != 0)
+		if(answer.isEmpty())
 		{
 		boolean found = false;
                 String key = null;
