@@ -23,16 +23,25 @@ public class SolveQueries implements Runnable{
         this.objectServer = objectServer;
     }
 
-    private DNSPacket send_to_server(DatagramSocket s, String key) throws IOException, TypeOfValueException {
-        InetSocketAddress socketAddress = objectServer.getDD().get(key).get(0);
-        DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
-        s.send(r);
-        byte[] buf = new byte[1000];
-        DatagramPacket res = new DatagramPacket(buf, buf.length);
-        s.receive(res);
-        DNSPacket answer = DNSPacket.bytesToDnsPacket(buf);
-        objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+    private DNSPacket send_to_server(DatagramSocket s, List<String> keys) {
+        boolean rr = false;
+        DNSPacket answer = null;
+        for(int i=0; i<keys.size() && !rr;i++) {
+            try {
+                InetSocketAddress socketAddress = objectServer.getDD().get(keys.get(i)).get(0);
+                DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
+                s.send(r);
+                byte[] buf = new byte[1000];
+                DatagramPacket res = new DatagramPacket(buf, buf.length);
+                s.receive(res);
+                answer = DNSPacket.bytesToDnsPacket(buf);
+                rr = true;
+                objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
+            } catch (TypeOfValueException | IOException ignored) {}
+
+        }
         return answer;
+
     }
 
     private DNSPacket contact_st(DatagramSocket socket, DNSPacket receivePacket) throws IOException {
@@ -166,61 +175,63 @@ public class SolveQueries implements Runnable{
 
             } else if (!isNs) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
-		if(answer.isEmpty())
-		{
-		boolean found = false;
-                String key = null;
+		        if(answer.isEmpty()) {
+                    List<String> keys = new ArrayList<>();
+                    String aux;
 
-                Iterator<String> it = objectServer.getDD().keySet().iterator();
-                while (it.hasNext() && !found) {
-                    key = it.next();
-                    if (receivePacket.getData().getName().contains(key)) found = true;
-                }
-
-                if (found) {
-                    answer = send_to_server(socket1, key); // fazer isto para a lista ???
-                    answer.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
-                }
-                else {
-                    // iterative mode
-                    DNSPacket np = contact_st(socket1,receivePacket);
-
-                    if (np!=null) {
-                        // add cache
-                        objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
-                        int code = np.getHeader().getResponseCode();
-                        DatagramPacket dp = new DatagramPacket(data, data.length);
-
-                        while (code == 1) {
-                            List<InetSocketAddress> lsa = getNSSocketAddresses(np);
-			    Iterator<InetSocketAddress> itlsa = lsa.iterator();
-                            boolean received = false;
-                            while (itlsa.hasNext() && !received) {
-                                InetSocketAddress sa = itlsa.next();
-                                dp.setAddress(sa.getAddress());
-                                dp.setPort(sa.getPort());
-                                socket1.send(dp);
-				Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
-				System.out.println(qe);
-                                try {
-                                    byte[] arr = new byte[1000];
-                                    DatagramPacket rec = new DatagramPacket(arr, arr.length);
-                                    socket1.receive(rec);
-
-				    Log rr = new Log(new Date(), Log.EntryType.RR, rec.getAddress().getHostAddress(), rec.getPort(), receivePacket.toString());
-			            System.out.println(rr);
-                                    np = DNSPacket.bytesToDnsPacket(arr);
-                                    received = true;
-                                    answer = np;
-				    objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
-                                    code = np.getHeader().getResponseCode();
-                                } catch (TypeOfValueException | SocketTimeoutException ignored) {}
-                            }
-                        }
-                        np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
-                        if (answer == null) answer = np;
+                    Iterator<String> it = objectServer.getDD().keySet().iterator();
+                    while (it.hasNext()) {
+                        aux = it.next();
+                        if (receivePacket.getData().getName().contains(aux)) keys.add(aux);
                     }
-		}
+
+                    if (!keys.isEmpty()) {
+                        DNSPacket paux = send_to_server(socket1, keys);
+                        if (paux!=null) {
+                            paux.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
+                            answer = paux;
+                        }
+                    }
+                    else {
+                        // iterative mode
+                        DNSPacket np = contact_st(socket1,receivePacket);
+
+                        if (np!=null) {
+                            // add cache
+                            objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+                            int code = np.getHeader().getResponseCode();
+                            DatagramPacket dp = new DatagramPacket(data, data.length);
+
+                            while (code == 1) {
+                                List<InetSocketAddress> lsa = getNSSocketAddresses(np);
+                                Iterator<InetSocketAddress> itlsa = lsa.iterator();
+                                boolean received = false;
+                                while (itlsa.hasNext() && !received) {
+                                    InetSocketAddress sa = itlsa.next();
+                                    dp.setAddress(sa.getAddress());
+                                    dp.setPort(sa.getPort());
+                                    socket1.send(dp);
+                                    Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                                    System.out.println(qe);
+                                    try {
+                                        byte[] arr = new byte[1000];
+                                        DatagramPacket rec = new DatagramPacket(arr, arr.length);
+                                        socket1.receive(rec);
+
+                                        Log rr = new Log(new Date(), Log.EntryType.RR, rec.getAddress().getHostAddress(), rec.getPort(), receivePacket.toString());
+                                        System.out.println(rr);
+                                        np = DNSPacket.bytesToDnsPacket(arr);
+                                        received = true;
+                                        answer = np;
+                                        objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
+                                        code = np.getHeader().getResponseCode();
+                                    } catch (TypeOfValueException | SocketTimeoutException ignored) {}
+                                }
+                            }
+                            np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
+                            if (answer.isEmpty()) answer = np;
+                        }
+                    }
 
                 }
 
