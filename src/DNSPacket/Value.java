@@ -115,7 +115,7 @@ public class Value {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Value value1 = (Value) o;
-        return type == value1.type && TTL == value1.TTL && prioridade == value1.prioridade && Objects.equals(dominio, value1.dominio) && Objects.equals(value, value1.value);
+        return type == value1.type && Objects.equals(dominio, value1.dominio) && Objects.equals(value, value1.value);
     }
 
     public int numberBytes()

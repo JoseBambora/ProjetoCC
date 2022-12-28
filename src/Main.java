@@ -41,7 +41,7 @@ public class Main {
         Cache bd5 = new Cache();
         bd5.addData(new Value("braga", (byte) 8,"alan",1000), EntryCache.Origin.OTHERS);
         bd5.addData(new Value("alan", (byte) 9,"alan.email.com.",1000), EntryCache.Origin.OTHERS);
-        ObjectServer SP= ObjectServer.parseServer("../ConfigurationFiles/configPepe");
+        ObjectServer SP= ObjectServer.parseServer("../ConfigurationFiles/configPepe",false);
         List<Boolean> list = new ArrayList<>();
         list.add(SP.getCache().toString().equals("""
                 G706. NS pepe.G706. 90000
@@ -273,14 +273,18 @@ public class Main {
                 IN-ADDR.REVERSE.G706. NS sa.IN-ADDR.REVERSE.G706. 90000;
                 rui.REVERSE.G706. A 10.0.10.10:5353 90000,
                 sa.IN-ADDR.REVERSE.G706. A 10.0.13.13:5353 90000;"""));
-        list.add(cacheAntonio.findAnswer(new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"10.0.10.10",(byte) 10)).toString().equals("""
-                2,A,0,1,1,1;10.0.10.10,PTR;
+        list.add(cacheAntonio.findAnswer(new DNSPacket((short) 2,Header.flagsStrToByte("Q"),"10.10.0.10.IN-ADDR.REVERSE.G706.",(byte) 10)).toString().equals("""
+                2,A,0,1,1,1;10.10.0.10.IN-ADDR.REVERSE.G706.,PTR;
                 10.0.10.10 PTR rui.10.IN-ADDR.REVERSE.G706. 90000;
                 10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
                 antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;"""));
         cacheResolver.addData(response3, EntryCache.Origin.OTHERS);
+        query = new DNSPacket((short)0,Header.flagsStrToByte("Q"),"CMS.G706.",(byte) 6);
         list.add(cacheResolver.findAnswer(query).toString().equals("""
-                0,,1,0,3,3;CR7.CMS.G706.,NS;
+                0,,0,3,3,3;CMS.G706.,NS;
+                CMS.G706. NS william.CMS.G706. 90000,
+                CMS.G706. NS mario.CMS.G706. 90000,
+                CMS.G706. NS dalot.CMS.G706. 90000;
                 CMS.G706. NS william.CMS.G706. 90000,
                 CMS.G706. NS mario.CMS.G706. 90000,
                 CMS.G706. NS dalot.CMS.G706. 90000;
@@ -309,6 +313,10 @@ public class Main {
                 10.0.15.10 PTR braga.CR7.CMS.G706. 90000;
                 10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
                 antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;)"""));
+        DNSPacket dnsPacket4 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"M10.JJM.G706.",(byte) 9);
+        dnsPacket4 = cacheCancelo.findAnswer(dnsPacket4);
+        cacheResolver.addData(dnsPacket4, EntryCache.Origin.OTHERS);
+        list.add(cacheResolver.findAnswer(new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"ramos.JJM.G706.", (byte) 6)).isEmpty());
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

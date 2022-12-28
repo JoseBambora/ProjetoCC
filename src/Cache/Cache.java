@@ -130,8 +130,8 @@ public class Cache
             consumer1 = v -> this.addDataCache(new EntryCache(v,origin));
             consumer2 = consumer1;
             consumer3 = consumer1;
-	    Tuple<String,Byte> t = new Tuple<>(dom,type);
-	    this.cacheNegativa.remove(t);
+            Tuple<String,Byte> t = new Tuple<>(dom,type);
+            this.cacheNegativa.remove(t);
         }
         else
         {
@@ -290,7 +290,7 @@ public class Cache
                     .map(EntryCache::getData).toList();
             if(rv.isEmpty())
             {
-                if(this.cache.stream().anyMatch(e -> e.domainExist(domaux,this.dominio)))
+                if(!this.dominio.isEmpty() && this.cache.stream().anyMatch(e -> e.domainExist(domaux,this.dominio)))
                     cod = 1;
                 else
                     cod = 2;
