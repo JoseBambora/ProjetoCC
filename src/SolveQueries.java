@@ -23,12 +23,13 @@ public class SolveQueries implements Runnable{
         this.objectServer = objectServer;
     }
 
-    private DNSPacket send_to_server(DatagramSocket s, List<String> keys) {
+    private DNSPacket send_to_server(DatagramSocket s, String key) {
         boolean rr = false;
         DNSPacket answer = null;
-        for(int i=0; i<keys.size() && !rr;i++) {
+        List<InetSocketAddress> l = objectServer.getDD().get(key);
+        for(int i=0; i< l.size() && !rr;i++) {
             try {
-                InetSocketAddress socketAddress = objectServer.getDD().get(keys.get(i)).get(0);
+                InetSocketAddress socketAddress = l.get(i);
                 DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
                 s.send(r);
                 byte[] buf = new byte[1000];
@@ -176,17 +177,9 @@ public class SolveQueries implements Runnable{
             } else if (!isNs) {
                 answer = objectServer.getCache().findAnswer(receivePacket);
 		        if(answer.isEmpty()) {
-                    List<String> keys = new ArrayList<>();
-                    String aux;
-
-                    Iterator<String> it = objectServer.getDD().keySet().iterator();
-                    while (it.hasNext()) {
-                        aux = it.next();
-                        if (receivePacket.getData().getName().contains(aux)) keys.add(aux);
-                    }
-
-                    if (!keys.isEmpty()) {
-                        DNSPacket paux = send_to_server(socket1, keys);
+                    String name = receivePacket.getData().getName();
+                    if (objectServer.getDD().containsKey(name)) {
+                        DNSPacket paux = send_to_server(socket1,name );
                         if (paux!=null) {
                             paux.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
                             answer = paux;
