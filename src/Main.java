@@ -316,7 +316,10 @@ public class Main {
         DNSPacket dnsPacket4 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"M10.JJM.G706.",(byte) 9);
         dnsPacket4 = cacheCancelo.findAnswer(dnsPacket4);
         cacheResolver.addData(dnsPacket4, EntryCache.Origin.OTHERS);
-        list.add(cacheResolver.findAnswer(new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"ramos.JJM.G706.", (byte) 6)).isEmpty());
+        DNSPacket dnsPacket5 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"ramos.JJM.G706.", (byte) 6);
+        list.add(cacheResolver.findAnswer(dnsPacket5).isEmpty());
+        DNSPacket dnsPacket6 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"JJM.G706.", (byte) 9);
+        list.add(cacheResolver.findAnswer(dnsPacket6).isEmpty());
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");

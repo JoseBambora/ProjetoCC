@@ -268,7 +268,6 @@ public class Cache
             if(type == aux.get("PTR"))
             {
                 String []domA = dom.split("\\.");
-                // 13.9.0.10.IN-ADDR.REVERSE.G706.
                 StringBuilder domain = new StringBuilder();
                 for (int i = 3; i < domA.length; i++)
                     domain.append(domA[i]).append('.');
@@ -303,7 +302,7 @@ public class Cache
                         .map(e -> e.getData())
                         .toList();
             }
-            else
+            else if(cod == 0 || !this.dominio.isEmpty())
                 av = this.getAVBD(dom);
             ev = this.getEVBD(rv, av);
         }
