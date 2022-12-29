@@ -126,7 +126,7 @@ public class Cache
         byte error = resposta.getHeader().getResponseCode();
         String dom = resposta.getData().getName();
         byte type = resposta.getData().getTypeOfValue();
-        List<EntryCache> listadd = new ArrayList<>();
+        Set<EntryCache> listadd = new HashSet<>();
         if(error == 0)
         {
             consumer1 = v -> listadd.add(new EntryCache(v,origin));
@@ -157,7 +157,7 @@ public class Cache
             ev.forEach(consumer3);
         }
         if(error == 0)
-            this.addDataCache(listadd);
+            this.addDataCache(listadd.stream().toList());
         else
             this.addDataNegativeCache(dom,type,error,listadd.stream().map(e -> (NegativeEntryCache) e).toList());
 

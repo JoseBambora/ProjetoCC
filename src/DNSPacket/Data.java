@@ -277,23 +277,29 @@ public class Data {
         byte[] n = this.name.getBytes();
         List<byte[]> values = new ArrayList<>();
         int len1 = 0, len2 = 0, len3 = 0;
-        for(Value value : this.responseValues)
+        if(this.responseValues != null)
         {
-            byte []b = value.valuesToBytes();
-            values.add(b);
-            len1 += b.length;
+            for (Value value : this.responseValues) {
+                byte[] b = value.valuesToBytes();
+                values.add(b);
+                len1 += b.length;
+            }
         }
-        for(Value value : this.authoriteValues)
+        if(this.authoriteValues != null)
         {
-            byte []b = value.valuesToBytes();
-            values.add(b);
-            len2 += b.length;
+            for (Value value : this.authoriteValues) {
+                byte[] b = value.valuesToBytes();
+                values.add(b);
+                len2 += b.length;
+            }
         }
-        for(Value value : this.extraValues)
+        if(this.extraValues != null)
         {
-            byte []b = value.valuesToBytes();
-            values.add(b);
-            len3 += b.length;
+            for (Value value : this.extraValues) {
+                byte[] b = value.valuesToBytes();
+                values.add(b);
+                len3 += b.length;
+            }
         }
         ByteBuffer byteBuffer = ByteBuffer.allocate(4 + n.length + 1 + 12 + len1 + len2 + len3);
         byteBuffer.putInt(this.name.length());
