@@ -105,10 +105,8 @@ public class AskVersion implements Runnable {
                         s.close();
 
                         Cache cache = objss.getCache();
-                        if (cache != null) {
-                            String soar = cache.findAnswer(objss.getDominio(), (byte) 3).getValue2().getResponseValues()[0].getValue();
-                            wait = Integer.parseInt(soar);
-                        }
+                        String soar = cache.findAnswer(objss.getDominio(), (byte) 3).getValue2().getResponseValues()[0].getValue();
+                        wait = Integer.parseInt(soar);
 
                         if (this.server.isDebug()) {
                             Log zt = new Log(new Date(), Log.EntryType.ZT, objss.getSP().getAddress().getHostAddress(), objss.getSP().getPort(), "SS");
@@ -121,16 +119,11 @@ public class AskVersion implements Runnable {
                         Log to = new Log(new Date(), Log.EntryType.TO, "127.0.0.1", "Zone Transfer");
                         System.out.println(to);
                     }
+
                     Cache cache = objss.getCache();
-                    if (cache != null) {
-                        Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 4);
-                        if (fa.getValue1() != 0) {
-                            wait = 3000;
-                        }
-                        else {
-                            wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
-                        }
-                    }
+                    Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 4);
+                    if (fa.getValue1() != 0) { wait = 3000; }
+                    else { wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue()); }
                 } catch (IOException | TypeOfValueException e) {
                     if (this.server.isDebug()) {
                         Log to = new Log(new Date(), Log.EntryType.EZ, objss.getSP().getAddress().getHostAddress(),objss.getSP().getPort(), "SS");
@@ -138,20 +131,12 @@ public class AskVersion implements Runnable {
                     }
 
                     Cache cache = objss.getCache();
-                    if (cache != null) {
-                        Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 3);
-                        if (fa.getValue1() != 0) {
-                            wait = 3000;
-                        }
-                        else {
-                            wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
-                        }
-                    }
-
+                    Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 3);
+                    if (fa.getValue1() != 0) { wait = 3000; }
+                    else { wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue()); }
                 }
 
                 Thread.sleep(wait);
-
             }
         } catch (InterruptedException | SocketException e) {
             Log to = new Log(new Date(), Log.EntryType.FL, "127.0.0.1", "Error in zone tranfer thread");

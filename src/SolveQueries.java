@@ -32,10 +32,21 @@ public class SolveQueries implements Runnable{
                 InetSocketAddress socketAddress = l.get(i);
                 DatagramPacket r = new DatagramPacket(data, data.length, socketAddress.getAddress(), socketAddress.getPort());
                 s.send(r);
+                objectServer.writeAnswerInLog(DNSPacket.bytesToDnsPacket(data).getData().getName(), Log.EntryType.QE, r.getAddress().getHostAddress(), r.getPort(), DNSPacket.bytesToDnsPacket(data).toString());
+                if (server.isDebug()) {
+                    Log qe = new Log(new Date(), Log.EntryType.QE, r.getAddress().getHostAddress(), r.getPort(), DNSPacket.bytesToDnsPacket(data).toString());
+                    System.out.println(qe);
+                }
+
                 byte[] buf = new byte[1000];
                 DatagramPacket res = new DatagramPacket(buf, buf.length);
                 s.receive(res);
                 answer = DNSPacket.bytesToDnsPacket(buf);
+                objectServer.writeAnswerInLog(answer.getData().getName(), Log.EntryType.RR,  r.getAddress().getHostAddress(), r.getPort(), answer.toString());
+                if (server.isDebug()) {
+                    Log resp = new Log(new Date(), Log.EntryType.RR, r.getAddress().getHostAddress(), r.getPort(), answer.toString());
+                    System.out.println(resp);
+                }
                 rr = true;
                 objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
             } catch (TypeOfValueException | IOException ignored) {}
@@ -53,20 +64,26 @@ public class SolveQueries implements Runnable{
         while (it.hasNext() && !received) {
             aux = it.next();
             // envia para st
-            DatagramPacket r = new DatagramPacket(data, data.length, aux.getAddress(), aux.getPort());
-            socket.send(r);
-            Log qe = new Log(new Date(), Log.EntryType.QE, aux.getAddress().getHostAddress(), aux.getPort(), receivePacket.toString());
-            System.out.println(qe);
-
             try {
+                DatagramPacket r = new DatagramPacket(data, data.length, aux.getAddress(), aux.getPort());
+                socket.send(r);
+                objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QE,  r.getAddress().getHostAddress(), r.getPort(), receivePacket.toString());
+                if (server.isDebug()) {
+                    Log qe = new Log(new Date(), Log.EntryType.QE, r.getAddress().getHostAddress(), r.getPort(), receivePacket.toString());
+                    System.out.println(qe);
+                }
+
                 // recebe resposta
                 byte[] buf = new byte[1000];
                 DatagramPacket res = new DatagramPacket(buf, buf.length);
                 socket.receive(res);
                 received = true;
                 ret = DNSPacket.bytesToDnsPacket(buf);
-                Log rr = new Log(new Date(), Log.EntryType.RR, res.getAddress().getHostAddress(), res.getPort(), receivePacket.toString());
-                System.out.println(rr);
+                objectServer.writeAnswerInLog(ret.getData().getName(), Log.EntryType.RR,  r.getAddress().getHostAddress(), r.getPort(), ret.toString());
+                if (server.isDebug()) {
+                    Log rr = new Log(new Date(), Log.EntryType.RR, res.getAddress().getHostAddress(), res.getPort(), ret.toString());
+                    System.out.println(rr);
+                }
                 break;
             } catch (TypeOfValueException | SocketTimeoutException ignore) {
 
@@ -132,15 +149,25 @@ public class SolveQueries implements Runnable{
                     boolean received = false;
                     while (itlsa.hasNext() && !received) {
                         InetSocketAddress sa = itlsa.next();
-                        dp.setAddress(sa.getAddress());
-                        dp.setPort(sa.getPort());
-                        socket1.send(dp);
-
                         try {
+                            dp.setAddress(sa.getAddress());
+                            dp.setPort(sa.getPort());
+                            socket1.send(dp);
+                            objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QE,  dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                            if (server.isDebug()) {
+                                Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                                System.out.println(qe);
+                            }
+
                             byte[] arr = new byte[1000];
                             DatagramPacket rec = new DatagramPacket(arr, arr.length);
                             socket1.receive(rec);
                             answer = DNSPacket.bytesToDnsPacket(arr);
+                            objectServer.writeAnswerInLog(answer.getData().getName(), Log.EntryType.RR,  dp.getAddress().getHostAddress(), dp.getPort(), answer.toString());
+                            if (server.isDebug()) {
+                                Log rr = new Log(new Date(), Log.EntryType.RR, dp.getAddress().getHostAddress(), dp.getPort(), answer.toString());
+                                System.out.println(rr);
+                            }
                             received = true;
                             objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
                         } catch (TypeOfValueException | SocketTimeoutException ignored) {}
@@ -158,15 +185,25 @@ public class SolveQueries implements Runnable{
                     boolean received = false;
                     while (itlsa.hasNext() && !received) {
                         InetSocketAddress sa = itlsa.next();
-                        dp.setAddress(sa.getAddress());
-                        dp.setPort(sa.getPort());
-                        socket1.send(dp);
-
                         try {
+                            dp.setAddress(sa.getAddress());
+                            dp.setPort(sa.getPort());
+                            socket1.send(dp);
+                            objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QE,  dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                            if (server.isDebug()) {
+                                Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                                System.out.println(qe);
+                            }
+
                             byte[] arr = new byte[1000];
                             DatagramPacket rec = new DatagramPacket(arr, arr.length);
                             socket1.receive(rec);
                             answer = DNSPacket.bytesToDnsPacket(arr);
+                            objectServer.writeAnswerInLog(answer.getData().getName(), Log.EntryType.RR,  dp.getAddress().getHostAddress(), dp.getPort(), answer.toString());
+                            if (server.isDebug()) {
+                                Log rr = new Log(new Date(), Log.EntryType.RR, dp.getAddress().getHostAddress(), dp.getPort(), answer.toString());
+                                System.out.println(rr);
+                            }
                             received = true;
                             objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
                         } catch (TypeOfValueException | SocketTimeoutException ignored) {}
@@ -201,19 +238,25 @@ public class SolveQueries implements Runnable{
                                 boolean received = false;
                                 while (itlsa.hasNext() && !received) {
                                     InetSocketAddress sa = itlsa.next();
-                                    dp.setAddress(sa.getAddress());
-                                    dp.setPort(sa.getPort());
-                                    socket1.send(dp);
-                                    Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
-                                    System.out.println(qe);
                                     try {
+                                        dp.setAddress(sa.getAddress());
+                                        dp.setPort(sa.getPort());
+                                        socket1.send(dp);
+                                        objectServer.writeAnswerInLog(receivePacket.getData().getName(), Log.EntryType.QE,  dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                                        if (server.isDebug()) {
+                                            Log qe = new Log(new Date(), Log.EntryType.QE, dp.getAddress().getHostAddress(), dp.getPort(), receivePacket.toString());
+                                            System.out.println(qe);
+                                        }
+
                                         byte[] arr = new byte[1000];
                                         DatagramPacket rec = new DatagramPacket(arr, arr.length);
                                         socket1.receive(rec);
-
-                                        Log rr = new Log(new Date(), Log.EntryType.RR, rec.getAddress().getHostAddress(), rec.getPort(), receivePacket.toString());
-                                        System.out.println(rr);
                                         np = DNSPacket.bytesToDnsPacket(arr);
+                                        objectServer.writeAnswerInLog(np.getData().getName(), Log.EntryType.RR,  dp.getAddress().getHostAddress(), dp.getPort(), np.toString());
+                                        if (server.isDebug()) {
+                                            Log rr = new Log(new Date(), Log.EntryType.RR, dp.getAddress().getHostAddress(), dp.getPort(), np.toString());
+                                            System.out.println(rr);
+                                        }
                                         received = true;
                                         answer = np;
                                         objectServer.getCache().addData(np, EntryCache.Origin.OTHERS);
