@@ -25,7 +25,7 @@ public class Cache
     private static final Tuple<Integer,Integer> pri = new Tuple<>(0,255);
     private static final Tuple<Integer,Integer> tem = new Tuple<>(0,Integer.MAX_VALUE);
     private final List<EntryCache> cache;
-    private final Map<Tuple<String,Byte>,List<NegativeEntryCache>> cacheNegativa;
+    private final Map<Tuple<String,Byte>,Tuple<Byte,List<NegativeEntryCache>>> cacheNegativa;
     private final Map<String, Byte> aux;
     private final Map<String, String> macro;
     private final List<String> tipos;
@@ -63,42 +63,32 @@ public class Cache
      * Adiciona uma entrada à cache.
      * @param entryCache Entrada a adicionar.
      */
-    private boolean addDataCache(EntryCache entryCache)
+    private void addDataCache(List<EntryCache> entryCache)
     {
+        // Valores a adicionar
+        List<EntryCache> add = entryCache.stream().filter(e->!this.cache.contains(e)).toList();
+        // Valores a atualizar o tempo de entrada
+        List<Integer> update = entryCache.stream().filter(e -> e.getOrigem() == EntryCache.Origin.OTHERS)
+                                                  .map(this.cache::indexOf)
+                                                  .filter(num-> num != -1)
+                                                  .toList();
         this.readWriteLock.writeLock().lock();
         this.cache.forEach(EntryCache::removeExpireInfo);
-        int ind = this.cache.indexOf(entryCache);
-        if(ind == -1)
-            this.cache.add(entryCache);
-        else if(entryCache.getOrigem() == EntryCache.Origin.OTHERS)
-            this.cache.get(ind).updateTempoEntrada();
+        this.cache.addAll(add);
+        update.forEach(ind -> this.cache.get(ind).updateTempoEntrada());
         this.readWriteLock.writeLock().unlock();
-        return ind == -1;
     }
 
     /**
      * Adiciona uma entrada à cache negativa.
      */
-    private boolean addDataNegativeCache(String dom, byte type, NegativeEntryCache entryCache)
+    private void addDataNegativeCache(String dom, byte type, byte error, List<NegativeEntryCache> entryCache)
     {
         this.readWriteLockNC.writeLock().lock();
-        this.cacheNegativa.values().forEach(e -> e.forEach(EntryCache::removeExpireInfo));
+        this.cacheNegativa.values().forEach(e -> e.getValue2().forEach(EntryCache::removeExpireInfo));
         Tuple<String,Byte> t = new Tuple<>(dom,type);
-        boolean in = this.cacheNegativa.containsKey(t);
-        if(!in)
-        {
-            this.cacheNegativa.put(t,new ArrayList<>());
-            this.cacheNegativa.get(t).add(entryCache);
-        }
-        else
-        {
-            if(this.cacheNegativa.get(t).contains(entryCache))
-                this.cacheNegativa.get(t).forEach(EntryCache::updateTempoEntrada);
-            else
-                this.cacheNegativa.get(t).add(entryCache);
-        }
+        this.cacheNegativa.put(t,new Tuple<>(error,entryCache));
         this.readWriteLockNC.writeLock().unlock();
-        return in;
     }
 
     /**
@@ -108,8 +98,19 @@ public class Cache
      */
     public boolean addData(Value value, EntryCache.Origin origin)
     {
+        boolean res = false;
         EntryCache entryCache = new EntryCache(value,origin);
-        return this.addDataCache(entryCache);
+        this.readWriteLock.writeLock().lock();
+        int ind = this.cache.indexOf(entryCache);
+        if(ind == -1)
+        {
+            res = true;
+            this.cache.add(entryCache);
+        }
+        else
+            this.cache.get(ind).updateTempoEntrada();
+        this.readWriteLock.writeLock().unlock();
+        return res;
     }
     /**
      * Adicionar dados de um pacote recebido. Usado para transferência de zona e para receção
@@ -125,21 +126,25 @@ public class Cache
         byte error = resposta.getHeader().getResponseCode();
         String dom = resposta.getData().getName();
         byte type = resposta.getData().getTypeOfValue();
+        List<EntryCache> listadd = new ArrayList<>();
         if(error == 0)
         {
-            consumer1 = v -> this.addDataCache(new EntryCache(v,origin));
+            consumer1 = v -> listadd.add(new EntryCache(v,origin));
             consumer2 = consumer1;
             consumer3 = consumer1;
             Tuple<String,Byte> t = new Tuple<>(dom,type);
+            this.readWriteLockNC.writeLock().lock();
             this.cacheNegativa.remove(t);
+            this.readWriteLockNC.writeLock().unlock();
         }
         else
         {
-            consumer1 = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.RV));
-            consumer2 = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.AV));
-            consumer3 = v -> this.addDataNegativeCache(dom,type,new NegativeEntryCache(v,origin,error, NegativeEntryCache.tipo.EV));
+            consumer1 = v -> listadd.add(new NegativeEntryCache(v,origin, NegativeEntryCache.tipo.RV));
+            consumer2 = v -> listadd.add(new NegativeEntryCache(v,origin, NegativeEntryCache.tipo.AV));
+            consumer3 = v -> listadd.add(new NegativeEntryCache(v,origin, NegativeEntryCache.tipo.EV));
         }
-        if (resposta.getHeader().getNumberOfValues() != 0) {
+        if (resposta.getHeader().getNumberOfValues() != 0)
+        {
             List<Value> rv = Arrays.stream(resposta.getData().getResponseValues()).toList();
             rv.forEach(consumer1);
         }
@@ -151,6 +156,11 @@ public class Cache
             List<Value> ev = Arrays.stream(resposta.getData().getExtraValues()).toList();
             ev.forEach(consumer3);
         }
+        if(error == 0)
+            this.addDataCache(listadd);
+        else
+            this.addDataNegativeCache(dom,type,error,listadd.stream().map(e -> (NegativeEntryCache) e).toList());
+
     }
 
     /**
@@ -258,17 +268,16 @@ public class Cache
         List<Value> ev = new ArrayList<>();
         if(this.cacheNegativa.containsKey(t))
         {
-            List<NegativeEntryCache> l = this.cacheNegativa.get(t);
+            List<NegativeEntryCache> l = this.cacheNegativa.get(t).getValue2();
             for(NegativeEntryCache e : l)
                 e.addPacket(rv,av,ev);
-            cod = l.get(0).getErrorCode();
+            cod = this.cacheNegativa.get(t).getValue1();
         }
         else
         {
             if(type == aux.get("PTR"))
             {
                 String []domA = dom.split("\\.");
-                // 13.9.0.10.IN-ADDR.REVERSE.G706.
                 StringBuilder domain = new StringBuilder();
                 for (int i = 3; i < domA.length; i++)
                     domain.append(domA[i]).append('.');
@@ -303,7 +312,7 @@ public class Cache
                         .map(e -> e.getData())
                         .toList();
             }
-            else
+            else if(cod == 0 || !this.dominio.isEmpty())
                 av = this.getAVBD(dom);
             ev = this.getEVBD(rv, av);
         }
@@ -380,7 +389,7 @@ public class Cache
         this.readWriteLock.writeLock().lock();
         this.cache.stream()
                   .filter(e -> e.getOrigem() == EntryCache.Origin.SP)
-                  .filter(e -> e.getDominio().equals(name))
+                  .filter(e -> e.getDominio().contains(name))
                   .forEach(this.cache::remove);
         this.readWriteLock.writeLock().unlock();
     }
@@ -626,54 +635,6 @@ public class Cache
         StringBuilder res = new StringBuilder();
         this.cache.forEach(e -> res.append(e.toString()).append('\n'));
         return res.toString();
-    }
-
-    /**
-     * Procura o IP para o modo iterativo.
-     * @param dominio Domínio da query.
-     * @return Endereço IP, mais a porta do servidor a contactar.
-     */
-    public String findIP(String dominio)
-    {
-        this.readWriteLock.readLock().lock();
-        String [] dominios = dominio.split("\\.");
-        byte ns = aux.get("NS");
-        Map<String, List<String>> dominioServer = new HashMap<>();
-        this.cache.stream().filter(EntryCache::isValid).filter(e -> e.getType() == ns)
-                .forEach(e ->
-                        {
-                            if (! dominioServer.containsKey('.' + e.getDominio()))
-                                dominioServer.put('.' + e.getDominio(),new ArrayList<>());
-                            dominioServer.get('.' + e.getDominio()).add(e.getData().getValue());});
-        Map<String,Integer> map = new HashMap<>();
-        for(String dom : dominioServer.keySet())
-        {
-            map.put(dom,0);
-            int i = dominios.length-1;
-            StringBuilder dom2 = new StringBuilder('.' + dominios[i] + '.');
-            while(i > 0 && dom.matches("(.*)" + dom2))
-            {
-                i--;
-                dom2.insert(0, '.' + dominios[i]);
-                map.put(dom,map.get(dom)+1);
-            }
-            if(dom.matches("(.*)" + dom2))
-                map.put(dom,map.get(dom)+1);
-
-        }
-        Random random = new Random();
-        int max = map.entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getValue).orElse(0);
-        List<String> doms = map.entrySet().stream().filter(e -> e.getValue().equals(max)).map(Map.Entry::getKey).toList();
-        List<String> servers = dominioServer.get(doms.get(0));
-        int r = random.nextInt(0,servers.size());
-        String server = servers.get(r);
-        String res = this.cache.stream().filter(EntryCache :: isValid)
-                .filter(e -> e.getType() == aux.get("A"))
-                .filter(e -> e.getDominio().equals(server))
-                .findFirst().map(e -> e.getData().getValue())
-                .orElse("");
-        this.readWriteLock.readLock().unlock();
-        return res;
     }
 
     /**
