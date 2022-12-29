@@ -269,7 +269,7 @@ public class Data {
             avv.add(Value.bytesToValues(aux3));
         for(int i = 0; i < ev; i++)
             evv.add(Value.bytesToValues(aux4));
-        return new Data(name,t,rvv.toArray(new Value[1]),avv.toArray(new Value[1]),evv.toArray(new Value[1]));
+        return new Data(name,t,rvv.isEmpty() ? null : rvv.toArray(new Value[1]),avv.isEmpty() ? null : avv.toArray(new Value[1]),evv.isEmpty() ? null : evv.toArray(new Value[1]));
     }
 
     public byte[] dataToBytes()
