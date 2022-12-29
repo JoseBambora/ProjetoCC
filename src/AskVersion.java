@@ -125,7 +125,7 @@ public class AskVersion implements Runnable {
                     if (cache != null) {
                         Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 4);
                         if (fa.getValue1() != 0) {
-                            wait = this.server.getTimeout();
+                            wait = 3000;
                         }
                         else {
                             wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
@@ -141,7 +141,7 @@ public class AskVersion implements Runnable {
                     if (cache != null) {
                         Tuple<Byte, Data> fa = cache.findAnswer(objss.getDominio(), (byte) 3);
                         if (fa.getValue1() != 0) {
-                            wait = this.server.getTimeout();
+                            wait = 3000;
                         }
                         else {
                             wait = Integer.parseInt(fa.getValue2().getResponseValues()[0].getValue());
