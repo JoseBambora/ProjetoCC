@@ -7,14 +7,12 @@ import java.util.List;
 
 public class NegativeEntryCache extends EntryCache
 {
-    private final byte errorCode;
     private final tipo type;
     public enum tipo { RV, AV, EV }
-    public NegativeEntryCache(Value value, Origin origem, byte errorCode, tipo tipo)
+    public NegativeEntryCache(Value value, Origin origem, tipo tipo)
     {
         super(value, origem);
         this.type = tipo;
-        this.errorCode = errorCode;
     }
 
     public void addPacket(List<Value> rv, List<Value> av, List<Value> ev)
@@ -26,11 +24,6 @@ public class NegativeEntryCache extends EntryCache
             case EV -> ev.add(this.getData());
         }
     }
-
-    public byte getErrorCode() {
-        return errorCode;
-    }
-
     public String toString()
     {
         return super.toString() + " " +  this.type;

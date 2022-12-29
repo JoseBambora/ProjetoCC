@@ -209,26 +209,26 @@ public class Main {
         list.add(dnsPacket1.equals(dnsPacket));
         list.add(dnsPacket2.equals(dnsPacket));
         list.add(dnsPacket3.equals(dnsPacket));
-        List<String> l1 = new ArrayList<>();
-        l1.add("10.0.8.12:5353");
-        l1.add("10.0.16.13:5353");
-        l1.add("10.0.14.12:5353");
-        List<String> l2 = new ArrayList<>();
-        l2.add("10.0.13.12:5353");
-        l2.add("10.0.15.13:5353");
-        l2.add("10.0.10.13:5353");
-        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
-        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
-        list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
-        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
-        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
-        list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
-        list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        //List<String> l1 = new ArrayList<>();
+        //l1.add("10.0.8.12:5353");
+        //l1.add("10.0.16.13:5353");
+        //l1.add("10.0.14.12:5353");
+        //List<String> l2 = new ArrayList<>();
+        //l2.add("10.0.13.12:5353");
+        //l2.add("10.0.15.13:5353");
+        //l2.add("10.0.10.13:5353");
+        //list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        //list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        //list.add(l1.contains(cacheTopo.findIP("CMS.G706.")));
+        //list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        //list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        //list.add(l1.contains(cacheTopo.findIP("M10.CMS.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("JJM.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
+        //list.add(l2.contains(cacheTopo.findIP("CR7.JJM.G706.")));
         Cache cacheWilliam = new Cache();
         Cache cacheFelix = new Cache();
         Cache cacheSa = new Cache();
@@ -278,7 +278,6 @@ public class Main {
                 10.0.10.10 PTR rui.10.IN-ADDR.REVERSE.G706. 90000;
                 10.IN-ADDR.REVERSE.G706. NS antonio.10.IN-ADDR.REVERSE.G706. 90000;
                 antonio.10.IN-ADDR.REVERSE.G706. A 10.0.14.13:5353 90000;"""));
-        cacheResolver.addData(response3, EntryCache.Origin.OTHERS);
         query = new DNSPacket((short)0,Header.flagsStrToByte("Q"),"CMS.G706.",(byte) 6);
         list.add(cacheResolver.findAnswer(query).toString().equals("""
                 0,,0,3,3,3;CMS.G706.,NS;
@@ -320,6 +319,34 @@ public class Main {
         list.add(cacheResolver.findAnswer(dnsPacket5).isEmpty());
         DNSPacket dnsPacket6 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"JJM.G706.", (byte) 9);
         list.add(cacheResolver.findAnswer(dnsPacket6).isEmpty());
+        DNSPacket dnsPacket7 = new DNSPacket((short) 123,Header.flagsStrToByte("Q+R"),"KB9.JJM.G706.", (byte) 6);
+        DNSPacket dnsPacket8 = cacheTopo.findAnswer(dnsPacket7);
+        cacheResolver.addData(dnsPacket8, EntryCache.Origin.OTHERS);
+        list.add(cacheResolver.findAnswer(dnsPacket7).toString().equals("""
+                123,,1,0,3,3;KB9.JJM.G706.,NS;
+                JJM.G706. NS felix.JJM.G706. 90000,
+                JJM.G706. NS otavio.JJM.G706. 90000,
+                JJM.G706. NS ramos.JJM.G706. 90000;
+                felix.JJM.G706. A 10.0.13.12:5353 90000,
+                otavio.JJM.G706. A 10.0.15.13:5353 90000,
+                ramos.JJM.G706. A 10.0.10.13:5353 90000;"""));
+        cacheFelix.setDominio("JJM.G706.");
+        dnsPacket8 = cacheFelix.findAnswer(dnsPacket7);
+        cacheResolver.addData(dnsPacket8, EntryCache.Origin.OTHERS);
+        list.add(cacheResolver.findAnswer(dnsPacket7).toString().equals("""
+                123,,2,0,6,6;KB9.JJM.G706.,NS;
+                JJM.G706. NS felix.JJM.G706. 90000,
+                JJM.G706. NS otavio.JJM.G706. 90000,
+                JJM.G706. NS ramos.JJM.G706. 90000,
+                M10.JJM.G706. NS cancelo.M10.JJM.G706. 90000,
+                M10.JJM.G706. NS rafael.M10.JJM.G706. 90000,
+                M10.JJM.G706. NS bruno.M10.JJM.G706. 90000;
+                felix.JJM.G706. A 10.0.13.12:5353 90000,
+                otavio.JJM.G706. A 10.0.15.13:5353 90000,
+                ramos.JJM.G706. A 10.0.10.13:5353 90000,
+                cancelo.M10.JJM.G706. A 10.0.9.11:5353 90000,
+                rafael.M10.JJM.G706. A 10.0.15.11:5353 90000,
+                bruno.M10.JJM.G706. A 10.0.14.10:5353 90000;"""));
         boolean bool = list.stream().allMatch(bo -> bo);
         if(bool)
             System.out.println("Tudo Certo");
