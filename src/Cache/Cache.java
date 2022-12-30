@@ -600,11 +600,11 @@ public class Cache
         String endereco = this.cache.stream().filter(entryCache -> entryCache.getType() == aux.get("A"))
                                              .filter(entryCache ->  entryCache.getDominio().equals(nameSP))
                                              .findFirst().map(entryCache -> entryCache.getData().getValue())
-                                             .orElse("");
+                                             .orElse("127.0.0.1");
         if (warnings.isEmpty())
         {
-            String str = "Base de dados criada com sucesso";
-            writeLogs.add(new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,str).toString());
+            String str = new Log(Date.from(Instant.now()), Log.EntryType.SP,endereco,"Base de dados criada com sucesso").toString();
+            writeLogs.add(str);
             if(debug)
                 System.out.println(str);
         }
