@@ -219,7 +219,7 @@ public class SolveQueries implements Runnable{
                     String name = receivePacket.getData().getName();
                     String domain = null;
                     for (String s : objectServer.getDD().keySet()) {
-                        if (s.contains(name)) {
+                        if (name.contains(s)) {
                             domain = s;
                             break;
                         }
