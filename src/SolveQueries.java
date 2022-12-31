@@ -172,6 +172,7 @@ public class SolveQueries implements Runnable{
                             objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
                         } catch (TypeOfValueException | SocketTimeoutException ignored) {}
                     }
+                    if (answer.getHeader().getFlags() >= (byte) 4) answer.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
 
                 }
 
@@ -208,6 +209,7 @@ public class SolveQueries implements Runnable{
                             objectServer.getCache().addData(answer, EntryCache.Origin.OTHERS);
                         } catch (TypeOfValueException | SocketTimeoutException ignored) {}
                     }
+                    if (answer.getHeader().getFlags() >= (byte) 4) answer.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
 
                 }
 
@@ -215,10 +217,18 @@ public class SolveQueries implements Runnable{
                 answer = objectServer.getCache().findAnswer(receivePacket);
 		        if(answer.isEmpty()) {
                     String name = receivePacket.getData().getName();
-                    if (objectServer.getDD().containsKey(name)) {
-                        DNSPacket paux = send_to_server(socket1,name );
+                    String domain = null;
+                    for (String s : objectServer.getDD().keySet()) {
+                        if (s.contains(name)) {
+                            domain = s;
+                            break;
+                        }
+                    }
+
+                    if (domain != null) {
+                        DNSPacket paux = send_to_server(socket1,domain);
                         if (paux!=null) {
-                            paux.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
+                            if (paux.getHeader().getFlags() >= (byte) 4) paux.getHeader().setFlags((byte) ((int) answer.getHeader().getFlags() - 4));
                             answer = paux;
                         }
                     }
@@ -264,7 +274,7 @@ public class SolveQueries implements Runnable{
                                     } catch (TypeOfValueException | SocketTimeoutException ignored) {}
                                 }
                             }
-                            np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
+                            if (np.getHeader().getFlags() >= (byte) 4) np.getHeader().setFlags((byte) ((int) np.getHeader().getFlags() - 4));
                             if (answer.isEmpty()) answer = np;
                         }
                     }
